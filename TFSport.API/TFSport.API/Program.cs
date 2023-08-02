@@ -20,12 +20,6 @@ builder.Services.AddCosmosRepository(options =>
 {
 	options.DatabaseId = "TFSport";
 	options.ContainerPerItemType = true;
-
-	options.ContainerBuilder
-		.Configure<BaseModel>(containerOptionsBuilder =>
-		{
-			
-		});
 });
 
 var app = builder.Build();
