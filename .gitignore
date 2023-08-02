@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/TFSport.API/.vs/TFSport.API
+/TFSport.API/TFSport.API/obj
+/TFSport.API/TFSport.Repository/obj
+/TFSport.API/TFSport.Services/obj
+/TFSport.API/TFSport.API/bin/Debug/net7.0
+/TFSport.API/TFSport.Repository/bin/Debug/net7.0
+/TFSport.API/TFSport.Services/bin/Debug/net7.0
+/TFSport.API/TFSport.API/TFSport.API.csproj.user
