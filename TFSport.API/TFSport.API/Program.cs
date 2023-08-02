@@ -8,11 +8,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCosmosRepository(options =>
+builder.Services.AddSingleton<CosmosClient>(sp =>
 {
-	options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
-	options.ContainerId = "users";
-	options.DatabaseId = "TFSport";
+	string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
+	return new CosmosClient(connectionString);
 });
 var app = builder.Build();
 
