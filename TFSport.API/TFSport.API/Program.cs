@@ -1,4 +1,7 @@
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas;
+using System;
+using TFSport.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,18 @@ builder.Services.AddSingleton<CosmosClient>(sp =>
 	string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
 	return new CosmosClient(connectionString);
 });
+builder.Services.AddCosmosRepository(options =>
+{
+	options.DatabaseId = "TFSport";
+	options.ContainerPerItemType = true;
+
+	options.ContainerBuilder
+		.Configure<BaseModel>(containerOptionsBuilder =>
+		{
+			
+		});
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
