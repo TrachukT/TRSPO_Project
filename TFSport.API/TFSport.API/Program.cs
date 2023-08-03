@@ -1,9 +1,13 @@
 using Microsoft.Azure.Cosmos;
+using TFSport.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<TFSport.Services.Interfaces.IUserService,TFSport.Services.Services.UserService>();
+builder.Services.AddScoped<TFSport.Services.Interfaces.IEmailService,TFSport.Services.Services.EmailService>();
+builder.Services.AddAutoMapper(typeof(AutoUserMapper));
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton(sp =>
@@ -15,8 +19,9 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddCosmosRepository(options =>
 {
     var settings = builder.Configuration.GetSection("CosmosConfiguration");
+    options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
 
-    options.DatabaseId = settings.GetSection("DatabaseId").Value;
+	options.DatabaseId = settings.GetSection("DatabaseId").Value;
     options.ContainerPerItemType = true;
 
     options.ContainerBuilder
