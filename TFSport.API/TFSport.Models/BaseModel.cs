@@ -1,13 +1,14 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Attributes;
+using Newtonsoft.Json;
 
-namespace TFSport.API
+namespace TFSport.Models
 {
 	[PartitionKeyPath("/partitionKey")]
-	public class BaseModel:FullItem
+	public class BaseModel : FullItem
 	{
-		public string Id { get; set; }
-		public string PartitionKey { get; set; }
+        [JsonProperty("partitionKey")]
+        public string PartitionKey { get; set; }
 		protected override string GetPartitionKeyValue()
 		{
 			return PartitionKey;
