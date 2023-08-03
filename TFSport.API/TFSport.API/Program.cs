@@ -29,7 +29,7 @@ builder.Services.AddCosmosRepository(options =>
         {
             containerOptionsBuilder
                 .WithContainer("Users")
-                .WithPartitionKey("PartitionKey");
+                .WithPartitionKey("/partitionKey");
         });
 });
 

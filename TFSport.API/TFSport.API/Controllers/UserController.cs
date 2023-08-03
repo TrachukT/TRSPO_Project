@@ -30,7 +30,7 @@ namespace TFSport.API.Controllers
         {
             try
             {
-                var registeredUser = await _userService.RegisterUser(_mapper.Map<User>(user));
+                await _userService.RegisterUser(_mapper.Map<User>(user));
                 return Ok();
             }
 			catch (Exception ex)

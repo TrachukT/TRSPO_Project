@@ -21,9 +21,10 @@ namespace TFSport.Services.Services
 			try
 			{
 				var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
-				if (checkUser == null)
+				if (checkUser != null)
 					throw new Exception(Errors.EmailIsRegistered);
 				await _userRepository.CreateAsync(user);
+				await _emailService.EmailVerification(user.Email, user.EmailVerificationToken);
 			}
 			catch (Exception)
 			{
