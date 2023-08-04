@@ -9,5 +9,6 @@ namespace TFSport.Services.Interfaces
     public interface IEmailService
     {
         public Task EmailVerification(string email, string verificationToken);
+        public Task RestorePassword(string email, string EmailVerificationToken);
     }
 }

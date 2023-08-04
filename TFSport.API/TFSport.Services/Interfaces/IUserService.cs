@@ -10,5 +10,7 @@ namespace TFSport.Services.Interfaces
 	public interface IUserService
 	{
 		public Task RegisterUser(User user);
+		public Task ForgotPassword(string email);
+		public Task RestorePassword(string token,string password);
 	}
 }

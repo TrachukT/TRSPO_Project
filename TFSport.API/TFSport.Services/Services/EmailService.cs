@@ -30,5 +30,20 @@ namespace TFSport.Services.Services
 			msg.AddTo(new EmailAddress(email, "TFSport"));
 			var response = await client.SendEmailAsync(msg);
 		}
-    }
+		
+		public async Task RestorePassword(string email, string verificationToken)
+		{
+			var apiKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+			var client = new SendGridClient(apiKey);
+			var verificationLink = "";
+			var msg = new SendGridMessage()
+			{
+				From = new EmailAddress("[REPLACE WITH YOUR EMAIL]", "[REPLACE WITH YOUR NAME]"),
+				Subject = "Restore Password",
+				PlainTextContent = $"To restore password click the link below: \n{verificationLink}"
+			};
+			msg.AddTo(new EmailAddress(email, "TFSport"));
+			var response = await client.SendEmailAsync(msg);
+		}
+	}
 }

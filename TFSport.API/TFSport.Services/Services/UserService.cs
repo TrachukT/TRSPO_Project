@@ -18,18 +18,28 @@ namespace TFSport.Services.Services
 
 		public async Task RegisterUser(User user)
 		{
-			try
-			{
-				var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
-				if (checkUser != null)
-					throw new Exception(Errors.EmailIsRegistered);
-				await _userRepository.CreateAsync(user);
-				await _emailService.EmailVerification(user.Email, user.EmailVerificationToken);
-			}
-			catch (Exception)
-			{
-				throw;
-			}
+			var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
+			if (checkUser != null)
+				throw new Exception(ErrorMessages.EmailIsRegistered);
+			await _userRepository.CreateAsync(user, default);
+			await _emailService.EmailVerification(user.Email, user.VerificationToken);
+		}
+
+		public async Task ForgotPassword(string email)
+		{
+			var checkUser = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
+			if (checkUser == null)
+				throw new Exception(ErrorMessages.NotRegisteredEmail);
+			await _emailService.RestorePassword(email,checkUser.VerificationToken);
+		}
+		public async Task RestorePassword(string token,string password)
+		{
+			var user = await _userRepository.GetAsync(x => x.VerificationToken == token).FirstOrDefaultAsync();
+			if (user == null)
+				throw new Exception(ErrorMessages.NotValidLink);
+			user.VerificationToken = Guid.NewGuid().ToString();
+			user.Password = password;
+			await _userRepository.UpdateAsync(user, default);
 		}
 	}
 }

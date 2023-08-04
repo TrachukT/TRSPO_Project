@@ -27,7 +27,7 @@ namespace TFSport.Models
 		[JsonProperty("emailVerified")]
         public bool EmailVerified { get; set; }
 		
-        [JsonProperty("emailVerificationToken")]				
-		public string EmailVerificationToken { get; set; }
+        [JsonProperty("verificationToken")]				
+		public string VerificationToken { get; set; }
 	}
 }

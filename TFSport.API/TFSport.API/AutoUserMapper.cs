@@ -11,7 +11,8 @@ namespace TFSport.API
 			{
 				dest.UserRole = Models.UserRoles.User;
 				dest.EmailVerified = false;
-				dest.EmailVerificationToken = Guid.NewGuid().ToString();
+				dest.VerificationToken = Guid.NewGuid().ToString();
+				dest.PartitionKey = dest.Id;
 			});
 			CreateMap<Models.User, UserRegisterDTO>();
 		}

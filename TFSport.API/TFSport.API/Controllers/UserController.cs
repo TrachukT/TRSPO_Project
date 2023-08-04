@@ -16,35 +16,60 @@ namespace TFSport.API.Controllers
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserService userService,IMapper mapper)
+        public UserController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
         }
 
         [HttpPost("register")]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(UserRegisterDTO))]
-		[SwaggerResponse(400, "Bad_Request", typeof(string))]
-		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-		public async Task<IActionResult> Register([FromBody]UserRegisterDTO user)
+        [SwaggerResponse(200, "Request_Succeeded", typeof(UserRegisterDTO))]
+        [SwaggerResponse(400, "Bad_Request", typeof(string))]
+        [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+        public async Task<IActionResult> Register([FromBody] UserRegisterDTO user)
         {
             try
             {
                 await _userService.RegisterUser(_mapper.Map<User>(user));
                 return Ok();
             }
-			catch (Exception ex)
-			{
-				return StatusCode(500,ex.Message);
-			}
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
-		[HttpPost("restore-password")]
-		[SwaggerResponse(200, "Request_Succeeded",typeof(string))]
+        [HttpPost("restore-password")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(string))]
+        [SwaggerResponse(400, "Bad_Request", typeof(string))]
+        [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+        public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
+        {
+            try
+            {
+                await _userService.ForgotPassword(email);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpPut("")]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-        public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage =Errors.EmailNotValid)] string email)
+		public async Task<IActionResult> RestotePassword([FromBody]RestorePasswordDTO password)
         {
-            return Ok();
+			try
+			{
+				await _userService.RestorePassword(password.VerificationToken,password.Password);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
         }
+
 	}
 }
