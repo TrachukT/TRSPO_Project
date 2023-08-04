@@ -8,6 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<TFSport.Services.Interfaces.IUserService,TFSport.Services.Services.UserService>();
 builder.Services.AddScoped<TFSport.Services.Interfaces.IEmailService,TFSport.Services.Services.EmailService>();
 builder.Services.AddAutoMapper(typeof(AutoUserMapper));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton(sp =>
