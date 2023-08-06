@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TFSport.Models;
 using TFSport.Services;
 
 namespace TFSport.API.Controllers
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("users")]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
@@ -16,6 +17,7 @@ namespace TFSport.API.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(User user)
         {
             var registeredUser = await _userService.RegisterUser(user);
