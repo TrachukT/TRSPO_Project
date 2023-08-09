@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using TFSport.API.DTOModels.Users;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
+using TFSport.Services.Services;
 
 namespace TFSport.API.Controllers
 {
 	[ApiController]
-	[Route("api/users")]
+	[Route("users")]
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
