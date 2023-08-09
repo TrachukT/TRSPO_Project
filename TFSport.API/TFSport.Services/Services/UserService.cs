@@ -1,38 +1,33 @@
-﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
-
-namespace TFSport.Services
+﻿using Microsoft.Azure.CosmosRepository;
+using TFSport.Models;
+namespace TFSport.Services.Services
 {
     public class UserService : IUserService
     {
-        private readonly IConfiguration _configuration;
-        private readonly CosmosClient _cosmosClient;
+        private readonly IRepository<User> _userRepository;
 
-        public UserService(IConfiguration configuration, CosmosClient cosmosClient)
+        public UserService(IRepository<User> userRepository)
         {
-            _configuration = configuration;
-            _cosmosClient = cosmosClient;
+            _userRepository = userRepository;
         }
 
-        public async Task<Models.User> GetUserByEmailAsync(string email)
+        public async Task<User> GetUserByEmailAsync(string email)
         {
-            var container = _cosmosClient.GetContainer(_configuration["CosmosConfiguration:DatabaseId"], "Users");
-            var query = $"SELECT * FROM c WHERE c.email = @Email";
-            var queryDefinition = new QueryDefinition(query).WithParameter("@Email", email);
+            var users = await _userRepository.GetAsync(u => u.Email == email);
+            return users.FirstOrDefault();
+        }
 
-            var iterator = container.GetItemQueryIterator<Models.User>(queryDefinition);
-            var results = new List<Models.User>();
-
-            while (iterator.HasMoreResults)
+        public async Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email)
+        {
+            var user = await GetUserByEmailAsync(email);
+            if (user != null)
             {
-                var response = await iterator.ReadNextAsync();
-                results.AddRange(response);
+                return new List<UserRoles> { user.UserRole };
             }
-
-            return results.FirstOrDefault();
+            return new List<UserRoles>();
         }
 
-        public Task<Models.User> RegisterUser(Models.User user)
+        public Task<User> RegisterUser(User user)
         {
             return Task.FromResult(user);
         }

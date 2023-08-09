@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TFSport.Exceptions;
 using TFSport.Models;
-using TFSport.Services;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.API.Controllers
 {
     [ApiController]
-    [Route("users/tokens")]
+    [Route("token")]
     [Authorize]
     public class TokenController : ControllerBase
     {
@@ -20,18 +17,17 @@ namespace TFSport.API.Controllers
             _jwtService = jwtService;
         }
 
-        [HttpPost("access-token")]
+        [HttpPost]
         public async Task<IActionResult> GetToken([FromBody] UserLogin model)
         {
             var email = model.Email.ToLower();
-            var roles = new List<UserRoles> { UserRoles.User }; // Assuming user has a single role
 
-            var token = await _jwtService.GenerateAccessTokenAsync(email, roles);
+            var token = await _jwtService.GenerateAccessTokenAsync(email);
 
             return Ok(new { AccessToken = token });
         }
 
-        [HttpPost("refresh-token")]
+        [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = await _jwtService.GenerateRefreshTokenAsync();

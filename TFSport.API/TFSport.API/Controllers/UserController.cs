@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TFSport.Models;
-using TFSport.Services;
+using TFSport.Services.Services;
 
 namespace TFSport.API.Controllers
 {

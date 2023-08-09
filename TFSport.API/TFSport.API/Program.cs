@@ -6,6 +6,7 @@ using System.Text;
 using TFSport.Services;
 using TFSport.Services.Interfaces;
 using TFSport.API.Filters;
+using TFSport.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,8 +86,6 @@ builder.Services.AddCosmosRepository(options =>
 
     options.DatabaseId = settings.GetSection("DatabaseId").Value;
     options.ContainerPerItemType = true;
-
-
 
     options.ContainerBuilder
         .Configure<TFSport.Models.User>(containerOptionsBuilder =>
