@@ -17,5 +17,5 @@
 		public const string NotValidLink = "This link is already not valid";
 
         public const string InvalidCredentials = "Invalid credentials.";
-    }
+	}
 }

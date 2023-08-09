@@ -82,6 +82,15 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<TFSport.Services.Interfaces.IUserService, TFSport.Services.Services.UserService>();
+builder.Services.AddScoped<TFSport.Services.Interfaces.IEmailService, TFSport.Services.Services.EmailService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
+builder.Services.AddSwaggerGen(options =>
+{
+	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+	options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+});
 
 builder.Services.AddSingleton(sp =>
 {

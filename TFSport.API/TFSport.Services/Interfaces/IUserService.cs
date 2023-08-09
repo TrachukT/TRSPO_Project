@@ -13,7 +13,7 @@ namespace TFSport.Services.Interfaces
 
         public Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email);
 
-        public Task RegisterUser(User user);
+		public Task RegisterUser(User user);
 
 		public Task ForgotPassword(string email);
 
