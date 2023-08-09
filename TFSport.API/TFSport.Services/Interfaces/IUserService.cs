@@ -1,13 +1,16 @@
-﻿using TFSport.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TFSport.Models;
 
-namespace TFSport.Services
+namespace TFSport.Services.Interfaces
 {
-    public interface IUserService
-    {
-        Task<User> GetUserByEmailAsync(string email);
-
-        Task<User> RegisterUser(User user);
-
-        Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email);
-    }
+	public interface IUserService
+	{
+		public Task RegisterUser(User user);
+		public Task ForgotPassword(string email);
+		public Task RestorePassword(string token,string password);
+	}
 }
