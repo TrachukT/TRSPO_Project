@@ -18,5 +18,7 @@ namespace TFSport.Services.Interfaces
 		public Task ForgotPassword(string email);
 
 		public Task RestorePassword(string token,string password);
+
+		public Task EmailVerification(string email, string verificationToken);
 	}
 }

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using TFSport.API.DTOModels.Users;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
@@ -13,13 +15,16 @@ namespace TFSport.API.Controllers
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
+		private readonly IJWTService _JWTService;
 		private readonly IMapper _mapper;
 
-		public UserController(IUserService userService, IMapper mapper)
+		public UserController(IUserService userService, IMapper mapper, IJWTService jWTService)
 		{
 			_userService = userService;
 			_mapper = mapper;
+			_JWTService = jWTService;
 		}
+
 		/// <summary>
 		/// Main registration form
 		/// </summary>
@@ -51,6 +56,7 @@ namespace TFSport.API.Controllers
 				return StatusCode(500, ex.Message);
 			}
 		}
+
 		/// <summary>
 		/// Pop-up window "Forgot password"
 		/// </summary>
@@ -72,6 +78,7 @@ namespace TFSport.API.Controllers
 				return StatusCode(500, ex.Message);
 			}
 		}
+
 		/// <summary>
 		/// Update password(email link)
 		/// </summary>
@@ -94,5 +101,30 @@ namespace TFSport.API.Controllers
 			}
 		}
 
+		[Authorize]
+		[HttpPost("email-verification")]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
+		[SwaggerResponse(400, "Bad_Request", typeof(string))]
+		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+		public async Task<IActionResult> EmailVerification([FromQuery] string verificationToken)
+		{
+			try
+			{
+				HttpContext.Request.Headers.TryGetValue("Authorization", out var authToken);
+				if (!authToken.ToString().StartsWith("Bearer ", ignoreCase: true, CultureInfo.CurrentCulture))
+				{
+					return BadRequest("Invalid token format");
+				}
+
+				var token = authToken.ToString().Replace("Bearer ", "", ignoreCase: true, CultureInfo.CurrentCulture);
+				var email = await _JWTService.GetEmailFromToken(token);
+				await _userService.EmailVerification(email, verificationToken);
+				return Ok();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
+		}
 	}
 }
