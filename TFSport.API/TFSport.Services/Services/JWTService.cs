@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using TFSport.Services.Interfaces;
 
@@ -19,9 +20,15 @@ namespace TFSport.Services.Services
         {
             var authentificationSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
 
+            var claims = new List<Claim>
+            {
+                new Claim("email", email)
+            };
+
             var token = new JwtSecurityToken(
                 _configuration["JWT:ValidAudience"],
                 _configuration["JWT:ValidIssuer"],
+                claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["JWT:AccessTokenExpirationMinutes"])),
                 signingCredentials: new SigningCredentials(authentificationSigningKey, SecurityAlgorithms.HmacSha256)
             );
