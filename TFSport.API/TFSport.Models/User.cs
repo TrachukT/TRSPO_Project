@@ -6,7 +6,7 @@ namespace TFSport.Models
     [PartitionKeyPath("/partitionKey")]
     public class User : BaseModel
     {
-        [JsonProperty("firstName")]
+		[JsonProperty("firstName")]
         public string FirstName { get; set; }
 
         [JsonProperty("lastName")]
@@ -23,5 +23,11 @@ namespace TFSport.Models
 
         [JsonIgnore]
         public static string ContainerName { get; set; }
-    }
+		
+		[JsonProperty("emailVerified")]
+        public bool EmailVerified { get; set; }
+		
+        [JsonProperty("verificationToken")]				
+		public string VerificationToken { get; set; }
+	}
 }
