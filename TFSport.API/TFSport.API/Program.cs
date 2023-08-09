@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using TFSport.API;
 using TFSport.API.AutoMapper;
-using TFSport.Filters;
+using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
 using TFSport.Services.Services;
 
