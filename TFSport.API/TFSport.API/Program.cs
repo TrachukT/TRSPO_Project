@@ -1,6 +1,7 @@
 using Microsoft.Azure.Cosmos;
 using System.Reflection;
 using TFSport.API;
+using TFSport.API.AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<TFSport.Services.Interfaces.IUserService, TFSport.Services.Services.UserService>();
 builder.Services.AddScoped<TFSport.Services.Interfaces.IEmailService, TFSport.Services.Services.EmailService>();
-builder.Services.AddAutoMapper(typeof(AutoUserMapper));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
 builder.Services.AddSwaggerGen(options =>
 {

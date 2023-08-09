@@ -10,7 +10,7 @@ using TFSport.Services.Services;
 namespace TFSport.API.Controllers
 {
 	[ApiController]
-	[Route("api/users")]
+	[Route("users")]
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
