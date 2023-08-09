@@ -9,8 +9,14 @@ namespace TFSport.Services.Interfaces
 {
 	public interface IUserService
 	{
-		public Task RegisterUser(User user);
+        public Task<User> GetUserByEmailAsync(string email);
+
+        public Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email);
+
+        public Task RegisterUser(User user);
+
 		public Task ForgotPassword(string email);
+
 		public Task RestorePassword(string token,string password);
 	}
 }
