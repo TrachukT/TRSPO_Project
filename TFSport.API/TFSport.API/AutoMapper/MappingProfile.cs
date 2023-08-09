@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TFSport.API.DTOModels.Users;
+using TFSport.Models;
 
 namespace TFSport.API.AutoMapper
 {
@@ -7,14 +8,17 @@ namespace TFSport.API.AutoMapper
     {
         public MappingProfile()
         {
-            CreateMap<UserRegisterDTO, Models.User>().BeforeMap((src, dest) =>
+            CreateMap<UserRegisterDTO, User>().BeforeMap((src, dest) =>
             {
-                dest.UserRole = Models.UserRoles.User;
+                dest.UserRole = UserRoles.User;
                 dest.EmailVerified = false;
                 dest.VerificationToken = Guid.NewGuid().ToString();
                 dest.PartitionKey = dest.Id;
             });
-            CreateMap<Models.User, UserRegisterDTO>();
+
+            CreateMap<User, UserRegisterDTO>();
+
+            CreateMap<User, UserLoginDTO>();
         }
     }
 }

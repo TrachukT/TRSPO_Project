@@ -2,7 +2,6 @@
 using Microsoft.Azure.CosmosRepository.Extensions;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNet.Identity;
 
 namespace TFSport.Services.Services
@@ -18,7 +17,23 @@ namespace TFSport.Services.Services
 			_emailService = emailService;
 		}
 
-		public async Task RegisterUser(User user)
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            var users = await _userRepository.GetAsync(u => u.Email == email);
+            return users.FirstOrDefault();
+        }
+
+        public async Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email)
+        {
+            var user = await GetUserByEmailAsync(email);
+            if (user != null)
+            {
+                return new List<UserRoles> { user.UserRole };
+            }
+            return new List<UserRoles>();
+        }
+
+        public async Task RegisterUser(User user)
 		{
 			var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
 			if (checkUser != null)
