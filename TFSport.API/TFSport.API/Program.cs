@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using TFSport.API;
 using TFSport.API.AutoMapper;
-using TFSport.API.Filters;
+using TFSport.Filters;
 using TFSport.Services.Interfaces;
 using TFSport.Services.Services;
 
@@ -48,8 +48,8 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddSwaggerGen(options =>
 {
-	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-	options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
 
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "TFSport.API", Version = "v1" });
 
@@ -81,46 +81,35 @@ builder.Services.AddSwaggerGen(options =>
     options.EnableAnnotations();
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddScoped<TFSport.Services.Interfaces.IUserService, TFSport.Services.Services.UserService>();
-builder.Services.AddScoped<TFSport.Services.Interfaces.IEmailService, TFSport.Services.Services.EmailService>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
-builder.Services.AddSwaggerGen(options =>
-{
-	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-	options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
-});
-
 builder.Services.AddSingleton(sp =>
 {
-	string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
-	return new CosmosClient(connectionString);
+    string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
+    return new CosmosClient(connectionString);
 });
 
 builder.Services.AddCosmosRepository(options =>
 {
-	var settings = builder.Configuration.GetSection("CosmosConfiguration");
-	options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
+    var settings = builder.Configuration.GetSection("CosmosConfiguration");
+    options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
 
-	options.DatabaseId = settings.GetSection("DatabaseId").Value;
-	options.ContainerPerItemType = true;
+    options.DatabaseId = settings.GetSection("DatabaseId").Value;
+    options.ContainerPerItemType = true;
 
-	options.ContainerBuilder
-		.Configure<TFSport.Models.User>(containerOptionsBuilder =>
-		{
-			containerOptionsBuilder
-				.WithContainer("Users")
-				.WithPartitionKey("/partitionKey");
-		});
+    options.ContainerBuilder
+        .Configure<TFSport.Models.User>(containerOptionsBuilder =>
+        {
+            containerOptionsBuilder
+                .WithContainer("Users")
+                .WithPartitionKey("/partitionKey");
+        });
 });
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

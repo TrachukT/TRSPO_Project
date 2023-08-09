@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
-namespace TFSport.API.Filters
+namespace TFSport.Filters
 {
     public class RoleAuthorizationFilter : IAsyncAuthorizationFilter
     {
