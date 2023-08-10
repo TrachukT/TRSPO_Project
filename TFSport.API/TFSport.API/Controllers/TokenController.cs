@@ -7,11 +7,9 @@ namespace TFSport.API.Controllers
 {
     [ApiController]
     [Route("api/token")]
-    [Authorize]
     public class TokenController : ControllerBase
     {
         private readonly IJWTService _jwtService;
-
         public TokenController(IJWTService jwtService)
         {
             _jwtService = jwtService;
@@ -29,6 +27,7 @@ namespace TFSport.API.Controllers
         /// </remarks>
         /// <param name="model">The user's login credentials.</param>
         /// <returns>A new access token.</returns>
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> GetToken([FromBody] UserLoginDTO model)
         {

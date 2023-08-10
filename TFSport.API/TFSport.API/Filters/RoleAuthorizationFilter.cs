@@ -11,12 +11,12 @@ namespace TFSport.API.Filters
         private readonly IUserService _userService;
         private readonly UserRoles[] _acceptedRoles;
 
-        public RoleAuthorizationFilter(IUserService userService, params UserRoles[] acceptedRoles)
+        public RoleAuthorizationFilter(IUserService userService)
         {
             _userService = userService;
-            _acceptedRoles = acceptedRoles;
+            _acceptedRoles = new UserRoles[] { UserRoles.Author, UserRoles.User, UserRoles.SuperAdmin };
         }
-
+       
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             var user = context.HttpContext.User;
