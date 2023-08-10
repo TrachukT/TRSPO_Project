@@ -5,13 +5,11 @@ using TFSport.Services.Interfaces;
 
 namespace TFSport.API.Controllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/token")]
     public class TokenController : ControllerBase
     {
         private readonly IJWTService _jwtService;
-
         public TokenController(IJWTService jwtService)
         {
             _jwtService = jwtService;
