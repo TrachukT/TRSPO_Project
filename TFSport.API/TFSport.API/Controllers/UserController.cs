@@ -66,7 +66,7 @@ namespace TFSport.API.Controllers
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-		public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
+        public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
 		{
 			try
 			{
@@ -88,7 +88,7 @@ namespace TFSport.API.Controllers
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-		public async Task<IActionResult> RestotePassword([FromBody] RestorePasswordDTO password)
+        public async Task<IActionResult> RestorePassword([FromBody] RestorePasswordDTO password)
 		{
 			try
 			{

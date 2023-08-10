@@ -2,7 +2,6 @@
 using Microsoft.Azure.CosmosRepository.Extensions;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNet.Identity;
 
 namespace TFSport.Services.Services
@@ -34,7 +33,21 @@ namespace TFSport.Services.Services
 			return new List<UserRoles>();
 		}
 
-		public async Task RegisterUser(User user)
+        public async Task<bool> ValidateCredentialsAsync(string email, string password)
+        {
+            var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return false;
+            }
+
+            var passwordHasher = new PasswordHasher();
+            var result = passwordHasher.VerifyHashedPassword(user.Password, password);
+
+            return result == PasswordVerificationResult.Success;
+        }
+
+        public async Task RegisterUser(User user)
 		{
 			var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
 			if (checkUser != null)
@@ -82,7 +95,5 @@ namespace TFSport.Services.Services
 			user.EmailVerified = true;
 			await _userRepository.UpdateAsync(user, default);
 		}
-
-
 	}
 }

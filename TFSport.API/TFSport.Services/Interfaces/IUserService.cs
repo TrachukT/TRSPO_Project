@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TFSport.Models;
+﻿using TFSport.Models;
 
 namespace TFSport.Services.Interfaces
 {
@@ -13,7 +8,9 @@ namespace TFSport.Services.Interfaces
 
         public Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email);
 
-		public Task RegisterUser(User user);
+		public Task<bool> ValidateCredentialsAsync(string email, string password);
+
+        public Task RegisterUser(User user);
 
 		public Task ForgotPassword(string email);
 

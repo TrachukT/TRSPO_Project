@@ -2,8 +2,10 @@
 {
 	public interface IJWTService
 	{
-		Task<string> GenerateAccessTokenAsync(string email);
-		Task<string> GenerateRefreshTokenAsync();
+		public Task<string> GenerateAccessTokenAsync(string email);
+
+		public Task<string> GenerateRefreshTokenAsync(string email);
+
 		public Task<string> GetEmailFromToken(string token);
-	}
+    }
 }

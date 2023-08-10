@@ -9,9 +9,11 @@ namespace TFSport.API.Controllers
     [Route("api/token")]
     public class TokenController : ControllerBase
     {
+        private readonly IUserService _userService;
         private readonly IJWTService _jwtService;
-        public TokenController(IJWTService jwtService)
+        public TokenController(IUserService userService, IJWTService jwtService)
         {
+            _userService = userService;
             _jwtService = jwtService;
         }
 
@@ -26,16 +28,27 @@ namespace TFSport.API.Controllers
         /// }</para>
         /// </remarks>
         /// <param name="model">The user's login credentials.</param>
-        /// <returns>A new access token.</returns>
-        [AllowAnonymous]
+        /// <returns>A new access token and refresh token.</returns>
         [HttpPost]
-        public async Task<IActionResult> GetToken([FromBody] UserLoginDTO model)
+        public async Task<IActionResult> GetTokens([FromBody] UserLoginDTO model)
         {
             var email = model.Email.ToLower();
 
-            var token = await _jwtService.GenerateAccessTokenAsync(email);
+            var isCredentialsValid = await _userService.ValidateCredentialsAsync(email, model.Password);
+            if (!isCredentialsValid)
+            {
+                return BadRequest(ErrorMessages.InvalidCredentials);
+            }
 
-            return Ok(new { AccessToken = token });
+            var accessToken = await _jwtService.GenerateAccessTokenAsync(email);
+
+            var refreshToken = await _jwtService.GenerateRefreshTokenAsync(email);
+
+            return Ok(new
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            });
         }
 
         /// <summary>
@@ -44,20 +57,41 @@ namespace TFSport.API.Controllers
         /// <remarks>
         /// Sample request for refreshing an access token:
         /// <para>{
-        ///     "refreshToken": "your-refresh-token",
-        ///     "email": "user@gmail.com"
+        ///     "refreshToken": "your-refresh-token"
         /// }</para>
         /// </remarks>
-        /// <param name="model">The refresh token and user's email.</param>
-        /// <returns>A new access token.</returns>
+        /// <param name="model">The refresh token.</param>
+        /// <returns>A new access token and refresh token.</returns>
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshRequestModel model)
+        [Authorize]
+        public async Task<IActionResult> RefreshTokens([FromBody] RefreshRequestModel model)
         {
-            var email = model.Email.ToLower();
+            var refreshToken = model.RefreshToken;
 
-            var newAccessToken = await _jwtService.GenerateAccessTokenAsync(email);
+            try
+            {
+                var storedEmail = await _jwtService.GetEmailFromToken(refreshToken);
 
-            return Ok(new { AccessToken = newAccessToken });
+                if (!string.IsNullOrEmpty(storedEmail))
+                {
+                    var newAccessToken = await _jwtService.GenerateAccessTokenAsync(storedEmail);
+                    var newRefreshToken = await _jwtService.GenerateRefreshTokenAsync(storedEmail);
+
+                    return Ok(new
+                    {
+                        AccessToken = newAccessToken,
+                        RefreshToken = newRefreshToken
+                    });
+                }
+                else
+                {
+                    return BadRequest(ErrorMessages.InvalidRefreshToken);
+                }
+            }
+            catch (Exception)
+            {
+                return BadRequest(ErrorMessages.InvalidRefreshToken);
+            }
         }
     }
 }

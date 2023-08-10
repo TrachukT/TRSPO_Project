@@ -4,23 +4,27 @@ using TFSport.Models;
 
 namespace TFSport.API.DTOModels.Users
 {
-	public class UserRegisterDTO
-	{
+    public class UserRegisterDTO
+    {
+        [Required(ErrorMessage = ErrorMessages.FirstNameIsRequired)]
+        [RegularExpression(@"^[A-Z][a-zA-Z]*$", ErrorMessage = ErrorMessages.NamesValidation)]
+        public string FirstName { get; set; }
 
-		[RegularExpression(@"^[A-Z][a-zA-Z]*$", ErrorMessage = ErrorMessages.NamesValidation)]
-		public string FirstName { get; set; }
+        [Required(ErrorMessage = ErrorMessages.LastNameIsRequired)]
+        [RegularExpression(@"^[A-Z][a-zA-Z]*$", ErrorMessage = ErrorMessages.NamesValidation)]
+        public string LastName { get; set; }
 
-		[RegularExpression(@"^[A-Z][a-zA-Z]*$", ErrorMessage = ErrorMessages.NamesValidation)]
-		public string LastName { get; set; }
+        [Required(ErrorMessage = ErrorMessages.EmailIsRequired)]
+        [EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)]
+        public string Email { get; set; }
 
-		[EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)]
-		public string Email { get; set; }
+        [Required(ErrorMessage = ErrorMessages.PasswordIsRequired)]
+        [MinLength(8, ErrorMessage = ErrorMessages.PasswordMinLength)]
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@!?])[A-Za-z\d@!?]{8,}$", ErrorMessage = ErrorMessages.PasswordValidation)]
+        public string Password { get; set; }
 
-		[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[-_+=])[A-Za-z\d-_+=]{8,}$", ErrorMessage = ErrorMessages.PasswordValidation)]
-		public string Password { get; set; }
+        [Compare("Password", ErrorMessage = ErrorMessages.PasswordMatch)]
+        public string RepeatPassword { get; set; }
 
-		[Compare("Password", ErrorMessage = ErrorMessages.PasswordMatch)]
-		public string RepeatPassword { get; set; }
-
-	}
+    }
 }
