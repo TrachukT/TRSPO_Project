@@ -4,13 +4,11 @@ namespace TFSport.Models
 {
     public class UserLoginDTO
     {
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
+        [Required(ErrorMessage = ErrorMessages.EmailIsRequired)]
+        [EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Password is required.")]
-        [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@!?])[A-Za-z\d@!?]{8,}$", ErrorMessage = "Password must contain at least one letter, one digit, and one non-alphanumeric character.")]
+        [Required(ErrorMessage = ErrorMessages.PasswordIsRequired)]
         public string Password { get; set; }
     }
 }
