@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using TFSport.API;
 using TFSport.API.AutoMapper;
-using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
 using TFSport.Services.Services;
 
@@ -41,10 +40,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.SaveToken = true;
     });
 
-builder.Services.AddControllers(options =>
-{
-    //options.Filters.Add(typeof(RoleAuthorizationFilter));
-});
+builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen(options =>
 {

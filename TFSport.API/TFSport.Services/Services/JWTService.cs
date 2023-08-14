@@ -37,26 +37,32 @@ namespace TFSport.Services.Services
 			return handler.WriteToken(token);
 		}
 
-		public async Task<string> GenerateRefreshTokenAsync()
-		{
-			var refreshSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:RefreshSecret"]));
+        public async Task<string> GenerateRefreshTokenAsync(string email)
+        {
+            var refreshSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:RefreshSecret"]));
 
-			var refreshToken = new JwtSecurityToken(
-				_configuration["JWT:ValidAudience"],
-				_configuration["JWT:ValidIssuer"],
-				expires: DateTime.UtcNow.AddDays(Convert.ToDouble(_configuration["JWT:RefreshTokenExpirationDays"])),
-				signingCredentials: new SigningCredentials(refreshSigningKey, SecurityAlgorithms.HmacSha256)
-			);
+            var claims = new List<Claim>
+			{
+				new Claim("email", email)
+			};
 
-			var handler = new JwtSecurityTokenHandler();
-			return handler.WriteToken(refreshToken);
-		}
+            var refreshToken = new JwtSecurityToken(
+                _configuration["JWT:ValidAudience"],
+                _configuration["JWT:ValidIssuer"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(Convert.ToDouble(_configuration["JWT:RefreshTokenExpirationDays"])),
+                signingCredentials: new SigningCredentials(refreshSigningKey, SecurityAlgorithms.HmacSha256)
+            );
 
-		public async Task<string> GetEmailFromToken(string token)
+            var handler = new JwtSecurityTokenHandler();
+            return handler.WriteToken(refreshToken);
+        }
+
+        public async Task<string> GetEmailFromToken(string token)
 		{
 			var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
 			var email = jwtToken.Claims.First(claim => claim.Type == "email").Value;
 			return email;
 		}
-	}
+    }
 }
