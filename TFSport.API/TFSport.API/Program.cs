@@ -43,7 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add(typeof(RoleAuthorizationFilter));
+    //options.Filters.Add(typeof(RoleAuthorizationFilter));
 });
 
 builder.Services.AddSwaggerGen(options =>
