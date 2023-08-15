@@ -13,7 +13,7 @@ namespace TFSport.API.AutoMapper
                 dest.UserRole = UserRoles.User;
                 dest.EmailVerified = false;
                 dest.VerificationToken = Guid.NewGuid().ToString();
-                dest.PartitionKey = dest.Id;
+                dest.PartitionKey = dest.Id; 
             });
 
             CreateMap<User, UserRegisterDTO>();

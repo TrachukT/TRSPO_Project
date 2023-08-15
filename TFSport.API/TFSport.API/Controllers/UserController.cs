@@ -15,14 +15,12 @@ namespace TFSport.API.Controllers
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
-		private readonly IJWTService _JWTService;
 		private readonly IMapper _mapper;
 
 		public UserController(IUserService userService, IMapper mapper, IJWTService jWTService)
 		{
 			_userService = userService;
 			_mapper = mapper;
-			_JWTService = jWTService;
 		}
 
 		/// <summary>
@@ -51,6 +49,10 @@ namespace TFSport.API.Controllers
 				await _userService.RegisterUser(_mapper.Map<User>(user));
 				return Ok();
 			}
+			catch (ArgumentException arg)
+			{
+				return BadRequest(arg.Message);
+			}
 			catch (Exception ex)
 			{
 				return StatusCode(500, ex.Message);
@@ -73,6 +75,10 @@ namespace TFSport.API.Controllers
 				await _userService.ForgotPassword(email);
 				return Ok();
 			}
+			catch (ArgumentException arg)
+			{
+				return BadRequest(arg.Message);
+			}
 			catch (Exception ex)
 			{
 				return StatusCode(500, ex.Message);
@@ -84,7 +90,7 @@ namespace TFSport.API.Controllers
 		/// </summary>
 		/// <param name="password"></param>
 		/// <returns></returns>
-		[HttpPut("password")]
+		[HttpPost("recovery-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
@@ -95,14 +101,17 @@ namespace TFSport.API.Controllers
 				await _userService.RestorePassword(password.VerificationToken, password.Password);
 				return Ok();
 			}
+			catch (ArgumentException arg)
+			{
+				return BadRequest(arg.Message);
+			}
 			catch (Exception ex)
 			{
 				return StatusCode(500, ex.Message);
 			}
 		}
 
-		[Authorize]
-		[HttpPost("email-verification")]
+		[HttpPost("success-confirmation")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
@@ -110,16 +119,12 @@ namespace TFSport.API.Controllers
 		{
 			try
 			{
-				HttpContext.Request.Headers.TryGetValue("Authorization", out var authToken);
-				if (!authToken.ToString().StartsWith("Bearer ", ignoreCase: true, CultureInfo.CurrentCulture))
-				{
-					return BadRequest("Invalid token format");
-				}
-
-				var token = authToken.ToString().Replace("Bearer ", "", ignoreCase: true, CultureInfo.CurrentCulture);
-				var email = await _JWTService.GetEmailFromToken(token);
-				await _userService.EmailVerification(email, verificationToken);
+				await _userService.EmailVerification(verificationToken);
 				return Ok();
+			}
+			catch(ArgumentException arg)
+			{
+				return BadRequest(arg.Message);
 			}
 			catch (Exception ex)
 			{

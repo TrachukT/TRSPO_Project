@@ -51,7 +51,7 @@ namespace TFSport.Services.Services
 		{
 			var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
 			if (checkUser != null)
-				throw new Exception(ErrorMessages.EmailIsRegistered);
+				throw new ArgumentException(ErrorMessages.EmailIsRegistered);
 
 			var hash = new PasswordHasher();
 			user.Password = hash.HashPassword(user.Password);
@@ -64,7 +64,7 @@ namespace TFSport.Services.Services
 		{
 			var checkUser = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
 			if (checkUser == null)
-				throw new Exception(ErrorMessages.NotRegisteredEmail);
+				throw new ArgumentException(ErrorMessages.NotRegisteredEmail);
 
 			await _emailService.RestorePassword(email, checkUser.VerificationToken);
 		}
@@ -73,7 +73,7 @@ namespace TFSport.Services.Services
 		{
 			var user = await _userRepository.GetAsync(x => x.VerificationToken == token).FirstOrDefaultAsync();
 			if (user == null)
-				throw new Exception(ErrorMessages.NotValidLink);
+				throw new ArgumentException(ErrorMessages.NotValidLink);
 
 			user.VerificationToken = Guid.NewGuid().ToString();
 			var hash = new PasswordHasher();
@@ -82,14 +82,11 @@ namespace TFSport.Services.Services
 			await _userRepository.UpdateAsync(user, default);
 		}
 
-		public async Task EmailVerification(string email, string verificationToken)
+		public async Task EmailVerification(string verificationToken)
 		{
 			var user = await _userRepository.GetAsync(x => x.VerificationToken == verificationToken).FirstOrDefaultAsync();
 			if (user == null)
-				throw new Exception(ErrorMessages.NotValidLink);
-
-			if (user.Email != email)
-				throw new Exception(ErrorMessages.InvalidCredentials);
+				throw new ArgumentException(ErrorMessages.NotValidLink);
 
 			user.VerificationToken = Guid.NewGuid().ToString();
 			user.EmailVerified = true;
