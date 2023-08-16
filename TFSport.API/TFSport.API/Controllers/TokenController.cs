@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TFSport.API.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
@@ -64,7 +63,7 @@ namespace TFSport.API.Controllers
         /// <param name="model">The refresh token.</param>
         /// <returns>A new access token and refresh token.</returns>
         [HttpPost("refresh")]
-        [RoleAuthorization(UserRoles.User, UserRoles.SuperAdmin)]
+        [Authorize]
         public async Task<IActionResult> RefreshTokens([FromBody] RefreshRequestModel model)
         {
             var refreshToken = model.RefreshToken;
