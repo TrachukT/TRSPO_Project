@@ -23,25 +23,23 @@ namespace TFSport.Services.Services
 
 		public async Task EmailVerification(string email, string verificationToken)
         {
-			var client = new SendGridClient(_emailSettings.ApiKey);
-			var msg = new SendGridMessage()
-			{
-				From = new EmailAddress(_emailSettings.SenderEmail,_emailSettings.SenderName),
-				Subject = "Email Verification",
-				PlainTextContent = $"To complete registration you need to verificate email.To do this click the link below:\n{_emailSettings.EmailUrl}"
-			};
-			msg.AddTo(new EmailAddress(email));
-			await client.SendEmailAsync(msg);
+			var content = $"To complete registration you need to verificate email.To do this click the link below:\n{_emailSettings.EmailUrl}";
+			await CreateMessage(email, content);
 		}
-		
+
 		public async Task RestorePassword(string email, string verificationToken)
+		{
+			var content = $"To restore password click the link below: \n{_emailSettings.PasswordUrl}";
+			await CreateMessage(email, content);
+		}
+		public async Task CreateMessage(string email,string content)
 		{
 			var client = new SendGridClient(_emailSettings.ApiKey);
 			var msg = new SendGridMessage()
 			{
-				From = new EmailAddress(_emailSettings.SenderEmail,_emailSettings.SenderName),
-				Subject = "Restore Password",
-				PlainTextContent = $"To restore password click the link below: \n{_emailSettings.PasswordUrl}"
+				From = new EmailAddress(_emailSettings.SenderEmail, _emailSettings.SenderName),
+				Subject = "Email Verification",
+				PlainTextContent = content
 			};
 			msg.AddTo(new EmailAddress(email));
 			await client.SendEmailAsync(msg);

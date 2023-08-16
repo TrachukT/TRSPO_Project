@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.CosmosRepository.Attributes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace TFSport.Models
 {
@@ -19,6 +20,7 @@ namespace TFSport.Models
         public string Password { get; set; }
 
         [JsonProperty("userRole")]
+        [JsonConverter(typeof(StringEnumConverter))]		
         public UserRoles UserRole { get; set; }
 
         [JsonIgnore]
