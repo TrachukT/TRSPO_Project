@@ -20,7 +20,7 @@ namespace TFSport.API.DTOModels.Users
 
         [Required(ErrorMessage = ErrorMessages.PasswordIsRequired)]
         [MinLength(8, ErrorMessage = ErrorMessages.PasswordMinLength)]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@!?])[A-Za-z\d@!?]{8,}$", ErrorMessage = ErrorMessages.PasswordValidation)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$", ErrorMessage = ErrorMessages.PasswordValidation)]
         public string Password { get; set; }
 
         [Compare("Password", ErrorMessage = ErrorMessages.PasswordMatch)]
