@@ -92,5 +92,11 @@ namespace TFSport.Services.Services
 			user.EmailVerified = true;
 			await _userRepository.UpdateAsync(user, default);
 		}
+
+		public async Task<List<User>> GetAllUsers()
+		{
+			var users = await _userRepository.GetAsync(x=> x.Type == nameof(User)).ToListAsync();
+			return users;
+		}
 	}
 }
