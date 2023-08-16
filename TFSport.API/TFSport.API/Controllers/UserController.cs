@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using TFSport.API.DTOModels.Users;
+using TFSport.API.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
@@ -12,7 +11,10 @@ namespace TFSport.API.Controllers
 {
 	[ApiController]
 	[Route("api/users")]
-	public class UserController : ControllerBase
+
+    [SwaggerResponse(400, "Bad_Request", typeof(string))]
+    [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+    public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
 		private readonly IMapper _mapper;
@@ -40,8 +42,6 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("register")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(UserRegisterDTO))]
-		[SwaggerResponse(400, "Bad_Request", typeof(string))]
-		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
 		public async Task<IActionResult> Register([FromBody] UserRegisterDTO user)
 		{
 			try
@@ -66,8 +66,6 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("restore-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-		[SwaggerResponse(400, "Bad_Request", typeof(string))]
-		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
         public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
 		{
 			try
@@ -93,8 +91,6 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("recover-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-		[SwaggerResponse(400, "Bad_Request", typeof(string))]
-		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
         public async Task<IActionResult> RestorePassword([FromQuery] string verificationToken,[FromBody] RestorePasswordDTO password)
 		{
 			try
@@ -114,8 +110,6 @@ namespace TFSport.API.Controllers
 
 		[HttpPost("confirmation")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-		[SwaggerResponse(400, "Bad_Request", typeof(string))]
-		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
 		public async Task<IActionResult> EmailVerification([FromQuery] string verificationToken)
 		{
 			try
@@ -132,5 +126,50 @@ namespace TFSport.API.Controllers
 				return StatusCode(500, ex.Message);
 			}
 		}
-	}
+
+        /// <summary>
+        /// Changes the role of a user based on the provided user email and new role.
+        /// </summary>
+        /// <remarks>
+        /// Sample request for changing user role:
+        /// <code>
+        /// {
+        ///     "userEmail": "user@example.com",
+        ///     "newUserRole": "Author"
+        /// }
+        /// </code>
+        /// </remarks>
+        /// <param name="request">The request object containing the user's email and new role.</param>
+        /// <returns>A message indicating the result of the role change.</returns>
+        [HttpPost("change-role")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(string))]
+        [RoleAuthorization(UserRoles.SuperAdmin)]
+        public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDTO request)
+        {
+            try
+            {
+                var newUserRole = request.NewUserRole;
+                var userEmail = request.UserEmail;
+
+                var userExists = await _userService.ChangeUserRole(userEmail, newUserRole);
+
+                if (userExists)
+                {
+                    return Ok(new { Message = $"User with email {userEmail} role changed to {newUserRole}." });
+                }
+                else
+                {
+                    return NotFound(new { ErrorMessages.UserNotFound });
+                }
+            }
+            catch (ArgumentException arg)
+            {
+                return BadRequest(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+    }
 }

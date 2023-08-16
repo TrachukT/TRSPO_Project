@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
@@ -7,6 +8,10 @@ namespace TFSport.API.Controllers
 {
     [ApiController]
     [Route("api/token")]
+
+    [SwaggerResponse(200, "Request_Succeeded", typeof(string))]
+    [SwaggerResponse(400, "Bad_Request", typeof(string))]
+    [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
     public class TokenController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -22,17 +27,21 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request for generating an access token:
-        /// <para>{
+        /// <code>
+        /// {
         ///     "email": "user@gmail.com",
-        ///     "password": "password123"
-        /// }</para>
+        ///     "password": "Kh0ajf81!l_"
+        /// }
+        /// </code>
         /// </remarks>
         /// <param name="model">The user's login credentials.</param>
         /// <returns>A new access token and refresh token.</returns>
         [HttpPost]
         public async Task<IActionResult> GetTokens([FromBody] UserLoginDTO model)
         {
-            var email = model.Email.ToLower();
+            try
+            {
+                var email = model.Email.ToLower();
 
             var isCredentialsValid = await _userService.ValidateCredentialsAsync(email, model.Password);
             if (!isCredentialsValid)
@@ -49,6 +58,15 @@ namespace TFSport.API.Controllers
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             });
+            }
+            catch (ArgumentException arg)
+            {
+                return BadRequest(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         /// <summary>
@@ -56,9 +74,11 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request for refreshing an access token:
-        /// <para>{
+        /// <code>
+        /// {
         ///     "refreshToken": "your-refresh-token"
-        /// }</para>
+        /// }
+        /// </code>
         /// </remarks>
         /// <param name="model">The refresh token.</param>
         /// <returns>A new access token and refresh token.</returns>

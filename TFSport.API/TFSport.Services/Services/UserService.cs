@@ -92,5 +92,26 @@ namespace TFSport.Services.Services
 			user.EmailVerified = true;
 			await _userRepository.UpdateAsync(user, default);
 		}
-	}
+
+        public async Task<bool> ChangeUserRole(string userEmail, string newUserRole)
+        {
+            var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
+            if (!validRoles.Contains(newUserRole.ToLower()))
+            {
+                throw new ArgumentException($"Invalid role specified: {newUserRole}.");
+            }
+
+            var user = await GetUserByEmailAsync(userEmail);
+            if (user != null)
+            {
+                user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
+                await _userRepository.UpdateAsync(user, default);
+                return true;
+            }
+            else
+            {
+                throw new Exception(ErrorMessages.UserNotFound);
+            }
+        }
+    }
 }

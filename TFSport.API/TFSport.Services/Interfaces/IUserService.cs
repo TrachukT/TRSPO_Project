@@ -17,5 +17,7 @@ namespace TFSport.Services.Interfaces
 		public Task RestorePassword(string token,string password);
 
 		public Task EmailVerification(string verificationToken);
-	}
+
+        public Task<bool> ChangeUserRole(string userEmail, string newUserRole);
+    }
 }
