@@ -5,6 +5,7 @@ using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using TFSport.API.DTOModels.Users;
+using TFSport.API.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
@@ -137,6 +138,7 @@ namespace TFSport.API.Controllers
 		/// Get all users info
 		/// </summary>
 		/// <returns></returns>
+        [RoleAuthorization(UserRoles.User)]
 		[HttpGet()]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(List<GetAllUsersDTO>))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
