@@ -112,7 +112,7 @@ namespace TFSport.API.Controllers
 			}
 		}
 
-		[HttpPost("success-confirmation")]
+		[HttpPost("confirmation")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
