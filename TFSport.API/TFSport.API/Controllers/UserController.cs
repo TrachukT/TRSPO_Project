@@ -86,19 +86,20 @@ namespace TFSport.API.Controllers
 		}
 
 		/// <summary>
-		/// Update password(email link)
+		/// 
 		/// </summary>
+		/// <param name="verificationToken"></param>
 		/// <param name="password"></param>
 		/// <returns></returns>
-		[HttpPost("recovery-password")]
+		[HttpPost("recover-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-        public async Task<IActionResult> RestorePassword([FromBody] RestorePasswordDTO password)
+        public async Task<IActionResult> RestorePassword([FromQuery] string verificationToken,[FromBody] RestorePasswordDTO password)
 		{
 			try
 			{
-				await _userService.RestorePassword(password.VerificationToken, password.Password);
+				await _userService.RestorePassword(verificationToken, password.Password);
 				return Ok();
 			}
 			catch (ArgumentException arg)
