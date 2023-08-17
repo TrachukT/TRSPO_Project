@@ -20,6 +20,9 @@ namespace TFSport.API.AutoMapper
 
             CreateMap<User, UserLoginDTO>();
 
+            CreateMap<User, GetAllUsersDTO>();
+
+
             CreateMap<User, ChangeUserRoleDTO>();
         }
     }

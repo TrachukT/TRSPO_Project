@@ -84,7 +84,7 @@ namespace TFSport.API.Controllers
 		}
 
 		/// <summary>
-		/// 
+		/// Restore password
 		/// </summary>
 		/// <param name="verificationToken"></param>
 		/// <param name="password"></param>
@@ -126,6 +126,31 @@ namespace TFSport.API.Controllers
 				return StatusCode(500, ex.Message);
 			}
 		}
+
+		/// <summary>
+		/// Get all users info
+		/// </summary>
+		/// <returns></returns>
+        [RoleAuthorization(UserRoles.SuperAdmin)]
+		[HttpGet()]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(List<GetAllUsersDTO>))]
+		[SwaggerResponse(400, "Bad_Request", typeof(string))]
+		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+		public async Task<IActionResult> GetAllUsers()
+		{
+			try
+			{
+				var users = await _userService.GetAllUsers();
+				List<GetAllUsersDTO> list = _mapper.Map<List<GetAllUsersDTO>>(users);
+				return Ok(list);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
+		}
+	}
+}
 
         /// <summary>
         /// Changes the role of a user based on the provided user ID and new role.
