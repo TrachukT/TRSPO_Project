@@ -17,6 +17,8 @@ namespace TFSport.Services.Interfaces
 		public Task RestorePassword(string token,string password);
 
 		public Task EmailVerification(string verificationToken);
-		public Task<List<User>> GetAllUsers();
-	}
+		
+		public Task CreateSuperAdminUser();
+		
+		public Task<List<User>> GetAllUsers();	}
 }
