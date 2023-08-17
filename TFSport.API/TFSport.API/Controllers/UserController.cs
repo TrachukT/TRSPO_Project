@@ -138,7 +138,7 @@ namespace TFSport.API.Controllers
 		/// Get all users info
 		/// </summary>
 		/// <returns></returns>
-        [RoleAuthorization(UserRoles.User)]
+        [RoleAuthorization(UserRoles.SuperAdmin)]
 		[HttpGet()]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(List<GetAllUsersDTO>))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]

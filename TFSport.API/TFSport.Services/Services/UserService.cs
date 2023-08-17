@@ -95,7 +95,7 @@ namespace TFSport.Services.Services
 
 		public async Task<List<User>> GetAllUsers()
 		{
-			var users = await _userRepository.GetAsync(x=> x.Type == nameof(User)).ToListAsync();
+			var users = await _userRepository.GetAsync(x=>true).ToListAsync();
 			return users;
 		}
 	}
