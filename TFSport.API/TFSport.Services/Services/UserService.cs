@@ -96,27 +96,33 @@ namespace TFSport.Services.Services
 			await _userRepository.UpdateAsync(user, default);
 		}
 
-        public async Task CreateSuperAdminUser()
-        {
-            var superAdminEmail = _configuration["SuperAdminCredentials:Email"];
+		public async Task CreateSuperAdminUser()
+		{
+			var superAdminEmail = _configuration["SuperAdminCredentials:Email"];
 
-            var existingSuperAdmin = await GetUserByEmailAsync(superAdminEmail);
-            if (existingSuperAdmin == null)
-            {
-                var superAdmin = new User
-                {
-                    FirstName = "Super",
-                    LastName = "Admin",
-                    Email = superAdminEmail,
-                    Password = _configuration["SuperAdminCredentials:Password"],
-                    UserRole = UserRoles.SuperAdmin,
-                    EmailVerified = true,
-                    VerificationToken = Guid.NewGuid().ToString()
-                };
+			var existingSuperAdmin = await GetUserByEmailAsync(superAdminEmail);
+			if (existingSuperAdmin == null)
+			{
+				var superAdmin = new User
+				{
+					FirstName = "Super",
+					LastName = "Admin",
+					Email = superAdminEmail,
+					Password = _configuration["SuperAdminCredentials:Password"],
+					UserRole = UserRoles.SuperAdmin,
+					EmailVerified = true,
+					VerificationToken = Guid.NewGuid().ToString()
+				};
 
-                superAdmin.PartitionKey = superAdmin.Id;
-                await RegisterUser(superAdmin);
-            }
-        }
-    }
+				superAdmin.PartitionKey = superAdmin.Id;
+				await RegisterUser(superAdmin);
+			}
+		}
+
+		public async Task<List<User>> GetAllUsers()
+		{
+			var users = await _userRepository.GetAsync(x => true).ToListAsync();
+			return users;
+		}
+	}
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TFSport.API.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 

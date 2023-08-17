@@ -5,6 +5,7 @@ using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using TFSport.API.DTOModels.Users;
+using TFSport.API.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
@@ -86,7 +87,7 @@ namespace TFSport.API.Controllers
 		}
 
 		/// <summary>
-		/// 
+		/// Restore password
 		/// </summary>
 		/// <param name="verificationToken"></param>
 		/// <param name="password"></param>
@@ -126,6 +127,29 @@ namespace TFSport.API.Controllers
 			catch(ArgumentException arg)
 			{
 				return BadRequest(arg.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// Get all users info
+		/// </summary>
+		/// <returns></returns>
+        [RoleAuthorization(UserRoles.SuperAdmin)]
+		[HttpGet()]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(List<GetAllUsersDTO>))]
+		[SwaggerResponse(400, "Bad_Request", typeof(string))]
+		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+		public async Task<IActionResult> GetAllUsers()
+		{
+			try
+			{
+				var users = await _userService.GetAllUsers();
+				List<GetAllUsersDTO> list = _mapper.Map<List<GetAllUsersDTO>>(users);
+				return Ok(list);
 			}
 			catch (Exception ex)
 			{
