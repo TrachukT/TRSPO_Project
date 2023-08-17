@@ -29,5 +29,11 @@
         public const string PasswordIsRequired = "Password field cannot be empty.";
 
         public const string PasswordMinLength = "Password must be at least 8 characters.";
+
+        public const string UserNotFound = "User not found.";
+
+        public const string RoleIsRequired = "Role field cannot be empty.";
+
+        public const string UserIdIsRequired = "User ID field cannot be empty.";
     }
 }

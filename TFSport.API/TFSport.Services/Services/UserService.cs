@@ -125,4 +125,27 @@ namespace TFSport.Services.Services
 			return users;
 		}
 	}
+
+        public async Task<bool> ChangeUserRole(string userId, string newUserRole)
+        {
+            var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
+            if (!validRoles.Contains(newUserRole.ToLower()))
+            {
+                throw new ArgumentException($"Invalid role specified: {newUserRole}.");
+            }
+
+            var user = await _userRepository.GetAsync(userId);
+            if (user != null)
+            {
+                user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
+                await _userRepository.UpdateAsync(user, default);
+                return true;
+            }
+            else
+            {
+                throw new Exception(ErrorMessages.UserNotFound);
+            }
+        }
+
+    }
 }

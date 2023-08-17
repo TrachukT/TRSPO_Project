@@ -21,4 +21,7 @@ namespace TFSport.Services.Interfaces
 		public Task CreateSuperAdminUser();
 		
 		public Task<List<User>> GetAllUsers();	}
+
+        public Task<bool> ChangeUserRole(string userId, string newUserRole);
+    }
 }
