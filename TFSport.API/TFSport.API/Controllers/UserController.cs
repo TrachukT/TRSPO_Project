@@ -128,38 +128,37 @@ namespace TFSport.API.Controllers
 		}
 
         /// <summary>
-        /// Changes the role of a user based on the provided user email and new role.
+        /// Changes the role of a user based on the provided user ID and new role.
         /// </summary>
         /// <remarks>
         /// Sample request for changing user role:
         /// <code>
         /// {
-        ///     "userEmail": "user@example.com",
         ///     "newUserRole": "Author"
         /// }
         /// </code>
         /// </remarks>
-        /// <param name="request">The request object containing the user's email and new role.</param>
+        /// <param name="id">The ID of the user to change the role for.</param>
+        /// <param name="request">The request object containing the new role.</param>
         /// <returns>A message indicating the result of the role change.</returns>
-        [HttpPost("change-role")]
+        [HttpPatch("{id}/role")]
         [SwaggerResponse(200, "Request_Succeeded", typeof(string))]
         [RoleAuthorization(UserRoles.SuperAdmin)]
-        public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDTO request)
+        public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
         {
             try
             {
                 var newUserRole = request.NewUserRole;
-                var userEmail = request.UserEmail;
 
-                var userExists = await _userService.ChangeUserRole(userEmail, newUserRole);
+                var userExists = await _userService.ChangeUserRole(id, newUserRole);
 
                 if (userExists)
                 {
-                    return Ok(new { Message = $"User with email {userEmail} role changed to {newUserRole}." });
+                    return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
                 }
                 else
                 {
-                    return NotFound(new { ErrorMessages.UserNotFound });
+                    return NotFound(ErrorMessages.UserNotFound);
                 }
             }
             catch (ArgumentException arg)

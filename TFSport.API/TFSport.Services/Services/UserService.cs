@@ -93,7 +93,7 @@ namespace TFSport.Services.Services
 			await _userRepository.UpdateAsync(user, default);
 		}
 
-        public async Task<bool> ChangeUserRole(string userEmail, string newUserRole)
+        public async Task<bool> ChangeUserRole(string userId, string newUserRole)
         {
             var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
             if (!validRoles.Contains(newUserRole.ToLower()))
@@ -101,7 +101,7 @@ namespace TFSport.Services.Services
                 throw new ArgumentException($"Invalid role specified: {newUserRole}.");
             }
 
-            var user = await GetUserByEmailAsync(userEmail);
+            var user = await _userRepository.GetAsync(userId);
             if (user != null)
             {
                 user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
@@ -113,5 +113,6 @@ namespace TFSport.Services.Services
                 throw new Exception(ErrorMessages.UserNotFound);
             }
         }
+
     }
 }

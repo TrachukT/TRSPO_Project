@@ -18,6 +18,6 @@ namespace TFSport.Services.Interfaces
 
 		public Task EmailVerification(string verificationToken);
 
-        public Task<bool> ChangeUserRole(string userEmail, string newUserRole);
+        public Task<bool> ChangeUserRole(string userId, string newUserRole);
     }
 }
