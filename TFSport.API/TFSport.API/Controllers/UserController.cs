@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using TFSport.API.DTOModels.Users;
 using TFSport.API.Filters;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
+using TFSport.Services.Services;
 
 namespace TFSport.API.Controllers
 {
@@ -17,12 +19,14 @@ namespace TFSport.API.Controllers
     public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
+		private readonly IJWTService _jwtService;
 		private readonly IMapper _mapper;
 
 		public UserController(IUserService userService, IMapper mapper, IJWTService jWTService)
 		{
 			_userService = userService;
 			_mapper = mapper;
+			_jwtService = jWTService;
 		}
 
 		/// <summary>
@@ -149,51 +153,83 @@ namespace TFSport.API.Controllers
 				return StatusCode(500, ex.Message);
 			}
 		}
+
+		/// <summary>
+		/// Changes the role of a user based on the provided user ID and new role.
+		/// </summary>
+		/// <remarks>
+		/// Sample request for changing user role:
+		/// <code>
+		/// {
+		///     "newUserRole": "Author"
+		/// }
+		/// </code>
+		/// </remarks>
+		/// <param name="id">The ID of the user to change the role for.</param>
+		/// <param name="request">The request object containing the new role.</param>
+		/// <returns>A message indicating the result of the role change.</returns>
+		[HttpPatch("{id}/role")]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
+		[RoleAuthorization(UserRoles.SuperAdmin)]
+		public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
+		{
+			try
+			{
+				var newUserRole = request.NewUserRole;
+
+				var userExists = await _userService.ChangeUserRole(id, newUserRole);
+
+				if (userExists)
+				{
+					return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
+				}
+				else
+				{
+					return NotFound(ErrorMessages.UserNotFound);
+				}
+			}
+			catch (ArgumentException arg)
+			{
+				return BadRequest(arg.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		[RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
+		[HttpGet("/user")]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(User))]
+		[SwaggerResponse(400, "Bad_Request", typeof(string))]
+		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+		public async Task<IActionResult> GetUserById()
+		{
+			try
+			{
+				HttpContext.Request.Headers.TryGetValue("Authorization", out var authToken);
+				if (!authToken.ToString().StartsWith("Bearer ", ignoreCase: true, CultureInfo.CurrentCulture))
+				{
+					return BadRequest("Invalid token format");
+				}
+
+				var token = authToken.ToString().Replace("Bearer ", "", ignoreCase: true, CultureInfo.CurrentCulture);
+				var id = await _jwtService.GetIdFromToken(token);
+				if (id == null)
+				{
+					return BadRequest("Invalid token");
+				}
+				var user = await _userService.GetUserById(id);
+				return Ok(user);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, ex.Message);
+			}
+		}
 	}
-}
-
-        /// <summary>
-        /// Changes the role of a user based on the provided user ID and new role.
-        /// </summary>
-        /// <remarks>
-        /// Sample request for changing user role:
-        /// <code>
-        /// {
-        ///     "newUserRole": "Author"
-        /// }
-        /// </code>
-        /// </remarks>
-        /// <param name="id">The ID of the user to change the role for.</param>
-        /// <param name="request">The request object containing the new role.</param>
-        /// <returns>A message indicating the result of the role change.</returns>
-        [HttpPatch("{id}/role")]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        [RoleAuthorization(UserRoles.SuperAdmin)]
-        public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
-        {
-            try
-            {
-                var newUserRole = request.NewUserRole;
-
-                var userExists = await _userService.ChangeUserRole(id, newUserRole);
-
-                if (userExists)
-                {
-                    return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
-                }
-                else
-                {
-                    return NotFound(ErrorMessages.UserNotFound);
-                }
-            }
-            catch (ArgumentException arg)
-            {
-                return BadRequest(arg.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-    }
 }
