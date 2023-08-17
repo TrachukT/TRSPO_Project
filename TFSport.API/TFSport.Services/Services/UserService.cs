@@ -3,6 +3,7 @@ using Microsoft.Azure.CosmosRepository.Extensions;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 using Microsoft.AspNet.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace TFSport.Services.Services
 {
@@ -10,11 +11,13 @@ namespace TFSport.Services.Services
 	{
 		private readonly IRepository<User> _userRepository;
 		private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-		public UserService(IRepository<User> userRepository, IEmailService emailService)
+        public UserService(IRepository<User> userRepository, IEmailService emailService, IConfiguration configuration)
 		{
 			_userRepository = userRepository;
 			_emailService = emailService;
+			_configuration = configuration;
 		}
 
 		public async Task<User> GetUserByEmailAsync(string email)
@@ -92,5 +95,28 @@ namespace TFSport.Services.Services
 			user.EmailVerified = true;
 			await _userRepository.UpdateAsync(user, default);
 		}
-	}
+
+        public async Task CreateSuperAdminUser()
+        {
+            var superAdminEmail = _configuration["SuperAdminCredentials:Email"];
+
+            var existingSuperAdmin = await GetUserByEmailAsync(superAdminEmail);
+            if (existingSuperAdmin == null)
+            {
+                var superAdmin = new User
+                {
+                    FirstName = "Super",
+                    LastName = "Admin",
+                    Email = superAdminEmail,
+                    Password = _configuration["SuperAdminCredentials:Password"],
+                    UserRole = UserRoles.SuperAdmin,
+                    EmailVerified = true,
+                    VerificationToken = Guid.NewGuid().ToString()
+                };
+
+                superAdmin.PartitionKey = superAdmin.Id;
+                await RegisterUser(superAdmin);
+            }
+        }
+    }
 }
