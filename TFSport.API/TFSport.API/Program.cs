@@ -95,11 +95,11 @@ builder.Services.AddSwaggerGen(options =>
 	options.EnableAnnotations();
 });
 
+string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
+string databaseId;
+
 builder.Services.AddSingleton(sp =>
 {
-    string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
-    string databaseId;
-
     if (builder.Environment.IsDevelopment())
     {
         databaseId = builder.Configuration["CosmosConfiguration:DevDatabaseId"];
@@ -115,9 +115,6 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddCosmosRepository(options =>
 {
     var cosmosConfiguration = builder.Configuration.GetSection("CosmosConfiguration");
-    options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
-
-    string databaseId;
 
     if (builder.Environment.IsDevelopment())
     {
