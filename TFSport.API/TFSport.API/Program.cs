@@ -23,12 +23,14 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameo
 builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3001/", "https://tfsport.azurewebsites.net/")
+            builder.WithOrigins(allowedOrigins)
                    .AllowAnyHeader()
                    .AllowAnyMethod()
                    .AllowCredentials();
@@ -95,25 +97,47 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSingleton(sp =>
 {
-	string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
-	return new CosmosClient(connectionString);
+    string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
+    string databaseId;
+
+    if (builder.Environment.IsDevelopment())
+    {
+        databaseId = builder.Configuration["CosmosConfiguration:DevDatabaseId"];
+    }
+    else
+    {
+        databaseId = builder.Configuration["CosmosConfiguration:QaDatabaseId"];
+    }
+
+    return new CosmosClient(connectionString);
 });
 
 builder.Services.AddCosmosRepository(options =>
 {
-	var settings = builder.Configuration.GetSection("CosmosConfiguration");
-	options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
+    var cosmosConfiguration = builder.Configuration.GetSection("CosmosConfiguration");
+    options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
 
-	options.DatabaseId = settings.GetSection("DatabaseId").Value;
-	options.ContainerPerItemType = true;
+    string databaseId;
 
-	options.ContainerBuilder
-		.Configure<TFSport.Models.User>(containerOptionsBuilder =>
-		{
-			containerOptionsBuilder
-				.WithContainer("Users")
-				.WithPartitionKey("/partitionKey");
-		});
+    if (builder.Environment.IsDevelopment())
+    {
+        databaseId = cosmosConfiguration.GetValue<string>("DevDatabaseId");
+    }
+    else
+    {
+        databaseId = cosmosConfiguration.GetValue<string>("QaDatabaseId");
+    }
+
+    options.DatabaseId = databaseId;
+    options.ContainerPerItemType = true;
+
+    options.ContainerBuilder
+        .Configure<TFSport.Models.User>(containerOptionsBuilder =>
+        {
+            containerOptionsBuilder
+                .WithContainer("Users")
+                .WithPartitionKey("/partitionKey");
+        });
 });
 
 var app = builder.Build();
