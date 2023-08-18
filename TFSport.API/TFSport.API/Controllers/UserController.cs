@@ -199,11 +199,11 @@ namespace TFSport.API.Controllers
 		}
 
 		/// <summary>
-		/// 
+		/// Get info about user by user id(from auth token)
 		/// </summary>
 		/// <returns></returns>
 		[RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
-		[HttpGet("/user")]
+		[HttpGet("info")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(GetUserByIdDTO))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
