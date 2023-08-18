@@ -204,7 +204,7 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
 		[HttpGet("/user")]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(User))]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(GetUserByIdDTO))]
 		[SwaggerResponse(400, "Bad_Request", typeof(string))]
 		[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
 		public async Task<IActionResult> GetUserById()
@@ -224,7 +224,7 @@ namespace TFSport.API.Controllers
 					return BadRequest("Invalid token");
 				}
 				var user = await _userService.GetUserById(id);
-				return Ok(user);
+				return Ok(_mapper.Map<GetUserByIdDTO>(user));
 			}
 			catch (Exception ex)
 			{

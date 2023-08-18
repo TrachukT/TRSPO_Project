@@ -23,13 +23,15 @@ namespace TFSport.Services.Services
 
 		public async Task EmailVerification(string email, string verificationToken)
         {
-			var content = $"To complete registration you need to verificate email.To do this click the link below:\n{_emailSettings.EmailUrl}";
+			var link = _emailSettings.EmailUrl + verificationToken;
+			var content = $"To complete registration you need to verificate email.To do this click the link below:\n{link}";
 			await CreateMessage(email, content);
 		}
-
+		
 		public async Task RestorePassword(string email, string verificationToken)
 		{
-			var content = $"To restore password click the link below: \n{_emailSettings.PasswordUrl}";
+			var link = _emailSettings.PasswordUrl + verificationToken;
+			var content = $"To restore password click the link below: \n{link}";
 			await CreateMessage(email, content);
 		}
 		public async Task CreateMessage(string email,string content)
