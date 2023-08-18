@@ -95,26 +95,16 @@ builder.Services.AddSwaggerGen(options =>
 	options.EnableAnnotations();
 });
 
-string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
-string databaseId;
-
 builder.Services.AddSingleton(sp =>
 {
-    if (builder.Environment.IsDevelopment())
-    {
-        databaseId = builder.Configuration["CosmosConfiguration:DevDatabaseId"];
-    }
-    else
-    {
-        databaseId = builder.Configuration["CosmosConfiguration:QaDatabaseId"];
-    }
-
+    string connectionString = builder.Configuration.GetConnectionString("CosmosDb");
     return new CosmosClient(connectionString);
 });
 
 builder.Services.AddCosmosRepository(options =>
 {
     var cosmosConfiguration = builder.Configuration.GetSection("CosmosConfiguration");
+    string databaseId;
 
     if (builder.Environment.IsDevelopment())
     {
@@ -125,6 +115,7 @@ builder.Services.AddCosmosRepository(options =>
         databaseId = cosmosConfiguration.GetValue<string>("QaDatabaseId");
     }
 
+    options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
     options.DatabaseId = databaseId;
     options.ContainerPerItemType = true;
 
