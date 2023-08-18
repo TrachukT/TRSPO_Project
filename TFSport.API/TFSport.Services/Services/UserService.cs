@@ -11,9 +11,9 @@ namespace TFSport.Services.Services
 	{
 		private readonly IRepository<User> _userRepository;
 		private readonly IEmailService _emailService;
-        private readonly IConfiguration _configuration;
+		private readonly IConfiguration _configuration;
 
-        public UserService(IRepository<User> userRepository, IEmailService emailService, IConfiguration configuration)
+		public UserService(IRepository<User> userRepository, IEmailService emailService, IConfiguration configuration)
 		{
 			_userRepository = userRepository;
 			_emailService = emailService;
@@ -36,21 +36,26 @@ namespace TFSport.Services.Services
 			return new List<UserRoles>();
 		}
 
-        public async Task<bool> ValidateCredentialsAsync(string email, string password)
-        {
-            var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                return false;
-            }
+		public async Task<string> ValidateCredentialsAsync(string email, string password)
+		{
+			var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
+			if (user == null)
+			{
+				throw new ArgumentException(ErrorMessages.InvalidCredentials);
+			}
+			
+			var passwordHasher = new PasswordHasher();
+			var result = passwordHasher.VerifyHashedPassword(user.Password, password);
 
-            var passwordHasher = new PasswordHasher();
-            var result = passwordHasher.VerifyHashedPassword(user.Password, password);
+			if (result != PasswordVerificationResult.Success)
+			{
+				throw new ArgumentException(ErrorMessages.InvalidCredentials);
+			}
+			
+			return user.Id;
+		}
 
-            return result == PasswordVerificationResult.Success;
-        }
-
-        public async Task RegisterUser(User user)
+		public async Task RegisterUser(User user)
 		{
 			var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
 			if (checkUser != null)
@@ -124,28 +129,38 @@ namespace TFSport.Services.Services
 			var users = await _userRepository.GetAsync(x => true).ToListAsync();
 			return users;
 		}
+
+		public async Task<bool> ChangeUserRole(string userId, string newUserRole)
+		{
+			var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
+			if (!validRoles.Contains(newUserRole.ToLower()))
+			{
+				throw new ArgumentException($"Invalid role specified: {newUserRole}.");
+			}
+
+			var user = await _userRepository.GetAsync(userId);
+			if (user != null)
+			{
+				user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
+				await _userRepository.UpdateAsync(user, default);
+				return true;
+			}
+			else
+			{
+				throw new Exception(ErrorMessages.UserNotFound);
+			}
+		}
+		
+		public async Task<User> GetUserById(string id)
+		{
+			var user = await _userRepository.GetAsync(id);
+			if (user == null)
+			{
+				throw new ArgumentException(ErrorMessages.UserNotFound);
+			}
+			return user;
+		}
+
+
 	}
-
-        public async Task<bool> ChangeUserRole(string userId, string newUserRole)
-        {
-            var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
-            if (!validRoles.Contains(newUserRole.ToLower()))
-            {
-                throw new ArgumentException($"Invalid role specified: {newUserRole}.");
-            }
-
-            var user = await _userRepository.GetAsync(userId);
-            if (user != null)
-            {
-                user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
-                await _userRepository.UpdateAsync(user, default);
-                return true;
-            }
-            else
-            {
-                throw new Exception(ErrorMessages.UserNotFound);
-            }
-        }
-
-    }
 }
