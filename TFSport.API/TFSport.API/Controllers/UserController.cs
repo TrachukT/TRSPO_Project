@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Security.Claims;
 using TFSport.API.DTOModels.Users;
 using TFSport.API.Filters;
 using TFSport.Models;
@@ -211,18 +212,12 @@ namespace TFSport.API.Controllers
 		{
 			try
 			{
-				HttpContext.Request.Headers.TryGetValue("Authorization", out var authToken);
-				if (!authToken.ToString().StartsWith("Bearer ", ignoreCase: true, CultureInfo.CurrentCulture))
-				{
-					return BadRequest("Invalid token format");
-				}
-
-				var token = authToken.ToString().Replace("Bearer ", "", ignoreCase: true, CultureInfo.CurrentCulture);
-				var id = await _jwtService.GetIdFromToken(token);
-				if (id == null)
+				var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+				if (userIdClaim == null)
 				{
 					return BadRequest("Invalid token");
 				}
+				var id = userIdClaim.Value;
 				var user = await _userService.GetUserById(id);
 				return Ok(_mapper.Map<GetUserByIdDTO>(user));
 			}

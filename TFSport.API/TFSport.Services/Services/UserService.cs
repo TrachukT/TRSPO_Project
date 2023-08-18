@@ -39,14 +39,19 @@ namespace TFSport.Services.Services
 		public async Task<string> ValidateCredentialsAsync(string email, string password)
 		{
 			var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-
-			var passwordHasher = new PasswordHasher();
-			var result = passwordHasher.VerifyHashedPassword(user.Password, password);
-
-			if (user == null && result != PasswordVerificationResult.Success)
+			if (user == null)
 			{
 				throw new ArgumentException(ErrorMessages.InvalidCredentials);
 			}
+			
+			var passwordHasher = new PasswordHasher();
+			var result = passwordHasher.VerifyHashedPassword(user.Password, password);
+
+			if (result != PasswordVerificationResult.Success)
+			{
+				throw new ArgumentException(ErrorMessages.InvalidCredentials);
+			}
+			
 			return user.Id;
 		}
 
