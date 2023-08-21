@@ -4,6 +4,7 @@ using TFSport.Models;
 using TFSport.Services.Interfaces;
 using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace TFSport.Services.Services
 {
@@ -12,12 +13,14 @@ namespace TFSport.Services.Services
 		private readonly IRepository<User> _userRepository;
 		private readonly IEmailService _emailService;
 		private readonly IConfiguration _configuration;
+		private readonly ILogger _logger;
 
-		public UserService(IRepository<User> userRepository, IEmailService emailService, IConfiguration configuration)
+		public UserService(IRepository<User> userRepository, IEmailService emailService, IConfiguration configuration, ILogger<UserService> logger)
 		{
 			_userRepository = userRepository;
 			_emailService = emailService;
 			_configuration = configuration;
+			_logger = logger;
 		}
 
 		public async Task<User> GetUserByEmailAsync(string email)
@@ -43,7 +46,7 @@ namespace TFSport.Services.Services
 			{
 				throw new ArgumentException(ErrorMessages.InvalidCredentials);
 			}
-			
+
 			var passwordHasher = new PasswordHasher();
 			var result = passwordHasher.VerifyHashedPassword(user.Password, password);
 
@@ -51,7 +54,7 @@ namespace TFSport.Services.Services
 			{
 				throw new ArgumentException(ErrorMessages.InvalidCredentials);
 			}
-			
+
 			return user.Id;
 		}
 
@@ -66,6 +69,7 @@ namespace TFSport.Services.Services
 
 			await _userRepository.CreateAsync(user, default);
 			await _emailService.EmailVerification(user.Email, user.VerificationToken);
+			_logger.LogInformation("User with id {id} was created", user.Id);
 		}
 
 		public async Task ForgotPassword(string email)
@@ -85,9 +89,10 @@ namespace TFSport.Services.Services
 
 			user.VerificationToken = Guid.NewGuid().ToString();
 			var hash = new PasswordHasher();
-			user.Password = user.Password = hash.HashPassword(password);
+			user.Password = hash.HashPassword(password);
 
 			await _userRepository.UpdateAsync(user, default);
+			_logger.LogInformation("Password for user with id {id} was updated", user.Id);
 		}
 
 		public async Task EmailVerification(string verificationToken)
@@ -99,6 +104,7 @@ namespace TFSport.Services.Services
 			user.VerificationToken = Guid.NewGuid().ToString();
 			user.EmailVerified = true;
 			await _userRepository.UpdateAsync(user, default);
+			_logger.LogInformation("User with id {id} successfully verified email", user.Id);
 		}
 
 		public async Task CreateSuperAdminUser()
@@ -121,6 +127,7 @@ namespace TFSport.Services.Services
 
 				superAdmin.PartitionKey = superAdmin.Id;
 				await RegisterUser(superAdmin);
+				_logger.LogInformation("Super admin created");
 			}
 		}
 
@@ -143,6 +150,7 @@ namespace TFSport.Services.Services
 			{
 				user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
 				await _userRepository.UpdateAsync(user, default);
+				_logger.LogInformation("User with id {id} now has role {role}", user.Id, user.UserRole);
 				return true;
 			}
 			else
@@ -150,7 +158,7 @@ namespace TFSport.Services.Services
 				throw new Exception(ErrorMessages.UserNotFound);
 			}
 		}
-		
+
 		public async Task<User> GetUserById(string id)
 		{
 			var user = await _userRepository.GetAsync(id);

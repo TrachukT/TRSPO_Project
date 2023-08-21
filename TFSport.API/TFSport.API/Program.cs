@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -25,14 +26,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:3001/", "https://tfsport.azurewebsites.net/")
-                   .AllowAnyHeader()
-                   .AllowAnyMethod()
-                   .AllowCredentials();
-        });
+	options.AddPolicy("AllowSpecificOrigins",
+		builder =>
+		{
+			builder.WithOrigins("http://localhost:3001/", "https://tfsport.azurewebsites.net/")
+				   .AllowAnyHeader()
+				   .AllowAnyMethod()
+				   .AllowCredentials();
+		});
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -54,9 +55,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	});
 
 builder.Services.AddControllers().AddJsonOptions(options =>
- {
-	 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
- });
+{
+	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -103,8 +104,18 @@ builder.Services.AddCosmosRepository(options =>
 {
 	var settings = builder.Configuration.GetSection("CosmosConfiguration");
 	options.CosmosConnectionString = builder.Configuration.GetConnectionString("CosmosDb");
+	string databaseId;
 
-	options.DatabaseId = settings.GetSection("DatabaseId").Value;
+	if (builder.Environment.IsDevelopment())
+	{
+		databaseId = settings.GetValue<string>("DevDatabaseId");
+	}
+	else
+	{
+		databaseId = settings.GetValue<string>("QaDatabaseId");
+	}
+
+	options.DatabaseId = databaseId;
 	options.ContainerPerItemType = true;
 
 	options.ContainerBuilder
@@ -115,6 +126,14 @@ builder.Services.AddCosmosRepository(options =>
 				.WithPartitionKey("/partitionKey");
 		});
 });
+
+builder.Logging.AddApplicationInsights(
+		configureTelemetryConfiguration: (config) =>
+			config.ConnectionString = builder.Configuration.GetConnectionString("AppInsights"),
+			configureApplicationInsightsLoggerOptions: (options) => { }
+	);
+
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Successful-operations", LogLevel.Information);
 
 var app = builder.Build();
 
@@ -136,8 +155,8 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-    userService.CreateSuperAdminUser().Wait();
+	var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+	userService.CreateSuperAdminUser().Wait();
 }
 
 app.Run();
