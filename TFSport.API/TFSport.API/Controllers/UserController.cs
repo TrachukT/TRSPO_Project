@@ -44,7 +44,6 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("register")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(UserRegisterDTO))]
-        [CustomExceptionFilter]
         public async Task<IActionResult> Register([FromBody] UserRegisterDTO user)
 		{
 			await _userService.RegisterUser(_mapper.Map<User>(user));
@@ -58,7 +57,6 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("restore-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        [CustomExceptionFilter]
         public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
 		{
 			await _userService.ForgotPassword(email);
@@ -73,7 +71,6 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("recover-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        [CustomExceptionFilter]
         public async Task<IActionResult> RestorePassword([FromQuery] string verificationToken,[FromBody] RestorePasswordDTO password)
 		{
 			await _userService.RestorePassword(verificationToken, password.Password);
@@ -82,7 +79,6 @@ namespace TFSport.API.Controllers
 
 		[HttpPost("confirmation")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        [CustomExceptionFilter]
         public async Task<IActionResult> EmailVerification([FromQuery] string verificationToken)
 		{
 			await _userService.EmailVerification(verificationToken);
@@ -96,7 +92,6 @@ namespace TFSport.API.Controllers
         [RoleAuthorization(UserRoles.SuperAdmin)]
 		[HttpGet()]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(List<GetAllUsersDTO>))]
-        [CustomExceptionFilter]
         public async Task<IActionResult> GetAllUsers()
 		{
 			var users = await _userService.GetAllUsers();
@@ -122,7 +117,6 @@ namespace TFSport.API.Controllers
 		[HttpPatch("{id}/role")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[RoleAuthorization(UserRoles.SuperAdmin)]
-        [CustomExceptionFilter]
         public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
 		{
 			var newUserRole = request.NewUserRole;
@@ -138,7 +132,6 @@ namespace TFSport.API.Controllers
 		[RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
 		[HttpGet("info")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(GetUserByIdDTO))]
-        [CustomExceptionFilter]
         public async Task<IActionResult> GetUserById()
 		{
 			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);

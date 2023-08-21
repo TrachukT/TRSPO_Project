@@ -68,6 +68,11 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.InvalidCredentials);
                 }
 
+                if (user.EmailVerified == false)
+                {
+                    throw new CustomException(ErrorMessages.EmailNotVerified);
+                }
+
                 var passwordHasher = new PasswordHasher();
                 var result = passwordHasher.VerifyHashedPassword(user.Password, password);
 
