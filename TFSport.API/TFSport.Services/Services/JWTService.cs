@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TFSport.Models;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
@@ -40,25 +41,25 @@ namespace TFSport.Services.Services
 
 		public async Task<string> GenerateRefreshTokenAsync(string email,string id)
 		{
-			var refreshSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:RefreshSecret"]));
+            var refreshSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:RefreshSecret"]));
 
-			var claims = new List<Claim>
-			{
-				new Claim("email", email),
-				new Claim(ClaimTypes.NameIdentifier, id),
-			};
+            var claims = new List<Claim>
+                {
+                    new Claim("email", email),
+                    new Claim(ClaimTypes.NameIdentifier, id),
+                };
 
-			var refreshToken = new JwtSecurityToken(
-				_configuration["JWT:ValidAudience"],
-				_configuration["JWT:ValidIssuer"],
-				claims: claims,
-				expires: DateTime.UtcNow.AddDays(Convert.ToDouble(_configuration["JWT:RefreshTokenExpirationDays"])),
-				signingCredentials: new SigningCredentials(refreshSigningKey, SecurityAlgorithms.HmacSha256)
-			);
+            var refreshToken = new JwtSecurityToken(
+                _configuration["JWT:ValidAudience"],
+                _configuration["JWT:ValidIssuer"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(Convert.ToDouble(_configuration["JWT:RefreshTokenExpirationDays"])),
+                signingCredentials: new SigningCredentials(refreshSigningKey, SecurityAlgorithms.HmacSha256)
+            );
 
-			var handler = new JwtSecurityTokenHandler();
-			return handler.WriteToken(refreshToken);
-		}
+            var handler = new JwtSecurityTokenHandler();
+            return handler.WriteToken(refreshToken);
+        }
 
 		public async Task<string> GetIdFromToken(string token)
 		{
