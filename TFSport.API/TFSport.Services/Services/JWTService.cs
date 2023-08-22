@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,10 +11,11 @@ namespace TFSport.Services.Services
 	public class JWTService : IJWTService
 	{
 		private readonly IConfiguration _configuration;
-
-		public JWTService(IConfiguration configuration)
+		private readonly ILogger _logger;
+		public JWTService(IConfiguration configuration, ILogger<JWTService> logger)
 		{
 			_configuration = configuration;
+			_logger = logger;
 		}
 
 		public async Task<string> GenerateAccessTokenAsync(string email, string id)
@@ -24,7 +26,7 @@ namespace TFSport.Services.Services
 			{
 				new Claim("email", email),
 				new Claim(ClaimTypes.NameIdentifier, id),
-			}; 
+			};
 
 			var token = new JwtSecurityToken(
 				_configuration["JWT:ValidAudience"],
@@ -35,10 +37,11 @@ namespace TFSport.Services.Services
 			);
 
 			var handler = new JwtSecurityTokenHandler();
+			_logger.LogInformation("Acces token for user with id {id} was generated", id);
 			return handler.WriteToken(token);
 		}
 
-		public async Task<string> GenerateRefreshTokenAsync(string email,string id)
+		public async Task<string> GenerateRefreshTokenAsync(string email, string id)
 		{
 			var refreshSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:RefreshSecret"]));
 
@@ -57,6 +60,7 @@ namespace TFSport.Services.Services
 			);
 
 			var handler = new JwtSecurityTokenHandler();
+			_logger.LogInformation("Refresh token for user with id {id} was generated", id);
 			return handler.WriteToken(refreshToken);
 		}
 
