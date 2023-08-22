@@ -32,13 +32,14 @@ namespace TFSport.API.Filters
         {
             string actionName = context.ActionDescriptor.DisplayName;
             string exceptionStack = context.Exception.StackTrace;
-            string exceptionMessage = customException.DisplayMessage;
+            string exceptionDisplayMessage = customException.InnerException?.Message ?? customException.Message;
+            string exceptionRawMessage = context.Exception.Message;
 
-            _logger.LogInformation("Custom exception occurred in {actionName}: {exceptionMessage}. Stack Trace: {exceptionStack}", actionName, exceptionMessage, exceptionStack);
+            _logger.LogInformation("Custom exception occurred in {actionName}: Display Message: {exceptionDisplayMessage}, Raw Message: {exceptionRawMessage}. Stack Trace: {exceptionStack}", actionName, exceptionDisplayMessage, exceptionRawMessage, exceptionStack);
 
             var response = new
             {
-                Message = exceptionMessage
+                Message = exceptionDisplayMessage
             };
 
             context.Result = new ObjectResult(response)
