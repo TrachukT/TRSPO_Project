@@ -25,150 +25,271 @@ namespace TFSport.Services.Services
 
 		public async Task<User> GetUserByEmailAsync(string email)
 		{
-			var users = await _userRepository.GetAsync(u => u.Email == email);
-			return users.FirstOrDefault();
-		}
+			try
+			{
+                var users = await _userRepository.GetAsync(u => u.Email == email);
+                return users.FirstOrDefault();
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email)
 		{
-			var user = await GetUserByEmailAsync(email);
-			if (user != null)
+			try
 			{
-				return new List<UserRoles> { user.UserRole };
-			}
-			return new List<UserRoles>();
-		}
+                var user = await GetUserByEmailAsync(email);
+                if (user != null)
+                {
+                    return new List<UserRoles> { user.UserRole };
+                }
+                return new List<UserRoles>();
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task<string> ValidateCredentialsAsync(string email, string password)
 		{
-			var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-			if (user == null)
-			{
-				throw new ArgumentException(ErrorMessages.InvalidCredentials);
-			}
+			try
+            {
+                var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    throw new CustomException(ErrorMessages.InvalidCredentials);
+                }
 
-			var passwordHasher = new PasswordHasher();
-			var result = passwordHasher.VerifyHashedPassword(user.Password, password);
+                var passwordHasher = new PasswordHasher();
+                var result = passwordHasher.VerifyHashedPassword(user.Password, password);
 
-			if (result != PasswordVerificationResult.Success)
-			{
-				throw new ArgumentException(ErrorMessages.InvalidCredentials);
-			}
+                if (result != PasswordVerificationResult.Success)
+                {
+                    throw new CustomException(ErrorMessages.InvalidCredentials);
+                }
 
-			return user.Id;
-		}
+                return user.Id;
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task RegisterUser(User user)
 		{
-			var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
-			if (checkUser != null)
-				throw new ArgumentException(ErrorMessages.EmailIsRegistered);
+            try
+            {
+                var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
+                if (checkUser != null)
+                {
+                    throw new CustomException(ErrorMessages.EmailIsRegistered);
+                }
 
-			var hash = new PasswordHasher();
-			user.Password = hash.HashPassword(user.Password);
+                var hash = new PasswordHasher();
+                user.Password = hash.HashPassword(user.Password);
 
-			await _userRepository.CreateAsync(user, default);
-			await _emailService.EmailVerification(user.Email, user.VerificationToken);
-			_logger.LogInformation("User with id {id} was created", user.Id);
-		}
+                await _userRepository.CreateAsync(user, default);
+                await _emailService.EmailVerification(user.Email, user.VerificationToken);
+                _logger.LogInformation("User with id {id} was created", user.Id);
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+
+        }
 
 		public async Task ForgotPassword(string email)
 		{
-			var checkUser = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-			if (checkUser == null)
-				throw new ArgumentException(ErrorMessages.NotRegisteredEmail);
+			try
+			{
+                var checkUser = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
+                if (checkUser == null)
+				{
+                    throw new CustomException(ErrorMessages.NotRegisteredEmail);
+                }
 
-			await _emailService.RestorePassword(email, checkUser.VerificationToken);
-		}
+                await _emailService.RestorePassword(email, checkUser.VerificationToken);
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task RestorePassword(string token, string password)
 		{
-			var user = await _userRepository.GetAsync(x => x.VerificationToken == token).FirstOrDefaultAsync();
-			if (user == null)
-				throw new ArgumentException(ErrorMessages.NotValidLink);
+            try
+            {
+                var user = await _userRepository.GetAsync(x => x.VerificationToken == token).FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    throw new CustomException(ErrorMessages.NotValidLink);
+                }
 
-			user.VerificationToken = Guid.NewGuid().ToString();
-			var hash = new PasswordHasher();
-			user.Password = hash.HashPassword(password);
+                user.VerificationToken = Guid.NewGuid().ToString();
+                var hash = new PasswordHasher();
+                user.Password = hash.HashPassword(password);
 
-			await _userRepository.UpdateAsync(user, default);
-			_logger.LogInformation("Password for user with id {id} was updated", user.Id);
-		}
+                await _userRepository.UpdateAsync(user, default);
+                _logger.LogInformation("Password for user with id {id} was updated", user.Id);
+
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task EmailVerification(string verificationToken)
 		{
-			var user = await _userRepository.GetAsync(x => x.VerificationToken == verificationToken).FirstOrDefaultAsync();
-			if (user == null)
-				throw new ArgumentException(ErrorMessages.NotValidLink);
+            try
+            {
+                var user = await _userRepository.GetAsync(x => x.VerificationToken == verificationToken).FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    throw new CustomException(ErrorMessages.NotValidLink);
+                }
 
-			user.VerificationToken = Guid.NewGuid().ToString();
-			user.EmailVerified = true;
-			await _userRepository.UpdateAsync(user, default);
-			_logger.LogInformation("User with id {id} successfully verified email", user.Id);
-		}
+                user.VerificationToken = Guid.NewGuid().ToString();
+                user.EmailVerified = true;
+                await _userRepository.UpdateAsync(user, default);
+                _logger.LogInformation("User with id {id} successfully verified email", user.Id);
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task CreateSuperAdminUser()
 		{
-			var superAdminEmail = _configuration["SuperAdminCredentials:Email"];
+            try
+            {
+                var superAdminEmail = _configuration["SuperAdminCredentials:Email"];
 
-			var existingSuperAdmin = await GetUserByEmailAsync(superAdminEmail);
-			if (existingSuperAdmin == null)
-			{
-				var superAdmin = new User
-				{
-					FirstName = "Super",
-					LastName = "Admin",
-					Email = superAdminEmail,
-					Password = _configuration["SuperAdminCredentials:Password"],
-					UserRole = UserRoles.SuperAdmin,
-					EmailVerified = true,
-					VerificationToken = Guid.NewGuid().ToString()
-				};
+                var existingSuperAdmin = await GetUserByEmailAsync(superAdminEmail);
+                if (existingSuperAdmin == null)
+                {
+                    var superAdmin = new User
+                    {
+                        FirstName = "Super",
+                        LastName = "Admin",
+                        Email = superAdminEmail,
+                        Password = _configuration["SuperAdminCredentials:Password"],
+                        UserRole = UserRoles.SuperAdmin,
+                        EmailVerified = true,
+                        VerificationToken = Guid.NewGuid().ToString()
+                    };
 
-				superAdmin.PartitionKey = superAdmin.Id;
-				await RegisterUser(superAdmin);
-				_logger.LogInformation("Super admin created");
-			}
-		}
+                    superAdmin.PartitionKey = superAdmin.Id;
+                    await RegisterUser(superAdmin);
+                    _logger.LogInformation("Super admin created");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task<List<User>> GetAllUsers()
 		{
-			var users = await _userRepository.GetAsync(x => true).ToListAsync();
-			return users;
-		}
+            try
+            {
+                var users = await _userRepository.GetAsync(x => true).ToListAsync();
+                return users;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task<bool> ChangeUserRole(string userId, string newUserRole)
 		{
-			var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
-			if (!validRoles.Contains(newUserRole.ToLower()))
-			{
-				throw new ArgumentException($"Invalid role specified: {newUserRole}.");
-			}
+            try
+            {
+                var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
+                if (!validRoles.Contains(newUserRole.ToLower()))
+                {
+                    throw new CustomException($"Invalid role specified: {newUserRole}.");
+                }
 
-			var user = await _userRepository.GetAsync(userId);
-			if (user != null)
-			{
-				user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
-				await _userRepository.UpdateAsync(user, default);
-				_logger.LogInformation("User with id {id} now has role {role}", user.Id, user.UserRole);
-				return true;
-			}
-			else
-			{
-				throw new Exception(ErrorMessages.UserNotFound);
-			}
-		}
+                var user = await _userRepository.GetAsync(userId);
+                if (user != null)
+                {
+                    user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
+                    await _userRepository.UpdateAsync(user, default);
+                    _logger.LogInformation("User with id {id} now has role {role}", user.Id, user.UserRole);
+                    return true;
+                }
+                else
+                {
+                    throw new CustomException($"User with ID {userId} not found.");
+                }
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
 		public async Task<User> GetUserById(string id)
 		{
-			var user = await _userRepository.GetAsync(id);
-			if (user == null)
-			{
-				throw new ArgumentException(ErrorMessages.UserNotFound);
-			}
-			return user;
-		}
-
-
+            try
+            {
+                var user = await _userRepository.GetAsync(id);
+                if (user == null)
+                {
+                    throw new CustomException(ErrorMessages.UserNotFound);
+                }
+                return user;
+            }
+            catch (ArgumentException arg)
+            {
+                throw new CustomException(arg.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 	}
 }

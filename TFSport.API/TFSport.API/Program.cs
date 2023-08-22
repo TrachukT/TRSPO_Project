@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using TFSport.API;
 using TFSport.API.AutoMapper;
+using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
 using TFSport.Services.Services;
 
@@ -23,6 +26,8 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
 builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<CustomExceptionFilter>();
+
 
 var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
 
@@ -68,7 +73,7 @@ builder.Services.AddSwaggerGen(options =>
 
 	options.SwaggerDoc("v1", new OpenApiInfo { Title = "TFSport.API", Version = "v1" });
 
-	options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
 		Name = "Authorization",
 		Type = SecuritySchemeType.ApiKey,
@@ -144,6 +149,23 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "text/plain";
+
+        var exceptionHandlerPathFeature =
+            context.Features.Get<IExceptionHandlerPathFeature>();
+
+        if (exceptionHandlerPathFeature?.Error is Exception error)
+        {
+            await context.Response.WriteAsync(error.Message).ConfigureAwait(false);
+        }
+    });
+});
 
 app.UseHttpsRedirection();
 
