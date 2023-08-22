@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Net;
@@ -61,9 +62,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	});
 
 builder.Services.AddControllers().AddJsonOptions(options =>
- {
-	 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
- });
+{
+	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -133,6 +134,14 @@ builder.Services.AddCosmosRepository(options =>
         });
 });
 
+builder.Logging.AddApplicationInsights(
+		configureTelemetryConfiguration: (config) =>
+			config.ConnectionString = builder.Configuration.GetConnectionString("AppInsights"),
+			configureApplicationInsightsLoggerOptions: (options) => { }
+	);
+
+builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Successful-operations", LogLevel.Information);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -170,8 +179,8 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-    userService.CreateSuperAdminUser().Wait();
+	var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+	userService.CreateSuperAdminUser().Wait();
 }
 
 app.Run();
