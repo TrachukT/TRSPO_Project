@@ -10,11 +10,13 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+		<PackageReference Include="Azure.Storage.Blobs" Version="12.17.0" />
 		<PackageReference Include="IEvangelist.Azure.CosmosRepository" Version="7.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9" />
 		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.35.2" />
+		<PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.21.0" />
 		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.32.1" />
 		<PackageReference Include="Microsoft.OpenApi" Version="1.6.6" />
