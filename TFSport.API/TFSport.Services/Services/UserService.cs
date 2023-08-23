@@ -291,5 +291,29 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
+
+		public async Task ResendEmail(string email)
+        {
+            try
+            {
+                var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
+				if(user == null)
+                {
+                    throw new CustomException(ErrorMessages.NotRegisteredEmail);
+                }
+
+                if(user.EmailVerified == true)
+                {
+                    throw new CustomException(ErrorMessages.AlreadyVerifiedEmail);
+                }
+
+                await _emailService.EmailVerification(email, user.VerificationToken);
+            }
+			catch(Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
 	}
 }

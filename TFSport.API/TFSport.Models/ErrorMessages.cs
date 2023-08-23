@@ -37,5 +37,7 @@
         public const string UserIdIsRequired = "User ID field cannot be empty.";
 
         public const string EmailNotVerified = "Email must be verified before logging in.";
+
+        public const string AlreadyVerifiedEmail = "This email has already been verified";
     }
 }

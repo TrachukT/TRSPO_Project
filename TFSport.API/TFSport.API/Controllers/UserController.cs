@@ -12,13 +12,13 @@ namespace TFSport.API.Controllers
 {
 	[ApiController]
 	[Route("api/users")]
-    [CustomExceptionFilter]
+	[CustomExceptionFilter]
 
-    [SwaggerResponse(400, "Bad_Request", typeof(string))]
-    [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-    public class UserController : ControllerBase
+	[SwaggerResponse(400, "Bad_Request", typeof(string))]
+	[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+	public class UserController : ControllerBase
 	{
-        private readonly IUserService _userService;
+		private readonly IUserService _userService;
 		private readonly IMapper _mapper;
 
 		public UserController(IUserService userService, IMapper mapper)
@@ -44,7 +44,7 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("register")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(UserRegisterDTO))]
-        public async Task<IActionResult> Register([FromBody] UserRegisterDTO user)
+		public async Task<IActionResult> Register([FromBody] UserRegisterDTO user)
 		{
 			await _userService.RegisterUser(_mapper.Map<User>(user));
 			return Ok();
@@ -57,7 +57,7 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("restore-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
+		public async Task<IActionResult> ForgetPassword([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)] string email)
 		{
 			await _userService.ForgotPassword(email);
 			return Ok();
@@ -71,7 +71,7 @@ namespace TFSport.API.Controllers
 		/// <returns></returns>
 		[HttpPost("recover-password")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        public async Task<IActionResult> RestorePassword([FromQuery] string verificationToken,[FromBody] RestorePasswordDTO password)
+		public async Task<IActionResult> RestorePassword([FromQuery] string verificationToken, [FromBody] RestorePasswordDTO password)
 		{
 			await _userService.RestorePassword(verificationToken, password.Password);
 			return Ok();
@@ -79,7 +79,7 @@ namespace TFSport.API.Controllers
 
 		[HttpPost("confirmation")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
-        public async Task<IActionResult> EmailVerification([FromQuery] string verificationToken)
+		public async Task<IActionResult> EmailVerification([FromQuery] string verificationToken)
 		{
 			await _userService.EmailVerification(verificationToken);
 			return Ok();
@@ -89,10 +89,10 @@ namespace TFSport.API.Controllers
 		/// Get all users info
 		/// </summary>
 		/// <returns></returns>
-        [RoleAuthorization(UserRoles.SuperAdmin)]
+		[RoleAuthorization(UserRoles.SuperAdmin)]
 		[HttpGet()]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(List<GetAllUsersDTO>))]
-        public async Task<IActionResult> GetAllUsers()
+		public async Task<IActionResult> GetAllUsers()
 		{
 			var users = await _userService.GetAllUsers();
 			List<GetAllUsersDTO> list = _mapper.Map<List<GetAllUsersDTO>>(users);
@@ -117,13 +117,13 @@ namespace TFSport.API.Controllers
 		[HttpPatch("{id}/role")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[RoleAuthorization(UserRoles.SuperAdmin)]
-        public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
+		public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
 		{
 			var newUserRole = request.NewUserRole;
 			await _userService.ChangeUserRole(id, newUserRole);
 
-            return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
-        }
+			return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
+		}
 
 		/// <summary>
 		/// Get info about user by user id(from auth token)
@@ -132,7 +132,7 @@ namespace TFSport.API.Controllers
 		[RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
 		[HttpGet("info")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(GetUserByIdDTO))]
-        public async Task<IActionResult> GetUserById()
+		public async Task<IActionResult> GetUserById()
 		{
 			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 			var id = userIdClaim.Value;
@@ -140,5 +140,15 @@ namespace TFSport.API.Controllers
 
 			return Ok(_mapper.Map<GetUserByIdDTO>(user));
 		}
+
+
+		[HttpPost("registration-confirm")]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
+		public async Task<IActionResult> ResendEmail([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)]string email)
+		{
+			await _userService.ResendEmail(email);
+			return Ok();
+		}
+
 	}
 }
