@@ -39,5 +39,11 @@
         public const string EmailNotVerified = "Email must be verified before logging in.";
 
         public const string AlreadyVerifiedEmail = "This email has already been verified";
+
+        public const string NoAuthorsArticles = "You have no articles posted or in drafts";
+
+        public const string NoArticlesForReview = "There are no articles waiting for review";
+
+        public const string NoArticlesPublished = "There are no articles published now";
     }
 }
