@@ -27,6 +27,8 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
 builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 
 
@@ -140,6 +142,20 @@ builder.Services.AddCosmosRepository(options =>
                 .WithContainer("Users")
                 .WithPartitionKey("/partitionKey");
         });
+	options.ContainerBuilder
+		.Configure<TFSport.Models.Article>(containerOptionsBuilder =>
+		{
+			containerOptionsBuilder
+				.WithContainer("Articles")
+				.WithPartitionKey("/partitionKey");
+		});
+	options.ContainerBuilder
+		.Configure<TFSport.Models.Comment>(containerOptionsBuilder =>
+		{
+			containerOptionsBuilder
+				.WithContainer("Comments")
+				.WithPartitionKey("/articleId");
+		});
 });
 
 builder.Logging.AddApplicationInsights(
