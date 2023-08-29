@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Reflection;
@@ -65,6 +66,13 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
 	options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:BlobStorage"]);
+});
+
+builder.Services.AddBlobStorageService(builder.Configuration["ConnectionStrings:BlobStorage"]);
 
 builder.Services.AddSwaggerGen(options =>
 {
