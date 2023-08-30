@@ -35,7 +35,7 @@ namespace TFSport.API.Controllers
 
 		[HttpGet("review")]
 		[RoleAuthorization(UserRoles.SuperAdmin)]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(GetArticlesListDTO))]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
 		public async Task<IActionResult> GetArticlesForApprove()
 		{
 			var articles = await _articleService.ArticlesForApprove();
@@ -44,7 +44,7 @@ namespace TFSport.API.Controllers
 
 		[RoleAuthorization(UserRoles.Author,UserRoles.SuperAdmin)]
 		[HttpGet("mine")]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(GetArticlesListDTO))]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
 		public async Task<IActionResult> GetAuthorArticles()
 		{
 			var authorId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
@@ -53,7 +53,7 @@ namespace TFSport.API.Controllers
 		}
 
 		[HttpGet]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(GetArticlesListDTO))]
+		[SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
 		public async Task<IActionResult> GetPublishedArticles()
 		{
 			var articles = await _articleService.PublishedArticles();
