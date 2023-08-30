@@ -57,7 +57,12 @@ namespace TFSport.API.Controllers
 		public async Task<IActionResult> GetPublishedArticles()
 		{
 			var articles = await _articleService.PublishedArticles();
-			return Ok(articles);
+			var list = new List<GetArticlesListDTO>();
+			foreach(var article in articles)
+			{
+				list.Add(_mapper.Map<GetArticlesListDTO>(article));
+			}
+			return Ok(list);
 		}
 	}
 }
