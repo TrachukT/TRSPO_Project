@@ -1,6 +1,6 @@
 ﻿namespace TFSport.API.DTOModels.Users
 {
-	public class UserDTO
+	public class UserInfo
 	{
 		public string Id { get; set; }
 		public string FirstName { get; set; }

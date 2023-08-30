@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TFSport.API.DTOModels.Articles;
 using TFSport.Models;
 
 namespace TFSport.Services.Interfaces
@@ -11,10 +13,12 @@ namespace TFSport.Services.Interfaces
 	{
 		public Task CreateArticle();
 
-		public Task<List<Article>> ArticlesForApprove();
+		public Task<List<ArticlesListModel>> ArticlesForApprove();
 
-		public Task<List<Article>> AuthorsArticles(string authorId);
+		public Task<List<ArticlesListModel>> AuthorsArticles(string authorId);
 		
-		public Task<List<Article>> PublishedArticles();
+		public Task<List<ArticlesListModel>> PublishedArticles();
+
+		public Task<List<ArticlesListModel>> MapArticles(List<Article> articles);
 	}
 }

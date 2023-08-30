@@ -10,10 +10,9 @@ namespace TFSport.API.AutoMapper
 {
 	public class MappingProfile : Profile
 	{
-		private readonly IUserService _userService;
-		public MappingProfile(IUserService userService)
+		private readonly UserService _userService;
+		public MappingProfile()
 		{
-			_userService = userService;
 			CreateMap<UserRegisterDTO, User>().BeforeMap((src, dest) =>
 			{
 				dest.UserRole = UserRoles.User;
@@ -32,48 +31,12 @@ namespace TFSport.API.AutoMapper
 
 			CreateMap<User, GetUserByIdDTO>();
 
-			CreateMap<User, UserDTO>();
+			CreateMap<User, UserInfo>();
 
-			//CreateMap<Article, GetArticlesListDTO>()
-			//	.ForMember(dest => dest.Author, opt => opt.MapFrom(src => _userService.GetUserById(src.Author)));
+			CreateMap<Article, ArticlesListModel>()
+				.ForMember(dest => dest.Author, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src =>src.CreatedTimeUtc));
 
-			//CreateMap<List<Article>, List<GetArticlesListDTO>>()
-			//	.BeforeMap(async (src, dest) =>
-			//	{
-			//		foreach (var articleDto in dest)
-			//		{
-			//			var user = await _userService.GetUserById(articleDto.Author.Id);
-
-			//			var userDto = new UserDTO
-			//			{
-			//				Id = user.Id,
-			//				FirstName = user.FirstName,
-			//				LastName = user.LastName,
-			//			};
-
-			//			articleDto.Author = userDto;
-			//		}
-			//	});
-			CreateMap<User, UserDTO>(); // Ensure User to UserDTO mapping is configured
-										//CreateMap<List<Article>, List<GetArticlesListDTO>>();
-
-			//CreateMap<Article, GetArticlesListDTO>()
-			//	.BeforeMap(async (src, dest, context) =>
-			//	{
-			//		// Map the list of articles first
-			//		context.Mapper.Map(src, dest);
-
-			//		// Perform additional mapping for the Author property
-			//		var user = await context.Mapper.Map<Task<UserDTO>>(_userService.GetUserById(src.Author));
-			//		dest.Author = user;
-			//	});
-
-			CreateMap<Article, GetArticlesListDTO>()
-			.ForMember(dest => dest.Author, opt => opt.MapFrom((src, dest, destMember, context) =>
-			{
-				var user = _userService.GetUserById(src.Author).Result; // Make sure to handle async properly
-				return context.Mapper.Map<UserDTO>(user);
-			}));
 		}
 	}
 }

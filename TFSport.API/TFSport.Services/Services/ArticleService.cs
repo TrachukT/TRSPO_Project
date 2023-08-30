@@ -1,10 +1,14 @@
-﻿using Microsoft.Azure.CosmosRepository;
+﻿using AutoMapper;
+using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TFSport.API.DTOModels.Articles;
+using TFSport.API.DTOModels.Users;
 using TFSport.Models;
 using TFSport.Services.Interfaces;
 
@@ -13,13 +17,17 @@ namespace TFSport.Services.Services
 	public class ArticleService : IArticleService
 	{
 		private readonly IRepository<Article> _articleRepo;
+		private readonly IUserService _userService;
+		private readonly IMapper _mapper;
 
-		public ArticleService(IRepository<Article> articleRepo)
+		public ArticleService(IRepository<Article> articleRepo, IUserService userService, IMapper mapper)
 		{
 			_articleRepo = articleRepo;
+			_userService = userService;
+			_mapper = mapper;
 		}
 
-		public async Task<List<Article>> ArticlesForApprove()
+		public async Task<List<ArticlesListModel>> ArticlesForApprove()
 		{
 			try
 			{
@@ -28,7 +36,8 @@ namespace TFSport.Services.Services
 				{
 					throw new CustomException(ErrorMessages.NoArticlesForReview);
 				}
-				return articles;
+				var list = await MapArticles(articles);
+				return list;
 			}
 			catch (Exception ex)
 			{
@@ -36,7 +45,7 @@ namespace TFSport.Services.Services
 			}
 		}
 
-		public async Task<List<Article>> AuthorsArticles(string authorId)
+		public async Task<List<ArticlesListModel>> AuthorsArticles(string authorId)
 		{
 			try
 			{
@@ -45,7 +54,8 @@ namespace TFSport.Services.Services
 				{
 					throw new CustomException(ErrorMessages.NoAuthorsArticles);
 				}
-				return articles;
+				var list = await MapArticles(articles);
+				return list;
 			}
 			catch (Exception ex)
 			{
@@ -53,7 +63,7 @@ namespace TFSport.Services.Services
 			}
 		}
 
-		public async Task<List<Article>> PublishedArticles()
+		public async Task<List<ArticlesListModel>> PublishedArticles()
 		{
 			try
 			{
@@ -62,7 +72,8 @@ namespace TFSport.Services.Services
 				{
 					throw new CustomException(ErrorMessages.NoArticlesPublished);
 				}
-				return articles;
+				var list = await MapArticles(articles);
+				return list;
 			}
 			catch (Exception ex)
 			{
@@ -70,6 +81,19 @@ namespace TFSport.Services.Services
 			}
 		}
 
+		public async Task<List<ArticlesListModel>> MapArticles(List<Article> articles)
+		{
+			var list = new List<ArticlesListModel>();
+			foreach (var article in articles)
+			{
+				var user = await _userService.GetUserById(article.Author);
+				var userDTO = _mapper.Map<UserInfo>(user);
+				var articleDTO = _mapper.Map<ArticlesListModel>(article);
+				articleDTO.Author = userDTO;
+				list.Add(articleDTO);
+			}
+			return list;
+		}
 		public async Task CreateArticle()
 		{
 
