@@ -159,10 +159,6 @@ namespace TFSport.Services.Services
                 _logger.LogInformation("Password for user with id {id} was updated", user.Id);
 
             }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message);
@@ -183,10 +179,6 @@ namespace TFSport.Services.Services
                 user.EmailVerified = true;
                 await _userRepository.UpdateAsync(user, default);
                 _logger.LogInformation("User with id {id} successfully verified email", user.Id);
-            }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
             }
             catch (Exception ex)
             {
@@ -261,10 +253,6 @@ namespace TFSport.Services.Services
                     throw new CustomException($"User with ID {userId} not found.");
                 }
             }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message);
@@ -281,10 +269,6 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.UserNotFound);
                 }
                 return user;
-            }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
             }
             catch (Exception ex)
             {
