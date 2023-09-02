@@ -1,16 +1,12 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using TFSport.API.DTOModels.Articles;
 using TFSport.API.DTOModels.Users;
 using TFSport.Models;
-using TFSport.Services.Interfaces;
-using TFSport.Services.Services;
 
 namespace TFSport.API.AutoMapper
 {
 	public class MappingProfile : Profile
 	{
-		private readonly UserService _userService;
 		public MappingProfile()
 		{
 			CreateMap<UserRegisterDTO, User>().BeforeMap((src, dest) =>
@@ -37,6 +33,16 @@ namespace TFSport.API.AutoMapper
 				.ForMember(dest => dest.Author, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src =>src.CreatedTimeUtc));
 
-		}
-	}
+            CreateMap<ArticleCreateDTO, Article>().BeforeMap((src, dest) =>
+            {
+                dest.PartitionKey = dest.Id;
+            });
+
+			CreateMap<Article, ArticleCreateDTO>();
+
+            CreateMap<Article, GetArticleWithContentDTO>();
+
+			CreateMap<Article, ArticleUpdateDTO>().ReverseMap();
+        }
+    }
 }

@@ -1,14 +1,11 @@
 ﻿using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Azure.CosmosRepository.Attributes;
 
 namespace TFSport.Models
 {
-	public class Article: BaseModel
+    [PartitionKeyPath("/partitionKey")]
+    public class Article : BaseModel
 	{
 		[JsonProperty("title")]
 		public string Title { get; set; }
@@ -21,12 +18,12 @@ namespace TFSport.Models
 
 		[JsonProperty("author")]
 		public string Author { get; set; }
-
-		[JsonProperty("blobId")]
-		public string BlobId { get; set; }
 		
 		[JsonProperty("status")]
 		[JsonConverter(typeof(StringEnumConverter))]
-		public PostStatus Status { get; set; }
-	}
+		public ArticleStatus Status { get; set; }
+
+        [JsonIgnore]
+        public static string ContainerName { get; set; }
+    }
 }

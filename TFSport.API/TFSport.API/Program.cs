@@ -31,7 +31,6 @@ builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 
-
 var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
 
 builder.Services.AddCors(options =>

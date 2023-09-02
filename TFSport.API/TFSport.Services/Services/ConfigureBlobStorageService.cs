@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TFSport.Models;
+using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
 {
@@ -8,6 +9,7 @@ namespace TFSport.Services.Services
         public static IServiceCollection AddBlobStorageService(this IServiceCollection services, string connectionString)
         {
             services.Configure<BlobStorageOptions>(options => options.ConnectionString = connectionString);
+            services.AddScoped<IBlobStorageService, BlobStorageService>();
 
             return services;
         }
