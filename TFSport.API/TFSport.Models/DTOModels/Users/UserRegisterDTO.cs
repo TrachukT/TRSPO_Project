@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using TFSport.Models;
+using TFSport.Models.Exceptions;
 
 namespace TFSport.API.DTOModels.Users
 {

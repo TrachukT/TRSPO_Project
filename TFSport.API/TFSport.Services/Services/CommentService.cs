@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TFSport.Models;
+using TFSport.Models.Entities;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
 {
-	public class CommentService : ICommentService
+    public class CommentService : ICommentService
 	{
 		private readonly IRepository<Comment> _commentRepo;
 

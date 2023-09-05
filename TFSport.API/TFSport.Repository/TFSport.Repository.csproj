@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="IEvangelist.Azure.CosmosRepository" Version="7.0.1" />
+    <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.4" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TFSport.Models\TFSport.Models.csproj" />
   </ItemGroup>
 
 </Project>

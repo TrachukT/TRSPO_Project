@@ -5,12 +5,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using TFSport.API.DTOModels.Users;
 using TFSport.API.Filters;
-using TFSport.Models;
+using TFSport.Models.Entities;
+using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.API.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/users")]
 	[CustomExceptionFilter]
 

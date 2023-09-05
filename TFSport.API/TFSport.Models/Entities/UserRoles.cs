@@ -1,4 +1,4 @@
-﻿namespace TFSport.Models
+﻿namespace TFSport.Models.Entities
 {
     public enum UserRoles
     {

@@ -5,113 +5,65 @@ using TFSport.Services.Interfaces;
 using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using TFSport.Models.Entities;
+using TFSport.Models.Exceptions;
+using TFSport.Repository.Interfaces;
 
 namespace TFSport.Services.Services
 {
-	public class UserService : IUserService
-	{
-		private readonly IRepository<User> _userRepository;
-		private readonly IEmailService _emailService;
-		private readonly IConfiguration _configuration;
-		private readonly ILogger _logger;
+    public class UserService : IUserService
+    {
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
+        private readonly IUsersRepository _usersRepository;
+        private readonly ILogger _logger;
 
-		public UserService(IRepository<User> userRepository, IEmailService emailService, IConfiguration configuration, ILogger<UserService> logger)
-		{
-			_userRepository = userRepository;
-			_emailService = emailService;
-			_configuration = configuration;
-			_logger = logger;
-		}
-
-		public async Task<User> GetUserByEmailAsync(string email)
-		{
-			try
-			{
-                var users = await _userRepository.GetAsync(u => u.Email == email);
-                return users.FirstOrDefault();
-            }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
+        public UserService(IEmailService emailService, IConfiguration configuration, ILogger<UserService> logger, IUsersRepository usersRepository)
+        {
+            _emailService = emailService;
+            _configuration = configuration;
+            _logger = logger;
+            _usersRepository = usersRepository;
         }
 
-		public async Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email)
-		{
-			try
-			{
-                var user = await GetUserByEmailAsync(email);
+        public async Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email)
+        {
+            try
+            {
+                var user = await _usersRepository.GetUserByEmail(email);
                 if (user != null)
                 {
                     return new List<UserRoles> { user.UserRole };
                 }
                 return new List<UserRoles>();
             }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message);
             }
         }
 
-		public async Task<string> ValidateCredentialsAsync(string email, string password)
-		{
-			try
-            {
-                var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-                if (user == null)
-                {
-                    throw new CustomException(ErrorMessages.InvalidCredentials);
-                }
-
-                var passwordHasher = new PasswordHasher();
-                var result = passwordHasher.VerifyHashedPassword(user.Password, password);
-
-                if (result != PasswordVerificationResult.Success)
-                {
-                    throw new CustomException(ErrorMessages.InvalidCredentials);
-                }
-
-                return user.Id;
-            }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
-
-		public async Task RegisterUser(User user)
-		{
+        public async Task<string> ValidateCredentialsAsync(string email, string password)
+        {
             try
             {
-                var checkUser = await _userRepository.GetAsync(x => x.Email == user.Email).FirstOrDefaultAsync();
-                if (checkUser != null)
-                {
-                    throw new CustomException(ErrorMessages.EmailIsRegistered);
-                }
+                var userId = await _usersRepository.CheckCredentials(email, password);
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
-                var hash = new PasswordHasher();
-                user.Password = hash.HashPassword(user.Password);
-
-                await _userRepository.CreateAsync(user, default);
+        public async Task RegisterUser(User user)
+        {
+            try
+            {
+                await _usersRepository.CreateUser(user);
                 await _emailService.EmailVerification(user.Email, user.VerificationToken);
                 _logger.LogInformation("User with id {id} was created", user.Id);
             }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message);
@@ -119,43 +71,29 @@ namespace TFSport.Services.Services
 
         }
 
-		public async Task ForgotPassword(string email)
-		{
-			try
-			{
-                var checkUser = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-                if (checkUser == null)
-				{
-                    throw new CustomException(ErrorMessages.NotRegisteredEmail);
-                }
-
-                await _emailService.RestorePassword(email, checkUser.VerificationToken);
-            }
-            catch (ArgumentException arg)
-            {
-                throw new CustomException(arg.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
-
-		public async Task RestorePassword(string token, string password)
-		{
+        public async Task ForgotPassword(string email)
+        {
             try
             {
-                var user = await _userRepository.GetAsync(x => x.VerificationToken == token).FirstOrDefaultAsync();
-                if (user == null)
-                {
-                    throw new CustomException(ErrorMessages.NotValidLink);
-                }
+                var verificationToken = await _usersRepository.ForgotPassword(email);
+                await _emailService.RestorePassword(email, verificationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
+        public async Task RestorePassword(string token, string password)
+        {
+            try
+            {
+                var user = await _usersRepository.FindUserByToken(token);
                 user.VerificationToken = Guid.NewGuid().ToString();
                 var hash = new PasswordHasher();
                 user.Password = hash.HashPassword(password);
 
-                await _userRepository.UpdateAsync(user, default);
+                await _usersRepository.UpdateUser(user);
                 _logger.LogInformation("Password for user with id {id} was updated", user.Id);
 
             }
@@ -165,20 +103,12 @@ namespace TFSport.Services.Services
             }
         }
 
-		public async Task EmailVerification(string verificationToken)
-		{
+        public async Task EmailVerification(string verificationToken)
+        {
             try
             {
-                var user = await _userRepository.GetAsync(x => x.VerificationToken == verificationToken).FirstOrDefaultAsync();
-                if (user == null)
-                {
-                    throw new CustomException(ErrorMessages.NotValidLink);
-                }
-
-                user.VerificationToken = Guid.NewGuid().ToString();
-                user.EmailVerified = true;
-                await _userRepository.UpdateAsync(user, default);
-                _logger.LogInformation("User with id {id} successfully verified email", user.Id);
+                var userId = await _usersRepository.EmailVerification(verificationToken);
+                _logger.LogInformation("User with id {id} successfully verified email", userId);
             }
             catch (Exception ex)
             {
@@ -186,13 +116,13 @@ namespace TFSport.Services.Services
             }
         }
 
-		public async Task CreateSuperAdminUser()
-		{
+        public async Task CreateSuperAdminUser()
+        {
             try
             {
                 var superAdminEmail = _configuration["SuperAdminCredentials:Email"];
 
-                var existingSuperAdmin = await GetUserByEmailAsync(superAdminEmail);
+                var existingSuperAdmin = await _usersRepository.GetUserByEmail(superAdminEmail);
                 if (existingSuperAdmin == null)
                 {
                     var superAdmin = new User
@@ -217,11 +147,11 @@ namespace TFSport.Services.Services
             }
         }
 
-		public async Task<List<User>> GetAllUsers()
-		{
+        public async Task<List<User>> GetAllUsers()
+        {
             try
             {
-                var users = await _userRepository.GetAsync(x => true).ToListAsync();
+                var users = await _usersRepository.GetAll();
                 return users;
             }
             catch (Exception ex)
@@ -230,8 +160,8 @@ namespace TFSport.Services.Services
             }
         }
 
-		public async Task<bool> ChangeUserRole(string userId, string newUserRole)
-		{
+        public async Task<bool> ChangeUserRole(string userId, string newUserRole)
+        {
             try
             {
                 var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
@@ -240,18 +170,11 @@ namespace TFSport.Services.Services
                     throw new CustomException($"Invalid role specified: {newUserRole}.");
                 }
 
-                var user = await _userRepository.GetAsync(userId);
-                if (user != null)
-                {
-                    user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
-                    await _userRepository.UpdateAsync(user, default);
-                    _logger.LogInformation("User with id {id} now has role {role}", user.Id, user.UserRole);
-                    return true;
-                }
-                else
-                {
-                    throw new CustomException($"User with ID {userId} not found.");
-                }
+                var user = await _usersRepository.GetUserById(userId);
+                user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
+                await _usersRepository.UpdateUser(user);
+                _logger.LogInformation("User with id {id} now has role {role}", user.Id, user.UserRole);
+                return true;
             }
             catch (Exception ex)
             {
@@ -259,15 +182,11 @@ namespace TFSport.Services.Services
             }
         }
 
-		public async Task<User> GetUserById(string id)
-		{
+        public async Task<User> GetUserById(string id)
+        {
             try
             {
-                var user = await _userRepository.GetAsync(id);
-                if (user == null)
-                {
-                    throw new CustomException(ErrorMessages.UserNotFound);
-                }
+                var user = await _usersRepository.GetUserById(id);
                 return user;
             }
             catch (Exception ex)
@@ -276,28 +195,19 @@ namespace TFSport.Services.Services
             }
         }
 
-		public async Task ResendEmail(string email)
+        public async Task ResendEmail(string email)
         {
             try
             {
-                var user = await _userRepository.GetAsync(x => x.Email == email).FirstOrDefaultAsync();
-				if(user == null)
-                {
-                    throw new CustomException(ErrorMessages.NotRegisteredEmail);
-                }
-
-                if(user.EmailVerified == true)
-                {
-                    throw new CustomException(ErrorMessages.AlreadyVerifiedEmail);
-                }
+                var user = await _usersRepository.ResendEmail(email);
 
                 await _emailService.EmailVerification(email, user.VerificationToken);
             }
-			catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new CustomException(ex.Message);
             }
         }
 
-	}
+    }
 }

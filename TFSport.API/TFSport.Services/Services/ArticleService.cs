@@ -7,14 +7,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TFSport.API.DTOModels.Articles;
-using TFSport.API.DTOModels.Users;
 using TFSport.Models;
+using TFSport.Models.DTOModels.Articles;
+using TFSport.Models.DTOModels.Users;
+using TFSport.Models.Entities;
+using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
 {
-	public class ArticleService : IArticleService
+    public class ArticleService : IArticleService
 	{
 		private readonly IRepository<Article> _articleRepo;
 		private readonly IUserService _userService;

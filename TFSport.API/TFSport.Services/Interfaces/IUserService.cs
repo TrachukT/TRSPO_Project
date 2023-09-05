@@ -1,10 +1,10 @@
-﻿using TFSport.Models;
+﻿using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
 {
-	public interface IUserService
+    public interface IUserService
 	{
-        public Task<User> GetUserByEmailAsync(string email);
+        //public Task<User> GetUserByEmailAsync(string email);
 
         public Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email);
 

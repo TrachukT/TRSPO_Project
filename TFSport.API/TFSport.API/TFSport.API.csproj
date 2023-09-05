@@ -32,8 +32,4 @@
 		<ProjectReference Include="..\TFSport.Services\TFSport.Services.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="DTOModels\Articles\" />
-	</ItemGroup>
-
 </Project>
