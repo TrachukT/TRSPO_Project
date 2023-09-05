@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
+using AutoMapper;
+using TFSport.API.DTOModels.Users;
 
 namespace TFSport.Services.Services
 {
@@ -16,14 +18,16 @@ namespace TFSport.Services.Services
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly IUsersRepository _usersRepository;
+        private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
-        public UserService(IEmailService emailService, IConfiguration configuration, ILogger<UserService> logger, IUsersRepository usersRepository)
+        public UserService(IEmailService emailService, IConfiguration configuration, ILogger<UserService> logger, IUsersRepository usersRepository,IMapper mapper)
         {
             _emailService = emailService;
             _configuration = configuration;
             _logger = logger;
             _usersRepository = usersRepository;
+            _mapper = mapper;
         }
 
         public async Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email)
@@ -56,10 +60,11 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task RegisterUser(User user)
+        public async Task RegisterUser(UserRegisterDTO model)
         {
             try
             {
+                var user = _mapper.Map<User>(model);
                 await _usersRepository.CreateUser(user);
                 await _emailService.EmailVerification(user.Email, user.VerificationToken);
                 _logger.LogInformation("User with id {id} was created", user.Id);
@@ -137,7 +142,8 @@ namespace TFSport.Services.Services
                     };
 
                     superAdmin.PartitionKey = superAdmin.Id;
-                    await RegisterUser(superAdmin);
+                    await _usersRepository.CreateUser(superAdmin);
+                    await _emailService.EmailVerification(superAdmin.Email, superAdmin.VerificationToken);
                     _logger.LogInformation("Super admin created");
                 }
             }
@@ -147,12 +153,13 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<User>> GetAllUsers()
+        public async Task<List<GetAllUsersDTO>> GetAllUsers()
         {
             try
             {
                 var users = await _usersRepository.GetAll();
-                return users;
+                List<GetAllUsersDTO> list = _mapper.Map<List<GetAllUsersDTO>>(users);
+                return list;
             }
             catch (Exception ex)
             {
@@ -182,12 +189,12 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<User> GetUserById(string id)
+        public async Task<GetUserByIdDTO> GetUserById(string id)
         {
             try
             {
                 var user = await _usersRepository.GetUserById(id);
-                return user;
+                return _mapper.Map<GetUserByIdDTO>(user);
             }
             catch (Exception ex)
             {

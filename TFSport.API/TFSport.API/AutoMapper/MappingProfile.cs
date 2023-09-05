@@ -35,6 +35,8 @@ namespace TFSport.API.AutoMapper
 
 			CreateMap<User, UserInfo>();
 
+			CreateMap<GetUserByIdDTO, UserInfo>();
+
 			CreateMap<Article, ArticlesListModel>()
 				.ForMember(dest => dest.Author, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src =>src.CreatedTimeUtc));

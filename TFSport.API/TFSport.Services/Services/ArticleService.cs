@@ -1,30 +1,22 @@
 ﻿using AutoMapper;
-using Microsoft.Azure.CosmosRepository;
-using Microsoft.Azure.CosmosRepository.Extensions;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
+using TFSport.Repository.Interfaces;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
 {
     public class ArticleService : IArticleService
 	{
-		private readonly IRepository<Article> _articleRepo;
+		private readonly IArticlesRepository _articleRepository;
 		private readonly IUserService _userService;
 		private readonly IMapper _mapper;
 
-		public ArticleService(IRepository<Article> articleRepo, IUserService userService, IMapper mapper)
+		public ArticleService(IArticlesRepository articleRepo, IUserService userService, IMapper mapper)
 		{
-			_articleRepo = articleRepo;
+			_articleRepository = articleRepo;
 			_userService = userService;
 			_mapper = mapper;
 		}
@@ -33,11 +25,7 @@ namespace TFSport.Services.Services
 		{
 			try
 			{
-				var articles = await _articleRepo.GetAsync(x => x.Status == PostStatus.Review).ToListAsync();
-				if (articles.Count == 0)
-				{
-					throw new CustomException(ErrorMessages.NoArticlesForReview);
-				}
+				var articles = await _articleRepository.GetArticlesInReview();
 				var list = await MapArticles(articles);
 				return list;
 			}
@@ -51,11 +39,7 @@ namespace TFSport.Services.Services
 		{
 			try
 			{
-				var articles = await _articleRepo.GetAsync(x => x.Author == authorId).ToListAsync();
-				if (articles.Count == 0)
-				{
-					throw new CustomException(ErrorMessages.NoAuthorsArticles);
-				}
+				var articles = await _articleRepository.GetAuthorsArticles(authorId);
 				var list = await MapArticles(articles);
 				return list;
 			}
@@ -69,11 +53,7 @@ namespace TFSport.Services.Services
 		{
 			try
 			{
-				var articles = await _articleRepo.GetAsync(x => x.Status == PostStatus.Published).ToListAsync();
-				if (articles.Count == 0)
-				{
-					throw new CustomException(ErrorMessages.NoArticlesPublished);
-				}
+				var articles = await _articleRepository.GetPublishedArticles();
 				var list = await MapArticles(articles);
 				return list;
 			}
