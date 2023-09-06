@@ -1,10 +1,10 @@
-﻿using TFSport.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using TFSport.Models.Entities;
 
 namespace TFSport.API.DTOModels.Users
 {
-	public class GetAllUsersDTO
+    public class GetAllUsersDTO
 	{
 		public string Id { get; set; }
 		public string FirstName { get; set; }

@@ -28,12 +28,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\TFSport.Models\TFSport.Models.csproj" />
-		<ProjectReference Include="..\TFSport.Repository\TFSport.Repository.csproj" />
 		<ProjectReference Include="..\TFSport.Services\TFSport.Services.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="DTOModels\Articles\" />
 	</ItemGroup>
 
 </Project>

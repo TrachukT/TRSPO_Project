@@ -1,8 +1,8 @@
-﻿using TFSport.Models;
+﻿using TFSport.Models.Entities;
 
 namespace TFSport.API.DTOModels.Users
 {
-	public class GetUserByIdDTO
+    public class GetUserByIdDTO
 	{
 		public string Id { get; set; }
 		public string FirstName { get; set; }

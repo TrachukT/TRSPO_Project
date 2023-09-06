@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
-using TFSport.Models;
 using System.Security.Claims;
-using TFSport.API.DTOModels.Articles;
+using TFSport.Models.Entities;
+using TFSport.Models.DTOModels.Articles;
 
 namespace TFSport.API.Controllers
 {
-	[Route("articles")]
+    [Route("articles")]
 	[ApiController]
 	[CustomExceptionFilter]
 	[SwaggerResponse(400, "Bad_Request", typeof(string))]

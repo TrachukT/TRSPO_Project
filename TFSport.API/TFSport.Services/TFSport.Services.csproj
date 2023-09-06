@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TFSport.Models\TFSport.Models.csproj" />
+    <ProjectReference Include="..\TFSport.Repository\TFSport.Repository.csproj" />
   </ItemGroup>
 
 </Project>

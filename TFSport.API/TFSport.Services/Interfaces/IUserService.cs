@@ -1,16 +1,16 @@
-﻿using TFSport.Models;
+﻿using TFSport.API.DTOModels.Users;
+using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
 {
-	public interface IUserService
+    public interface IUserService
 	{
-        public Task<User> GetUserByEmailAsync(string email);
 
         public Task<IList<UserRoles>> GetUserRolesByEmailAsync(string email);
 
 		public Task<string> ValidateCredentialsAsync(string email, string password);
 
-        public Task RegisterUser(User user);
+        public Task RegisterUser(UserRegisterDTO user);
 
 		public Task ForgotPassword(string email);
 
@@ -20,11 +20,11 @@ namespace TFSport.Services.Interfaces
 		
 		public Task CreateSuperAdminUser();
 		
-		public Task<List<User>> GetAllUsers();
+		public Task<List<GetAllUsersDTO>> GetAllUsers();
 
         public Task<bool> ChangeUserRole(string userId, string newUserRole);
 
-		public Task<User> GetUserById(string id);
+		public Task<GetUserByIdDTO> GetUserById(string id);
 
 		public Task ResendEmail(string email);
 

@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TFSport.API.DTOModels.Articles;
-using TFSport.Models;
+using TFSport.Models.DTOModels.Articles;
+using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
 {
-	public interface IArticleService
+    public interface IArticleService
 	{
 		public Task CreateArticle();
 

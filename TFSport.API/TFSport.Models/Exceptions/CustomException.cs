@@ -1,4 +1,4 @@
-﻿namespace TFSport.Models
+﻿namespace TFSport.Models.Exceptions
 {
     public class CustomException : Exception
     {

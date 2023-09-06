@@ -1,12 +1,12 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using TFSport.Models;
+using TFSport.Models.Entities;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.API.Filters
 {
-	public class RoleAuthorizationFilter : IAsyncAuthorizationFilter
+    public class RoleAuthorizationFilter : IAsyncAuthorizationFilter
 	{
 		private readonly string[] _acceptedRoles;
 
