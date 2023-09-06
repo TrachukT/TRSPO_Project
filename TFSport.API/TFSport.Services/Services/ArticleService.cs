@@ -65,7 +65,11 @@ namespace TFSport.Services.Services
 
 		public async Task<List<ArticlesListModel>> MapArticles(List<Article> articles)
 		{
-			var list = new List<ArticlesListModel>();
+            if (articles.Count == 0)
+            {
+                return new List<ArticlesListModel>();
+            }
+            var list = new List<ArticlesListModel>();
 			foreach (var article in articles)
 			{
 				var user = await _userService.GetUserById(article.Author);

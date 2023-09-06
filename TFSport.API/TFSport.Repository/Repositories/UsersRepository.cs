@@ -27,25 +27,14 @@ namespace TFSport.Repository.Repositories
             return user;
         }
 
-        public async Task<string> CheckCredentials(string email,string password)
+        public async Task<User> CheckCredentials(string email,string password)
         {
             var user = await GetUserByEmail(email);
             if (user == null)
             {
                 throw new CustomException(ErrorMessages.InvalidCredentials);
             }
-
-            if (user.EmailVerified == false)
-                throw new CustomException(ErrorMessages.EmailNotVerified);
-
-            var passwordHasher = new PasswordHasher();
-            var result = passwordHasher.VerifyHashedPassword(user.Password, password);
-
-            if (result != PasswordVerificationResult.Success)
-            {
-                throw new CustomException(ErrorMessages.InvalidCredentials);
-            }
-            return user.Id;
+            return user;
         }
 
         public async Task<User> ResendEmail(string email)
@@ -54,11 +43,6 @@ namespace TFSport.Repository.Repositories
             if (user == null)
             {
                 throw new CustomException(ErrorMessages.NotRegisteredEmail);
-            }
-
-            if (user.EmailVerified == true)
-            {
-                throw new CustomException(ErrorMessages.AlreadyVerifiedEmail);
             }
 
             return user;
@@ -76,15 +60,6 @@ namespace TFSport.Repository.Repositories
 
         public async Task CreateUser(User user)
         {
-            var checkUser = await GetUserByEmail(user.Email);
-            if (checkUser != null)
-            {
-                throw new CustomException(ErrorMessages.EmailIsRegistered);
-            }
-
-            var hash = new PasswordHasher();
-            user.Password = hash.HashPassword(user.Password);
-
             await _repository.CreateAsync(user, default);
         }
 
@@ -107,16 +82,6 @@ namespace TFSport.Repository.Repositories
         public async Task UpdateUser(User user)
         {
             await _repository.UpdateAsync(user, default);
-        }
-
-        public async Task<string> EmailVerification(string verificationToken)
-        {
-            var user = await FindUserByToken(verificationToken);
-
-            user.VerificationToken = Guid.NewGuid().ToString();
-            user.EmailVerified = true;
-            await UpdateUser(user);
-            return user.Id;
         }
 
         public async Task<string> ForgotPassword(string email)

@@ -51,8 +51,18 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var userId = await _usersRepository.CheckCredentials(email, password);
-                return userId;
+                var user = await _usersRepository.CheckCredentials(email, password);
+                if (user.EmailVerified == false)
+                    throw new CustomException(ErrorMessages.EmailNotVerified);
+
+                var passwordHasher = new PasswordHasher();
+                var result = passwordHasher.VerifyHashedPassword(user.Password, password);
+
+                if (result != PasswordVerificationResult.Success)
+                {
+                    throw new CustomException(ErrorMessages.InvalidCredentials);
+                }
+                return user.Id;
             }
             catch (Exception ex)
             {
@@ -64,7 +74,14 @@ namespace TFSport.Services.Services
         {
             try
             {
+                var checkuser = await _usersRepository.GetUserByEmail(model.Email);
+                if (checkuser != null)
+                {
+                    throw new CustomException(ErrorMessages.EmailIsRegistered);
+                }
                 var user = _mapper.Map<User>(model);
+                var hash = new PasswordHasher();
+                user.Password = hash.HashPassword(user.Password);
                 await _usersRepository.CreateUser(user);
                 await _emailService.EmailVerification(user.Email, user.VerificationToken);
                 _logger.LogInformation("User with id {id} was created", user.Id);
@@ -112,8 +129,11 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var userId = await _usersRepository.EmailVerification(verificationToken);
-                _logger.LogInformation("User with id {id} successfully verified email", userId);
+                var user = await _usersRepository.FindUserByToken(verificationToken);
+                user.VerificationToken = Guid.NewGuid().ToString();
+                user.EmailVerified = true;
+                await _usersRepository.UpdateUser(user);
+                _logger.LogInformation("User with id {id} successfully verified email", user.Id);
             }
             catch (Exception ex)
             {
@@ -207,6 +227,10 @@ namespace TFSport.Services.Services
             try
             {
                 var user = await _usersRepository.ResendEmail(email);
+                if (user.EmailVerified == true)
+                {
+                    throw new CustomException(ErrorMessages.AlreadyVerifiedEmail);
+                }
 
                 await _emailService.EmailVerification(email, user.VerificationToken);
             }
