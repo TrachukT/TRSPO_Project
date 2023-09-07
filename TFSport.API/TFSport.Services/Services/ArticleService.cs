@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
@@ -11,18 +14,22 @@ namespace TFSport.Services.Services
     public class ArticleService : IArticleService
 	{
 		private readonly IArticlesRepository _articleRepository;
-		private readonly IUserService _userService;
+        private readonly IUsersRepository _userRepository;
+        private readonly IUserService _userService;
 		private readonly IMapper _mapper;
         private readonly IBlobStorageService _blobStorageService;
-        private readonly IConfiguration _configuration;
+        private readonly BlobStorageOptions _blobOptions;
+        private readonly ILogger _logger;
 
-		public ArticleService(IArticlesRepository articleRepo, IUserService userService, IMapper mapper)
+        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger)
 		{
-			_articleRepository = articleRepo;
+			_articleRepository = articleRepository;
 			_userService = userService;
 			_mapper = mapper;
             _blobStorageService = blobStorageService;
-			_configuration = configuration;
+            _blobOptions = blobOptions.Value;
+            _logger = logger;
+            _userRepository = userRepository;
         }
 
 		public async Task<List<ArticlesListModel>> ArticlesForApprove()
@@ -67,7 +74,31 @@ namespace TFSport.Services.Services
 			}
 		}
 
-		public async Task<List<ArticlesListModel>> MapArticles(List<Article> articles)
+        public async Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId)
+        {
+            try
+            {
+                var article = await _articleRepository.GetArticleByIdAsync(articleId);
+
+                if (article == null)
+                {
+                    throw new CustomException(ErrorMessages.ArticleDoesntExist);
+                }
+
+                var content = await _blobStorageService.GetHtmlContentAsync(_blobOptions.ArticleContainer, article.Id);
+
+                var articleWithContentDTO = _mapper.Map<ArticleWithContentDTO>(article);
+                articleWithContentDTO.Content = content;
+
+                return articleWithContentDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<List<ArticlesListModel>> MapArticles(List<Article> articles)
 		{
             if (articles.Count == 0)
             {
@@ -84,25 +115,30 @@ namespace TFSport.Services.Services
 			}
 			return list;
 		}
-        public async Task<Article> CreateArticleAsync(Article article, string content)
+        public async Task CreateArticleAsync(ArticleCreateDTO articleDTO)
         {
-			try
-			{
-                var existingArticle = await _articleRepository.GetAsync(x => x.Title == article.Title).FirstOrDefaultAsync();
+            try
+            {
+                var existingArticle = await _articleRepository.GetArticleByTitleAsync(articleDTO.Title);
 
                 if (existingArticle != null)
                 {
                     throw new CustomException(ErrorMessages.ArticleWithThisTitleExists);
                 }
 
-                await _blobStorageService.UploadHtmlContentAsync(_configuration["BlobStorageContainers:ArticleContainer"], article.Id, content);
+                var existingUser = await _userRepository.GetUserById(articleDTO.Author);
 
-                article.UpdatedAt = DateTime.UtcNow;
-                article.Status = ArticleStatus.Draft;
+                if (existingUser == null)
+                {
+                    throw new CustomException(ErrorMessages.UserNotFound);
+                }
 
-                await _articleRepository.CreateAsync(article, default);
+                var article = _mapper.Map<Article>(articleDTO);
 
-                return article;
+                await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, article.Id, articleDTO.Content);
+                await _articleRepository.CreateArticleAsync(article);
+
+                _logger.LogInformation("Article with id {id} was created", article.Id);
             }
             catch (Exception ex)
             {
@@ -110,65 +146,31 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<string> GetArticleContentAsync(string articleId)
+        public async Task<Article> UpdateArticleAsync(string articleId, ArticleUpdateDTO articleUpdateDTO)
         {
             try
             {
-                var article = await _articleRepository.GetAsync(articleId);
+                var existingArticle = await _articleRepository.GetArticleByIdAsync(articleId);
 
-                if (article == null)
+                if (existingArticle == null)
                 {
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
 
-                var content = await _blobStorageService.GetHtmlContentAsync(_configuration["BlobStorageContainers:ArticleContainer"], articleId);
+                var articleWithSameTitle = await _articleRepository.GetArticleByTitleAsync(articleUpdateDTO.Title);
 
-                return content;
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
-
-		public async Task<Article> GetArticleWithContentByIdAsync(string articleId)
-		{
-			try
-			{
-				var article = await _articleRepository.GetAsync(articleId);
-
-                if (article == null)
-				{
-					throw new CustomException(ErrorMessages.ArticleDoesntExist);
-				}
-
-				return article;
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message);
-			}
-		}
-
-        public async Task<Article> UpdateArticleAsync(Article article, string content)
-        {
-            try
-            {
-                var existingArticle = await _articleRepository.GetAsync(x => x.Title == article.Title).FirstOrDefaultAsync();
-
-                if (existingArticle != null && existingArticle.Id != article.Id)
+                if (articleWithSameTitle != null && articleWithSameTitle.Id != articleId)
                 {
                     throw new CustomException(ErrorMessages.ArticleWithThisTitleExists);
                 }
 
-                await _blobStorageService.UploadHtmlContentAsync(_configuration["BlobStorageContainers:ArticleContainer"], article.Id, content);
+                _mapper.Map(articleUpdateDTO, existingArticle);
 
-                article.UpdatedAt = DateTime.UtcNow;
-                article.Status = ArticleStatus.Draft;
+                await _articleRepository.UpdateArticleAsync(existingArticle);
 
-                await _articleRepository.UpdateAsync(article);
+                _logger.LogInformation("Article with id {articleId} was updated", articleId);
 
-                return article;
+                return existingArticle;
             }
             catch (Exception ex)
             {
@@ -180,16 +182,17 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var existingArticle = await _articleRepository.GetAsync(articleId);
+                var existingArticle = await _articleRepository.GetArticleByIdAsync(articleId);
 
                 if (existingArticle == null)
                 {
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
 
-                await _articleRepository.DeleteAsync(existingArticle);
+                await _articleRepository.DeleteArticleAsync(existingArticle);
 
-                await _blobStorageService.DeleteHtmlContentAsync(_configuration["BlobStorageContainers:ArticleContainer"], articleId);
+                await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
+                _logger.LogInformation("Article with id {articleId} was deleted", articleId);
             }
             catch (Exception ex)
             {
@@ -201,7 +204,7 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var article = await _articleRepository.GetAsync(articleId);
+                var article = await _articleRepository.GetArticleByIdAsync(articleId);
 
                 if (article == null)
                 {
@@ -213,8 +216,9 @@ namespace TFSport.Services.Services
                     throw new CustomException($"Article is currently in '{article.Status}' status and cannot be changed to 'Review'.");
                 }
 
-                article.Status = ArticleStatus.Review;
-                await _articleRepository.UpdateAsync(article);
+                await _articleRepository.ChangeArticleStatusToReviewAsync(article);
+
+                _logger.LogInformation("Article with id {articleId} was sent to review", articleId);
             }
             catch (Exception ex)
             {
@@ -226,7 +230,7 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var article = await _articleRepository.GetAsync(articleId);
+                var article = await _articleRepository.GetArticleByIdAsync(articleId);
 
                 if (article == null)
                 {
@@ -238,8 +242,9 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleNotSentForReview);
                 }
 
-                article.Status = ArticleStatus.Published;
-                await _articleRepository.UpdateAsync(article);
+                await _articleRepository.ChangeArticleStatusToPublishedAsync(article);
+
+                _logger.LogInformation("Article with id {articleId} was published", articleId);
             }
             catch (Exception ex)
             {

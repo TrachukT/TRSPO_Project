@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using TFSport.API;
+using TFSport.Models;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services

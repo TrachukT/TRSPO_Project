@@ -1,12 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using TFSport.API.DTOModels.Users;
-using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
-using TFSport.Services.Interfaces;
-using TFSport.Services.Services;
 
 namespace TFSport.API.AutoMapper
 {
@@ -43,13 +38,22 @@ namespace TFSport.API.AutoMapper
             CreateMap<ArticleCreateDTO, Article>().BeforeMap((src, dest) =>
             {
                 dest.PartitionKey = dest.Id;
+                dest.UpdatedAt = DateTime.UtcNow;
+                dest.Status = ArticleStatus.Draft;
             });
 
 			CreateMap<Article, ArticleCreateDTO>();
 
-            CreateMap<Article, GetArticleWithContentDTO>();
+            CreateMap<Article, ArticleWithContentDTO>()
+                .ForMember(dest => dest.Content, opt => opt.Ignore());
 
-			CreateMap<Article, ArticleUpdateDTO>().ReverseMap();
+            CreateMap<ArticleUpdateDTO, Article>().BeforeMap((src, dest) =>
+			{
+				dest.UpdatedAt = DateTime.UtcNow;
+				dest.Status = ArticleStatus.Draft;
+			});
+
+            CreateMap<Article, ArticleUpdateDTO>().ReverseMap();
         }
     }
 }

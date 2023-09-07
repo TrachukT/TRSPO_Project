@@ -1,6 +1,6 @@
 ﻿namespace TFSport.Models.Entities
 {
-    public enum PostStatus
+    public enum ArticleStatus
     {
         Draft,
         Review,

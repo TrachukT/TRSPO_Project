@@ -1,8 +1,8 @@
-﻿using TFSport.Models;
+﻿using TFSport.Models.Entities;
 
-namespace TFSport.API.DTOModels.Articles
+namespace TFSport.Models.DTOModels.Articles
 {
-    public class GetArticleWithContentDTO
+    public class ArticleWithContentDTO
     {
         public string Id { get; set; }
 

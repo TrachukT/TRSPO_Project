@@ -1,7 +1,4 @@
-﻿using Microsoft.Azure.CosmosRepository;
-using Microsoft.Azure.CosmosRepository.Extensions;
-using TFSport.Models;
-using TFSport.Services.Interfaces;
+﻿using TFSport.Services.Interfaces;
 using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,7 +6,7 @@ using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
 using AutoMapper;
-using TFSport.API.DTOModels.Users;
+using TFSport.Models.DTOModels.Users;
 
 namespace TFSport.Services.Services
 {
@@ -90,7 +87,6 @@ namespace TFSport.Services.Services
             {
                 throw new CustomException(ex.Message);
             }
-
         }
 
         public async Task ForgotPassword(string email)

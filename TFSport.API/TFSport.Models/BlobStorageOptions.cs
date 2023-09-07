@@ -2,6 +2,10 @@
 {
     public class BlobStorageOptions
     {
-        public string ConnectionString { get; set; }
+        public string ImageContainer { get; set; }
+
+        public string ArticleContainer { get; set; }
+
+        public string BaseUrl { get; set; }
     }
 }

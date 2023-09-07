@@ -1,11 +1,11 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
 using System.Security.Claims;
 using TFSport.Models.Entities;
 using TFSport.Models.DTOModels.Articles;
+using TFSport.Models.Exceptions;
 
 namespace TFSport.API.Controllers
 {
@@ -17,41 +17,10 @@ namespace TFSport.API.Controllers
 	public class ArticleController : ControllerBase
 	{
         private readonly IArticleService _articleService;
-        private readonly IMapper _mapper;
-        private readonly IBlobStorageService _blobStorageService;
-        private readonly IConfiguration _configuration;
 
-        public ArticleController(IArticleService articleService, IMapper mapper, IBlobStorageService blobStorageService, IConfiguration configuration)
+        public ArticleController(IArticleService articleService)
         {
             _articleService = articleService;
-            _mapper = mapper;
-            _blobStorageService = blobStorageService;
-            _configuration = configuration;
-        }
-
-        /// <summary>
-        /// Creates a new article.
-        /// </summary>
-        /// <remarks>
-        /// Sample request for creating an article:
-        /// <code>
-        /// {
-        ///     "title": "Sample Article",
-        ///     "description": "Sample description",
-        ///     "author": "ff9ce560-5dc7-4234-80d7-23c0ae39af66",
-        ///     "content": "This is the content of the article."
-        /// }
-        /// </code>
-        /// </remarks>
-        /// <param name="request">The request object containing article information.</param>
-        /// <returns>A message indicating the result of the article creation.</returns>
-        [HttpPost]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
-        [SwaggerResponse(200, "Request_Succeeded")]
-        public async Task<IActionResult> CreateArticle([FromBody] ArticleCreateDTO request)
-        {
-			await _articleService.CreateArticleAsync(_mapper.Map<Article>(request), request.Content);
-            return Ok();
         }
 
         /// <summary>
@@ -94,36 +63,42 @@ namespace TFSport.API.Controllers
 		}
 
         /// <summary>
-        /// Retrieves the HTML content of an article.
-        /// </summary>
-        /// <param name="articleId">The ID of the article to retrieve content for.</param>
-        /// <returns>The HTML content of the article.</returns>
-        [HttpGet("{articleId}/content")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
-        [SwaggerResponse(200, "Request_Succeeded")]
-        public async Task<IActionResult> GetArticleContent(string articleId)
-        {
-            var content = await _articleService.GetArticleContentAsync(articleId);
-            return Ok(content);
-        }
-
-        /// <summary>
         /// Retrieves an article along with its HTML content.
         /// </summary>
         /// <param name="articleId">The ID of the article to retrieve.</param>
         /// <returns>The article information along with HTML content.</returns>
         [HttpGet("{articleId}")]
         [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(GetArticleWithContentDTO))]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(ArticleWithContentDTO))]
         public async Task<IActionResult> GetArticleWithContent(string articleId)
         {
             var article = await _articleService.GetArticleWithContentByIdAsync(articleId);
+            return Ok(article);
+        }
 
-            var articleWithContent = _mapper.Map<GetArticleWithContentDTO>(article);
-
-            articleWithContent.Content = await _blobStorageService.GetHtmlContentAsync(_configuration["BlobStorageContainers:ArticleContainer"], articleId);
-
-            return Ok(articleWithContent);
+        /// <summary>
+        /// Creates a new article.
+        /// </summary>
+        /// <remarks>
+        /// Sample request for creating an article:
+        /// <code>
+        /// {
+        ///     "title": "Sample Article",
+        ///     "description": "Sample description",
+        ///     "author": "ff9ce560-5dc7-4234-80d7-23c0ae39af66",
+        ///     "content": "This is the content of the article."
+        /// }
+        /// </code>
+        /// </remarks>
+        /// <param name="request">The request object containing article information.</param>
+        /// <returns>A message indicating the result of the article creation.</returns>
+        [HttpPost]
+        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [SwaggerResponse(200, "Request_Succeeded")]
+        public async Task<IActionResult> CreateArticle([FromBody] ArticleCreateDTO request)
+        {
+            await _articleService.CreateArticleAsync(request);
+            return Ok();
         }
 
         /// <summary>
@@ -141,18 +116,14 @@ namespace TFSport.API.Controllers
         /// </remarks>
         /// <param name="articleId">The ID of the article to update.</param>
         /// <param name="updateDTO">The request object containing article updates.</param>
+        /// /// <param name="content">The request object containing article content.</param>
         /// <returns>A message indicating the result of the article update.</returns>
         [HttpPatch("{articleId}")]
         [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> UpdateArticle(string articleId, [FromBody] ArticleUpdateDTO updateDTO)
         {
-            var existingArticle = await _articleService.GetArticleWithContentByIdAsync(articleId);
-
-            _mapper.Map(updateDTO, existingArticle);
-
-            await _articleService.UpdateArticleAsync(existingArticle, updateDTO.Content);
-
+            await _articleService.UpdateArticleAsync(articleId, updateDTO);
             return Ok();
         }
 

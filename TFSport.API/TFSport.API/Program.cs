@@ -9,7 +9,6 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-using TFSport.API;
 using TFSport.API.AutoMapper;
 using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
@@ -17,6 +16,7 @@ using TFSport.Services.Services;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;
 using TFSport.Repository.Repositories;
+using TFSport.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +28,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
+builder.Services.Configure<BlobStorageOptions>(builder.Configuration.GetSection(nameof(BlobStorageOptions)));
 builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
@@ -173,11 +175,9 @@ builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Successful-operati
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
+app.UseSwagger();
+
+app.UseSwaggerUI();
 
 app.UseExceptionHandler(errorApp =>
 {

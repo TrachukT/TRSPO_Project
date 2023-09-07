@@ -55,5 +55,17 @@
         public const string BlobDoesntExist = "Such blob client doesn't exist.";
 
         public const string ArticleNotSentForReview = "Author didn't send this article for review yet.";
+
+        public const string TitleIsRequired = "Title is required.";
+
+        public const string DescriptionIsRequired = "Description is required.";
+
+        public const string AuthorIsRequired = "Author is required.";
+
+        public const string InvalidAuthorId = "Author ID has to be a GUID.";
+
+        public const string FileExists = "This file is already uploaded.";
+
+        public const string NoImageProvided = "No image provided.";
     }
 }

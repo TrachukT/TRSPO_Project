@@ -1,5 +1,11 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using TFSport.Models;
+using TFSport.Models.Entities;
+using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
@@ -7,10 +13,12 @@ namespace TFSport.Services.Services
     public class BlobStorageService : IBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly BlobStorageOptions _blobOptions;
 
-        public BlobStorageService(BlobServiceClient blobServiceClient)
+        public BlobStorageService(BlobServiceClient blobServiceClient, IOptions<BlobStorageOptions> blobOptions)
         {
             _blobServiceClient = blobServiceClient;
+            _blobOptions = blobOptions.Value;
         }
 
         public async Task UploadHtmlContentAsync(string containerName, string id, string htmlContent)
@@ -80,6 +88,69 @@ namespace TFSport.Services.Services
                 }
 
                 await blobClient.DeleteIfExistsAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public Task<BlobStorageFile> UploadImageAsync(IFormFile file, string containerName, string fileName)
+        {
+            return UploadImageAsync(file.OpenReadStream(), containerName, fileName);
+        }
+
+        public Task<BlobStorageFile> UploadImage(byte[] fileBytes, string containerName, string fileName)
+        {
+            return UploadImageAsync(new MemoryStream(fileBytes), containerName, fileName);
+        }
+
+        public async Task<BlobStorageFile> UploadImageAsync(Stream fileStream, string containerName, string fileName)
+        {
+            await using (fileStream)
+            {
+                BlobContainerClient blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+                await blobContainerClient.CreateIfNotExistsAsync();
+
+                BlobClient blobClient = blobContainerClient.GetBlobClient(fileName);
+
+                if (await blobClient.ExistsAsync())
+                {
+                    throw new ArgumentException(ErrorMessages.FileExists, nameof(fileName));
+                }
+
+                Response<BlobContentInfo> response = await blobClient.UploadAsync(fileStream);
+
+                if (response.GetRawResponse().IsError)
+                {
+                    throw new HttpRequestException(response.GetRawResponse().ReasonPhrase);
+                }
+
+                return new BlobStorageFile(containerName, blobClient.Name, blobClient.Uri.AbsolutePath);
+            }
+        }
+
+        public async Task<Stream> GetImageAsync(string containerName, string imageName)
+        {
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                if (!await containerClient.ExistsAsync())
+                {
+                    throw new CustomException(ErrorMessages.BlobContainerDoesntExist);
+                }
+
+                var blobClient = containerClient.GetBlobClient(imageName);
+
+                if (!await blobClient.ExistsAsync())
+                {
+                    throw new CustomException(ErrorMessages.BlobDoesntExist);
+                }
+
+                var response = await blobClient.OpenReadAsync();
+
+                return response;
             }
             catch (Exception ex)
             {

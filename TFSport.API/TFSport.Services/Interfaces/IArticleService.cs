@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.Entities;
 
@@ -17,17 +12,15 @@ namespace TFSport.Services.Interfaces
 		
 		public Task<List<ArticlesListModel>> PublishedArticles();
 
-		public Task<List<ArticlesListModel>> MapArticles(List<Article> articles);
+        public Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId);
 
-		public Task<Article> CreateArticleAsync(Article article, string content);
+        public Task<List<ArticlesListModel>> MapArticles(List<Article> articles);
 
-		public Task<string> GetArticleContentAsync(string articleId);
+		public Task CreateArticleAsync(ArticleCreateDTO articleDTO);
 
-		public Task<Article> GetArticleWithContentByIdAsync(string articleId);
+		public Task<Article> UpdateArticleAsync(string articleId, ArticleUpdateDTO articleUpdateDTO);
 
-		public Task<Article> UpdateArticleAsync(Article article, string content);
-
-		public Task DeleteArticleAsync(string articleId);
+        public Task DeleteArticleAsync(string articleId);
 
 		public Task ChangeArticleStatusToReviewAsync(string articleId);
 

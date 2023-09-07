@@ -1,4 +1,4 @@
-﻿using TFSport.API.DTOModels.Users;
+﻿using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
