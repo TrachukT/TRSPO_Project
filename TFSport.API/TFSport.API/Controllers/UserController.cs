@@ -5,12 +5,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using TFSport.API.DTOModels.Users;
 using TFSport.API.Filters;
-using TFSport.Models;
+using TFSport.Models.Entities;
+using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.API.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/users")]
 	[CustomExceptionFilter]
 
@@ -19,12 +20,10 @@ namespace TFSport.API.Controllers
 	public class UserController : ControllerBase
 	{
 		private readonly IUserService _userService;
-		private readonly IMapper _mapper;
 
-		public UserController(IUserService userService, IMapper mapper)
+		public UserController(IUserService userService)
 		{
 			_userService = userService;
-			_mapper = mapper;
 		}
 
 		/// <summary>
@@ -46,7 +45,7 @@ namespace TFSport.API.Controllers
 		[SwaggerResponse(200, "Request_Succeeded", typeof(UserRegisterDTO))]
 		public async Task<IActionResult> Register([FromBody] UserRegisterDTO user)
 		{
-			await _userService.RegisterUser(_mapper.Map<User>(user));
+			await _userService.RegisterUser(user);
 			return Ok();
 		}
 
@@ -95,9 +94,7 @@ namespace TFSport.API.Controllers
 		public async Task<IActionResult> GetAllUsers()
 		{
 			var users = await _userService.GetAllUsers();
-			List<GetAllUsersDTO> list = _mapper.Map<List<GetAllUsersDTO>>(users);
-
-			return Ok(list);
+			return Ok(users);
 		}
 
 		/// <summary>
@@ -135,10 +132,9 @@ namespace TFSport.API.Controllers
 		public async Task<IActionResult> GetUserById()
 		{
 			var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-			var id = userIdClaim.Value;
-			var user = await _userService.GetUserById(id);
+			var user = await _userService.GetUserById(userIdClaim.Value);
 
-			return Ok(_mapper.Map<GetUserByIdDTO>(user));
+			return Ok(user);
 		}
 
 

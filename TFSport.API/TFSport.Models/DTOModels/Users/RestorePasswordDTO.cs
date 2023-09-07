@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TFSport.Models;
+using TFSport.Models.Exceptions;
 
 namespace TFSport.API.DTOModels.Users
 {
-	public class RestorePasswordDTO
+    public class RestorePasswordDTO
 	{
 		[MinLength(8, ErrorMessage = ErrorMessages.PasswordMinLength)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$", ErrorMessage = ErrorMessages.PasswordValidation)]

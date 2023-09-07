@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
-using TFSport.Models;
+using TFSport.Models.Exceptions;
 
 namespace TFSport.API.Filters
 {

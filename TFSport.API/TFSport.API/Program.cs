@@ -14,6 +14,9 @@ using TFSport.API.AutoMapper;
 using TFSport.API.Filters;
 using TFSport.Services.Interfaces;
 using TFSport.Services.Services;
+using TFSport.Models.Entities;
+using TFSport.Repository.Interfaces;
+using TFSport.Repository.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +32,9 @@ builder.Services.AddScoped<IJWTService, JWTService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
+builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 
 var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
@@ -135,21 +141,21 @@ builder.Services.AddCosmosRepository(options =>
     options.ContainerPerItemType = true;
 
     options.ContainerBuilder
-        .Configure<TFSport.Models.User>(containerOptionsBuilder =>
+        .Configure<TFSport.Models.Entities.User>(containerOptionsBuilder =>
         {
             containerOptionsBuilder
                 .WithContainer("Users")
                 .WithPartitionKey("/partitionKey");
         });
 	options.ContainerBuilder
-		.Configure<TFSport.Models.Article>(containerOptionsBuilder =>
+		.Configure<Article>(containerOptionsBuilder =>
 		{
 			containerOptionsBuilder
 				.WithContainer("Articles")
 				.WithPartitionKey("/partitionKey");
 		});
 	options.ContainerBuilder
-		.Configure<TFSport.Models.Comment>(containerOptionsBuilder =>
+		.Configure<Comment>(containerOptionsBuilder =>
 		{
 			containerOptionsBuilder
 				.WithContainer("Comments")

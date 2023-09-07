@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TFSport.Models
+namespace TFSport.Models.DTOModels
 {
     public class RefreshRequestModel
     {

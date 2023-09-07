@@ -2,12 +2,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TFSport.Models
+namespace TFSport.Models.Entities
 {
     [PartitionKeyPath("/partitionKey")]
     public class User : BaseModel
     {
-		[JsonProperty("firstName")]
+        [JsonProperty("firstName")]
         public string FirstName { get; set; }
 
         [JsonProperty("lastName")]
@@ -20,16 +20,16 @@ namespace TFSport.Models
         public string Password { get; set; }
 
         [JsonProperty("userRole")]
-        [JsonConverter(typeof(StringEnumConverter))]		
+        [JsonConverter(typeof(StringEnumConverter))]
         public UserRoles UserRole { get; set; }
 
         [JsonIgnore]
         public static string ContainerName { get; set; }
-		
-		[JsonProperty("emailVerified")]
+
+        [JsonProperty("emailVerified")]
         public bool EmailVerified { get; set; }
-		
-        [JsonProperty("verificationToken")]				
-		public string VerificationToken { get; set; }
-	}
+
+        [JsonProperty("verificationToken")]
+        public string VerificationToken { get; set; }
+    }
 }
