@@ -11,6 +11,7 @@ namespace TFSport.Models.Entities
         public string Title { get; set; }
 
         [JsonProperty("sport")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public SportType Sport { get; set; }
 
         [JsonProperty("description")]
