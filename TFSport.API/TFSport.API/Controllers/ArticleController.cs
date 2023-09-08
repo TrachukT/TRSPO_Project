@@ -5,7 +5,6 @@ using TFSport.Services.Interfaces;
 using System.Security.Claims;
 using TFSport.Models.Entities;
 using TFSport.Models.DTOModels.Articles;
-using TFSport.Models.Exceptions;
 
 namespace TFSport.API.Controllers
 {
@@ -84,7 +83,12 @@ namespace TFSport.API.Controllers
         /// <code>
         /// {
         ///     "title": "Sample Article",
-        ///     "description": "Sample description",
+        ///     "sport": "Sport",
+        ///     "description": "Updated description.",
+        ///     "image": "http://localhost:5293/images/Untitled.png",
+        ///     "tags":  [
+        ///     "#tag"
+        ///     ],
         ///     "author": "ff9ce560-5dc7-4234-80d7-23c0ae39af66",
         ///     "content": "This is the content of the article."
         /// }
@@ -109,7 +113,12 @@ namespace TFSport.API.Controllers
         /// <code>
         /// {
         ///     "title": "Updated Article",
-        ///     "description": "Updated description.",
+        ///     "sport": "Sport",
+        ///     "description": "Article description.",
+        ///     "image": "http://localhost:5293/images/8.png",
+        ///     "tags":  [
+        ///     "#tag"
+        ///     ],
         ///     "content": "This is the updated content of the article."
         /// }
         /// </code>
@@ -123,7 +132,8 @@ namespace TFSport.API.Controllers
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> UpdateArticle(string articleId, [FromBody] ArticleUpdateDTO updateDTO)
         {
-            await _articleService.UpdateArticleAsync(articleId, updateDTO);
+            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            await _articleService.UpdateArticleAsync(articleId, updateDTO, userId);
             return Ok();
         }
 
@@ -147,11 +157,12 @@ namespace TFSport.API.Controllers
         /// <param name="articleId">The ID of the article to send for review.</param>
         /// <returns>A message indicating the result of the status change.</returns>
         [HttpPatch("{articleId}/send-for-review")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> ChangeArticleStatusToReview(string articleId)
         {
-            await _articleService.ChangeArticleStatusToReviewAsync(articleId);
+            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            await _articleService.ChangeArticleStatusToReviewAsync(articleId, userId);
             return Ok();
         }
 

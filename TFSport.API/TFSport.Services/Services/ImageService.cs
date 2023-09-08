@@ -12,12 +12,14 @@ namespace TFSport.Services.Services
         private readonly IBlobStorageService _blobStorageService;
         private readonly BlobStorageOptions _blobOptions;
         private readonly ILogger _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ImageService(IOptions<BlobStorageOptions> blobOptions, IBlobStorageService blobStorageService, ILogger<ArticleService> logger)
+        public ImageService(IOptions<BlobStorageOptions> blobOptions, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IHttpContextAccessor httpContextAccessor)
         {
             _blobStorageService = blobStorageService;
             _blobOptions = blobOptions.Value;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<string> UploadImageAsync(IFormFile imageFile)
@@ -34,7 +36,8 @@ namespace TFSport.Services.Services
                 var imageStream = imageFile.OpenReadStream();
                 var blobStorageFile = await _blobStorageService.UploadImageAsync(imageStream, _blobOptions.ImageContainer, imageName);
 
-                var downloadUrl = $"{_blobOptions.BaseUrl}/{blobStorageFile.ContainerName}/{blobStorageFile.FileName}";
+                var baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}";
+                var downloadUrl = $"{baseUrl}/images/{blobStorageFile.FileName}";
 
                 _logger.LogInformation("File {FileName} was uploaded to Blob Storage.", blobStorageFile.FileName);
 

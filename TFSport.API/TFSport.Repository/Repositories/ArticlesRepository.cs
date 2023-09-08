@@ -52,7 +52,8 @@ namespace TFSport.Repository.Repositories
         public async Task<Article> UpdateArticleAsync(Article article)
         {
             await _repository.UpdateAsync(article);
-            return article;
+            var updatedArticle = await _repository.GetAsync(article.Id);
+            return updatedArticle;
         }
 
         public async Task DeleteArticleAsync(Article article)

@@ -44,8 +44,10 @@ namespace TFSport.API.AutoMapper
 
 			CreateMap<Article, ArticleCreateDTO>();
 
-            CreateMap<Article, ArticleWithContentDTO>()
-                .ForMember(dest => dest.Content, opt => opt.Ignore());
+			CreateMap<Article, ArticleWithContentDTO>()
+				.ForMember(dest => dest.Author, opt => opt.Ignore())
+				.ForMember(dest => dest.Content, opt => opt.Ignore())
+				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedTimeUtc));
 
             CreateMap<ArticleUpdateDTO, Article>().BeforeMap((src, dest) =>
 			{

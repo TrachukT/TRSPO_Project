@@ -18,11 +18,11 @@ namespace TFSport.Services.Interfaces
 
 		public Task CreateArticleAsync(ArticleCreateDTO articleDTO);
 
-		public Task<Article> UpdateArticleAsync(string articleId, ArticleUpdateDTO articleUpdateDTO);
+		public Task<Article> UpdateArticleAsync(string articleId, ArticleUpdateDTO articleUpdateDTO, string userId);
 
         public Task DeleteArticleAsync(string articleId);
 
-		public Task ChangeArticleStatusToReviewAsync(string articleId);
+		public Task ChangeArticleStatusToReviewAsync(string articleId, string userId);
 
 		public Task ChangeArticleStatusToPublishedAsync(string articleId);
     }

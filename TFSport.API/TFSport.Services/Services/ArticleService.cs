@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TFSport.Models;
@@ -86,9 +87,12 @@ namespace TFSport.Services.Services
                 }
 
                 var content = await _blobStorageService.GetHtmlContentAsync(_blobOptions.ArticleContainer, article.Id);
+                var user = await _userService.GetUserById(article.Author);
+                var userDTO = _mapper.Map<UserInfo>(user);
 
                 var articleWithContentDTO = _mapper.Map<ArticleWithContentDTO>(article);
                 articleWithContentDTO.Content = content;
+                articleWithContentDTO.Author = userDTO;
 
                 return articleWithContentDTO;
             }
@@ -115,6 +119,7 @@ namespace TFSport.Services.Services
 			}
 			return list;
 		}
+
         public async Task CreateArticleAsync(ArticleCreateDTO articleDTO)
         {
             try
@@ -146,7 +151,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<Article> UpdateArticleAsync(string articleId, ArticleUpdateDTO articleUpdateDTO)
+        public async Task<Article> UpdateArticleAsync(string articleId, ArticleUpdateDTO articleUpdateDTO, string userId)
         {
             try
             {
@@ -155,6 +160,11 @@ namespace TFSport.Services.Services
                 if (existingArticle == null)
                 {
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
+                }
+
+                if (existingArticle.Author != userId)
+                {
+                    throw new CustomException(ErrorMessages.UpdateNotPermitted);
                 }
 
                 var articleWithSameTitle = await _articleRepository.GetArticleByTitleAsync(articleUpdateDTO.Title);
@@ -200,7 +210,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task ChangeArticleStatusToReviewAsync(string articleId)
+        public async Task ChangeArticleStatusToReviewAsync(string articleId, string userId)
         {
             try
             {
@@ -214,6 +224,11 @@ namespace TFSport.Services.Services
                 if (article.Status != ArticleStatus.Draft)
                 {
                     throw new CustomException($"Article is currently in '{article.Status}' status and cannot be changed to 'Review'.");
+                }
+
+                if (article.Author != userId)
+                {
+                    throw new CustomException(ErrorMessages.ChangeStatusNotPermitted);
                 }
 
                 await _articleRepository.ChangeArticleStatusToReviewAsync(article);

@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
 using System.Net;
 using System.Reflection;
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<CustomExceptionFilter>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 var allowedOrigins = builder.Configuration.GetSection("CORS:AllowedOrigins").Get<string[]>();
 
