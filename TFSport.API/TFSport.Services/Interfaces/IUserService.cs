@@ -27,6 +27,5 @@ namespace TFSport.Services.Interfaces
 		public Task<GetUserByIdDTO> GetUserById(string id);
 
 		public Task ResendEmail(string email);
-
 	}
 }

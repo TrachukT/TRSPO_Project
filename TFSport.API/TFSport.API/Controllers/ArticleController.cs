@@ -179,5 +179,20 @@ namespace TFSport.API.Controllers
             await _articleService.ChangeArticleStatusToPublishedAsync(articleId);
             return Ok();
         }
+
+        /// <summary>
+        /// Get list of sport types
+        /// </summary>
+        /// <param name="articleId"></param>
+        /// <returns></returns>
+        [HttpGet("sports")]
+        [RoleAuthorization(UserRoles.SuperAdmin,UserRoles.Author)]
+        [SwaggerResponse(200, "Request_Succeeded",typeof(List<SportType>))]
+        public async Task<IActionResult> GetSportTypes()
+        {
+            var list = await _articleService.GetSportTypes();
+            return Ok(list);
+        }
+
     }
 }
