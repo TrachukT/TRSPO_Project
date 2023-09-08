@@ -9,7 +9,7 @@ namespace TFSport.Models.DTOModels.Articles
 
         public string Title { get; set; }
 
-        public string Sport { get; set; }
+        public SportType Sport { get; set; }
 
         public string Description { get; set; }
 

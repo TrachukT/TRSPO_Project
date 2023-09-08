@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TFSport.Models;
@@ -13,67 +14,69 @@ using TFSport.Services.Interfaces;
 namespace TFSport.Services.Services
 {
     public class ArticleService : IArticleService
-	{
-		private readonly IArticlesRepository _articleRepository;
+    {
+        private readonly IArticlesRepository _articleRepository;
         private readonly IUsersRepository _userRepository;
         private readonly IUserService _userService;
-		private readonly IMapper _mapper;
+        private readonly IMapper _mapper;
         private readonly IBlobStorageService _blobStorageService;
         private readonly BlobStorageOptions _blobOptions;
         private readonly ILogger _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger)
-		{
-			_articleRepository = articleRepository;
-			_userService = userService;
-			_mapper = mapper;
+        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache)
+        {
+            _articleRepository = articleRepository;
+            _userService = userService;
+            _mapper = mapper;
             _blobStorageService = blobStorageService;
             _blobOptions = blobOptions.Value;
             _logger = logger;
             _userRepository = userRepository;
+            _memoryCache = memoryCache;
         }
 
-		public async Task<List<ArticlesListModel>> ArticlesForApprove()
-		{
-			try
-			{
-				var articles = await _articleRepository.GetArticlesInReview();
-				var list = await MapArticles(articles);
-				return list;
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message);
-			}
-		}
+        public async Task<List<ArticlesListModel>> ArticlesForApprove()
+        {
+            try
+            {
+                var articles = await _articleRepository.GetArticlesInReview();
+                var list = await MapArticles(articles);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
-		public async Task<List<ArticlesListModel>> AuthorsArticles(string authorId)
-		{
-			try
-			{
-				var articles = await _articleRepository.GetAuthorsArticles(authorId);
-				var list = await MapArticles(articles);
-				return list;
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message);
-			}
-		}
+        public async Task<List<ArticlesListModel>> AuthorsArticles(string authorId)
+        {
+            try
+            {
+                var articles = await _articleRepository.GetAuthorsArticles(authorId);
+                var list = await MapArticles(articles);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
-		public async Task<List<ArticlesListModel>> PublishedArticles()
-		{
-			try
-			{
-				var articles = await _articleRepository.GetPublishedArticles();
-				var list = await MapArticles(articles);
-				return list;
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message);
-			}
-		}
+        public async Task<List<ArticlesListModel>> PublishedArticles()
+        {
+            try
+            {
+                var articles = await _articleRepository.GetPublishedArticles();
+                var list = await MapArticles(articles);
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
         public async Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId)
         {
@@ -103,22 +106,22 @@ namespace TFSport.Services.Services
         }
 
         public async Task<List<ArticlesListModel>> MapArticles(List<Article> articles)
-		{
+        {
             if (articles.Count == 0)
             {
                 return new List<ArticlesListModel>();
             }
             var list = new List<ArticlesListModel>();
-			foreach (var article in articles)
-			{
-				var user = await _userService.GetUserById(article.Author);
-				var userDTO = _mapper.Map<UserInfo>(user);
-				var articleDTO = _mapper.Map<ArticlesListModel>(article);
-				articleDTO.Author = userDTO;
-				list.Add(articleDTO);
-			}
-			return list;
-		}
+            foreach (var article in articles)
+            {
+                var user = await _userService.GetUserById(article.Author);
+                var userDTO = _mapper.Map<UserInfo>(user);
+                var articleDTO = _mapper.Map<ArticlesListModel>(article);
+                articleDTO.Author = userDTO;
+                list.Add(articleDTO);
+            }
+            return list;
+        }
 
         public async Task CreateArticleAsync(ArticleCreateDTO articleDTO)
         {
@@ -266,5 +269,24 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
+
+        public async Task<List<SportType>> GetSportTypes()
+        {
+            var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<SportType> sportsList);
+            if (!isCached)
+            {
+                sportsList = new List<SportType>();
+                var sportsValues = Enum.GetValues(typeof(SportType));
+                foreach (var value in sportsValues)
+                {
+                    sportsList.Add((SportType)value);
+                }
+                _memoryCache.Set(nameof(SportType), sportsList, new MemoryCacheEntryOptions()
+                    .SetSize(5)
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(1)));
+            }
+            return sportsList;
+        }
+
     }
 }

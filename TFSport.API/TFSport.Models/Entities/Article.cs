@@ -11,7 +11,7 @@ namespace TFSport.Models.Entities
         public string Title { get; set; }
 
         [JsonProperty("sport")]
-        public string Sport { get; set; }
+        public SportType Sport { get; set; }
 
         [JsonProperty("description")]
         public string Description { get; set; }

@@ -174,6 +174,12 @@ builder.Logging.AddApplicationInsights(
 	);
 
 builder.Logging.AddFilter<ApplicationInsightsLoggerProvider>("Successful-operations", LogLevel.Information);
+builder.Services.AddMemoryCache(options =>
+{
+    options.CompactionPercentage = 0.02;
+    options.ExpirationScanFrequency = TimeSpan.FromMinutes(3);
+    options.SizeLimit = 1000;
+});
 
 var app = builder.Build();
 
