@@ -1,7 +1,4 @@
-﻿using Microsoft.Azure.CosmosRepository;
-using Microsoft.Azure.CosmosRepository.Extensions;
-using TFSport.Models;
-using TFSport.Services.Interfaces;
+﻿using TFSport.Services.Interfaces;
 using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,7 +6,7 @@ using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
 using AutoMapper;
-using TFSport.API.DTOModels.Users;
+using TFSport.Models.DTOModels.Users;
 
 namespace TFSport.Services.Services
 {
@@ -90,7 +87,6 @@ namespace TFSport.Services.Services
             {
                 throw new CustomException(ex.Message);
             }
-
         }
 
         public async Task ForgotPassword(string email)
@@ -187,18 +183,19 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<bool> ChangeUserRole(string userId, string newUserRole)
+        public async Task<bool> ChangeUserRole(string userId, UserRoles newUserRole)
         {
             try
             {
-                var validRoles = Enum.GetNames(typeof(UserRoles)).Select(role => role.ToLower());
-                if (!validRoles.Contains(newUserRole.ToLower()))
+                var validRoles = Enum.GetValues(typeof(UserRoles)).Cast<UserRoles>().ToList();
+
+                if (!validRoles.Contains(newUserRole))
                 {
                     throw new CustomException($"Invalid role specified: {newUserRole}.");
                 }
 
                 var user = await _usersRepository.GetUserById(userId);
-                user.UserRole = (UserRoles)Enum.Parse(typeof(UserRoles), newUserRole, ignoreCase: true);
+                user.UserRole = newUserRole;
                 await _usersRepository.UpdateUser(user);
                 _logger.LogInformation("User with id {id} now has role {role}", user.Id, user.UserRole);
                 return true;

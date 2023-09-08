@@ -1,4 +1,4 @@
-﻿namespace TFSport.API
+﻿namespace TFSport.Models
 {
 	public class EmailSettings
 	{

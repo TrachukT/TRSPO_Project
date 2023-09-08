@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using TFSport.API.DTOModels.Users;
 using TFSport.API.Filters;
+using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;
@@ -114,19 +114,19 @@ namespace TFSport.API.Controllers
 		[HttpPatch("{id}/role")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		[RoleAuthorization(UserRoles.SuperAdmin)]
-		public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
-		{
-			var newUserRole = request.NewUserRole;
-			await _userService.ChangeUserRole(id, newUserRole);
+        public async Task<IActionResult> ChangeUserRole(string id, [FromBody] ChangeUserRoleDTO request)
+        {
+            var newUserRole = request.NewUserRole;
+            await _userService.ChangeUserRole(id, newUserRole);
 
-			return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
-		}
+            return Ok(new { Message = $"User with ID {id} has been granted a role {newUserRole}." });
+        }
 
-		/// <summary>
-		/// Get info about user by user id(from auth token)
-		/// </summary>
-		/// <returns></returns>
-		[RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
+        /// <summary>
+        /// Get info about user by user id(from auth token)
+        /// </summary>
+        /// <returns></returns>
+        [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
 		[HttpGet("info")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(GetUserByIdDTO))]
 		public async Task<IActionResult> GetUserById()
@@ -137,7 +137,6 @@ namespace TFSport.API.Controllers
 			return Ok(user);
 		}
 
-
 		[HttpPost("registration-confirm")]
 		[SwaggerResponse(200, "Request_Succeeded", typeof(string))]
 		public async Task<IActionResult> ResendEmail([FromBody][EmailAddress(ErrorMessage = ErrorMessages.EmailNotValid)]string email)
@@ -145,6 +144,5 @@ namespace TFSport.API.Controllers
 			await _userService.ResendEmail(email);
 			return Ok();
 		}
-
 	}
 }

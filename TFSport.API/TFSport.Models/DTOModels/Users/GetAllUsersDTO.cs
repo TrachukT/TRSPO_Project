@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Converters;
 using TFSport.Models.Entities;
 
-namespace TFSport.API.DTOModels.Users
+namespace TFSport.Models.DTOModels.Users
 {
     public class GetAllUsersDTO
 	{

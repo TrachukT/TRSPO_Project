@@ -1,4 +1,4 @@
-﻿using TFSport.API.DTOModels.Users;
+﻿using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
@@ -22,7 +22,7 @@ namespace TFSport.Services.Interfaces
 		
 		public Task<List<GetAllUsersDTO>> GetAllUsers();
 
-        public Task<bool> ChangeUserRole(string userId, string newUserRole);
+        public Task<bool> ChangeUserRole(string userId, UserRoles newUserRole);
 
 		public Task<GetUserByIdDTO> GetUserById(string id);
 

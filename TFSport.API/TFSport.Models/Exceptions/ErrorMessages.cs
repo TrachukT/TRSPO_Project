@@ -38,12 +38,38 @@
 
         public const string EmailNotVerified = "Email must be verified before logging in.";
 
-        public const string AlreadyVerifiedEmail = "This email has already been verified";
+        public const string AlreadyVerifiedEmail = "This email has already been verified.";
 
-        public const string NoAuthorsArticles = "You have no articles posted or in drafts";
+        public const string NoAuthorsArticles = "You have no articles posted or in drafts.";
 
-        public const string NoArticlesForReview = "There are no articles waiting for review";
+        public const string NoArticlesForReview = "There are no articles waiting for review.";
 
-        public const string NoArticlesPublished = "There are no articles published now";
+        public const string NoArticlesPublished = "There are no articles published now.";
+
+        public const string ArticleWithThisTitleExists = "An article with the same title already exists.";
+
+        public const string ArticleDoesntExist = "An article with such ID doesn't exist.";
+
+        public const string BlobContainerDoesntExist = "Such blob container doesn't exist.";
+
+        public const string BlobDoesntExist = "Such blob client doesn't exist.";
+
+        public const string ArticleNotSentForReview = "Author didn't send this article for review yet.";
+
+        public const string TitleIsRequired = "Title is required.";
+
+        public const string DescriptionIsRequired = "Description is required.";
+
+        public const string AuthorIsRequired = "Author is required.";
+
+        public const string InvalidAuthorId = "Author ID has to be a GUID.";
+
+        public const string FileExists = "This file is already uploaded.";
+
+        public const string NoImageProvided = "No image provided.";
+
+        public const string ChangeStatusNotPermitted = "You are not authorized to change the status of this article.";
+
+        public const string UpdateNotPermitted = "You are not authorized to update this article.";
     }
 }

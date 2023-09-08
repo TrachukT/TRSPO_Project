@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TFSport.API.Filters;
-using TFSport.Models;
 using TFSport.Models.DTOModels;
+using TFSport.Models.DTOModels.Users;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.API.Controllers

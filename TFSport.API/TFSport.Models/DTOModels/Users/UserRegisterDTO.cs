@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using TFSport.Models.Exceptions;
 
-namespace TFSport.API.DTOModels.Users
+namespace TFSport.Models.DTOModels.Users
 {
     public class UserRegisterDTO
     {

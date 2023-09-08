@@ -1,20 +1,32 @@
 ﻿using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Azure.CosmosRepository.Attributes;
 
 namespace TFSport.Models.Entities
 {
+    [PartitionKeyPath("/partitionKey")]
     public class Article : BaseModel
     {
         [JsonProperty("title")]
         public string Title { get; set; }
 
+        [JsonProperty("sport")]
+        public string Sport { get; set; }
+
         [JsonProperty("description")]
         public string Description { get; set; }
+
+        [JsonProperty("image")]
+        public string Image { get; set; }
+
+        [JsonProperty("tags")]
+        public List<string> Tags { get; set; }
+
+        [JsonProperty("likeCount")]
+        public int LikeCount { get; set; }
+
+        [JsonProperty("likes")]
+        public List<LikeInfo> Likes { get; set; }
 
         [JsonProperty("updatedAt")]
         public DateTime UpdatedAt { get; set; }
@@ -22,11 +34,8 @@ namespace TFSport.Models.Entities
         [JsonProperty("author")]
         public string Author { get; set; }
 
-        [JsonProperty("blobId")]
-        public string BlobId { get; set; }
-
         [JsonProperty("status")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public PostStatus Status { get; set; }
+        public ArticleStatus Status { get; set; }
     }
 }
