@@ -23,8 +23,9 @@ namespace TFSport.Services.Services
         private readonly BlobStorageOptions _blobOptions;
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
+        private readonly IEmailService _emailService;
 
-        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache)
+        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache, IEmailService emailService)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -34,6 +35,7 @@ namespace TFSport.Services.Services
             _logger = logger;
             _userRepository = userRepository;
             _memoryCache = memoryCache;
+            _emailService = emailService;
         }
 
         public async Task<List<ArticlesListModel>> ArticlesForApprove()
@@ -261,6 +263,8 @@ namespace TFSport.Services.Services
                 }
 
                 await _articleRepository.ChangeArticleStatusToPublishedAsync(article);
+                var user =await _userRepository.GetUserById(article.Author);
+                await _emailService.ArticleIsPublished(user.Email,article.Title);
 
                 _logger.LogInformation("Article with id {articleId} was published", articleId);
             }
