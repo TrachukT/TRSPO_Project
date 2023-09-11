@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -263,8 +264,8 @@ namespace TFSport.Services.Services
                 }
 
                 await _articleRepository.ChangeArticleStatusToPublishedAsync(article);
-                var user =await _userRepository.GetUserById(article.Author);
-                await _emailService.ArticleIsPublished(user.Email,article.Title);
+                var user = await _userRepository.GetUserById(article.Author);
+                await _emailService.ArticleIsPublished(user.Email, article.Title);
 
                 _logger.LogInformation("Article with id {articleId} was published", articleId);
             }
@@ -276,21 +277,72 @@ namespace TFSport.Services.Services
 
         public async Task<List<SportType>> GetSportTypes()
         {
-            var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<SportType> sportsList);
-            if (!isCached)
+            try
             {
-                sportsList = new List<SportType>();
-                var sportsValues = Enum.GetValues(typeof(SportType));
-                foreach (var value in sportsValues)
+                var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<SportType> sportsList);
+                if (!isCached)
                 {
-                    sportsList.Add((SportType)value);
+                    sportsList = new List<SportType>();
+                    var sportsValues = Enum.GetValues(typeof(SportType));
+                    foreach (var value in sportsValues)
+                    {
+                        sportsList.Add((SportType)value);
+                    }
+                    _memoryCache.Set(nameof(SportType), sportsList, new MemoryCacheEntryOptions()
+                        .SetSize(5)
+                        .SetAbsoluteExpiration(TimeSpan.FromMinutes(1)));
                 }
-                _memoryCache.Set(nameof(SportType), sportsList, new MemoryCacheEntryOptions()
-                    .SetSize(5)
-                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(1)));
+                return sportsList;
             }
-            return sportsList;
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
 
+        public async Task ManageFavorites(string userId, string articleId, string action)
+        {
+            try
+            {
+                var user = await _userRepository.GetUserById(userId);
+                if (action.ToLower() == "add")
+                {
+                    if (!user.Favorites.Contains(articleId))
+                    {
+                        user.Favorites.Add(articleId);
+                    }
+
+                }
+                else
+                {
+                    user.Favorites.Remove(articleId);
+                }
+
+                await _userRepository.UpdateUser(user);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<List<ArticlesListModel>> GetFavorites(string id)
+        {
+            try
+            {
+                var user = await _userRepository.GetUserById(id);
+                var articles = new List<Article>();
+                foreach (var articleId in user.Favorites)
+                {
+                    var article = await _articleRepository.GetArticleByIdAsync(articleId);
+                    articles.Add(article);
+                }
+                return await MapArticles(articles);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
     }
 }

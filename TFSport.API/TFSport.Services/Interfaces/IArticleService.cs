@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Cosmos;
+using System;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.Entities;
 
@@ -27,5 +29,8 @@ namespace TFSport.Services.Interfaces
 		public Task ChangeArticleStatusToPublishedAsync(string articleId);
 
         public Task<List<SportType>> GetSportTypes();
+		public Task ManageFavorites(string userId, string articleId, string action);
+        public Task<List<ArticlesListModel>> GetFavorites(string id);
+
     }
 }
