@@ -31,8 +31,5 @@ namespace TFSport.Models.Entities
 
         [JsonProperty("verificationToken")]
         public string VerificationToken { get; set; }
-
-        [JsonProperty("favorites")]
-        public List<string> Favorites { get; set; }
     }
 }

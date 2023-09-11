@@ -29,8 +29,6 @@ namespace TFSport.Services.Interfaces
 		public Task ChangeArticleStatusToPublishedAsync(string articleId);
 
         public Task<List<SportType>> GetSportTypes();
-		public Task ManageFavorites(string userId, string articleId, string action);
-        public Task<List<ArticlesListModel>> GetFavorites(string id);
 
     }
 }

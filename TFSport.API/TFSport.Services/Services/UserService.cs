@@ -155,7 +155,6 @@ namespace TFSport.Services.Services
                         UserRole = UserRoles.SuperAdmin,
                         EmailVerified = true,
                         VerificationToken = Guid.NewGuid().ToString(),
-                        Favorites = new List<string>()
                     };
 
                     superAdmin.PartitionKey = superAdmin.Id;

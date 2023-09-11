@@ -15,7 +15,6 @@ namespace TFSport.API.AutoMapper
 				dest.EmailVerified = false;
 				dest.VerificationToken = Guid.NewGuid().ToString();
 				dest.PartitionKey = dest.Id;
-				dest.Favorites = new List<string>();
 			});
 
 			CreateMap<User, UserRegisterDTO>();

@@ -22,16 +22,16 @@ namespace TFSport.Services.Services
 		{
 			var link = _emailSettings.EmailUrl + verificationToken;
 			var content = $"To complete registration you need to verificate email.To do this click the link below:\n{link}";
-			await CreateMessage(email, content, "Email Verification");
-			_logger.LogInformation("Email with link for email verification has been send on email {email}", email);
+			await CreateMessage(email.ToLower(), content, "Email Verification");
+			_logger.LogInformation("Email with link for email verification has been send on email {email}", email.ToLower());
 		}
 
 		public async Task RestorePassword(string email, string verificationToken)
 		{
 			var link = _emailSettings.PasswordUrl + verificationToken;
 			var content = $"To restore password click the link below: \n{link}";
-			await CreateMessage(email, content, "Restore Password");
-			_logger.LogInformation("Email with link for restoring password has been send on email {email}", email);
+			await CreateMessage(email.ToLower(), content, "Restore Password");
+			_logger.LogInformation("Email with link for restoring password has been send on email {email}", email.ToLower());
 		}
 		public async Task CreateMessage(string email, string content,string subject)
 		{
@@ -49,8 +49,8 @@ namespace TFSport.Services.Services
         public async Task ArticleIsPublished(string email, string articleName)
         {
 			var content = $"Congratulations! Your article \"{articleName}\" was published.";
-			await CreateMessage(email, content, "Article is Published");
-            _logger.LogInformation("Email about successfull publish of article has been send on email {email}", email);
+			await CreateMessage(email.ToLower(), content, "Article is Published");
+            _logger.LogInformation("Email about successfull publish of article has been send on email {email}", email.ToLower());
         }
     }
 }

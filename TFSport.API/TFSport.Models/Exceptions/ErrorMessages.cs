@@ -71,5 +71,6 @@
         public const string ChangeStatusNotPermitted = "You are not authorized to change the status of this article.";
 
         public const string UpdateNotPermitted = "You are not authorized to update this article.";
+
     }
 }

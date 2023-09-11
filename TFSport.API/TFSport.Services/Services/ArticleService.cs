@@ -300,49 +300,5 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task ManageFavorites(string userId, string articleId, string action)
-        {
-            try
-            {
-                var user = await _userRepository.GetUserById(userId);
-                if (action.ToLower() == "add")
-                {
-                    if (!user.Favorites.Contains(articleId))
-                    {
-                        user.Favorites.Add(articleId);
-                    }
-
-                }
-                else
-                {
-                    user.Favorites.Remove(articleId);
-                }
-
-                await _userRepository.UpdateUser(user);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
-
-        public async Task<List<ArticlesListModel>> GetFavorites(string id)
-        {
-            try
-            {
-                var user = await _userRepository.GetUserById(id);
-                var articles = new List<Article>();
-                foreach (var articleId in user.Favorites)
-                {
-                    var article = await _articleRepository.GetArticleByIdAsync(articleId);
-                    articles.Add(article);
-                }
-                return await MapArticles(articles);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
     }
 }

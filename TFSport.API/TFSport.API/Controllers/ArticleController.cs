@@ -16,10 +16,12 @@ namespace TFSport.API.Controllers
     public class ArticleController : ControllerBase
     {
         private readonly IArticleService _articleService;
+        private readonly IFavoritesService _favoritesService;
 
-        public ArticleController(IArticleService articleService)
+        public ArticleController(IArticleService articleService, IFavoritesService favoritesService)
         {
             _articleService = articleService;
+            _favoritesService = favoritesService;
         }
 
         /// <summary>
@@ -199,7 +201,7 @@ namespace TFSport.API.Controllers
         public async Task<IActionResult> ManageFavorites(string action, [FromBody] string articleId)
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            await _articleService.ManageFavorites(userId,articleId,action);
+            await _favoritesService.ManageFavorites(userId,articleId,action);
             return Ok();
         }
 
@@ -209,7 +211,7 @@ namespace TFSport.API.Controllers
         public async Task<IActionResult> GetMyFavorites()
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var articles = await _articleService.GetFavorites(userId);
+            var articles = await _favoritesService.GetFavorites(userId);
             return Ok(articles);
         }
 

@@ -38,6 +38,8 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
+builder.Services.AddScoped<IFavoritesRepository, FavoritesRepository>();
+builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -164,6 +166,13 @@ builder.Services.AddCosmosRepository(options =>
 			containerOptionsBuilder
 				.WithContainer("Comments")
 				.WithPartitionKey("/articleId");
+		});
+	options.ContainerBuilder
+		.Configure<Favorites>(containerOptionsBuilder =>
+		{
+			containerOptionsBuilder
+				.WithContainer("Users")
+				.WithPartitionKey("/partitionKey");
 		});
 });
 
