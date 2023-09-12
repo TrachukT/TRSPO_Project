@@ -35,16 +35,28 @@ namespace TFSport.API.AutoMapper
 				.ForMember(dest => dest.Author, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src =>src.CreatedTimeUtc));
 
-            CreateMap<ArticleCreateDTO, Article>().BeforeMap((src, dest) =>
-            {
-                dest.PartitionKey = dest.Id;
-                dest.UpdatedAt = DateTime.UtcNow;
-                dest.Status = ArticleStatus.Draft;
-            });
+            CreateMap<ArticleCreateDTO, Article>()
+			.BeforeMap((src, dest) =>
+			{
+				dest.PartitionKey = dest.Id;
+				dest.UpdatedAt = DateTime.UtcNow;
+				dest.Status = ArticleStatus.Draft;
+			})
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
-			CreateMap<Article, ArticleCreateDTO>();
+            CreateMap<Article, ArticleCreateDTO>();
 
-			CreateMap<Article, ArticleWithContentDTO>()
+            CreateMap<ArticleCreateDTO, Tag>()
+			.BeforeMap((src, dest) =>
+			{
+				dest.PartitionKey = dest.Id;
+				dest.ArticleId = new List<string> { dest.Id };
+			})
+			.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
+
+			CreateMap<Tag, ArticleCreateDTO>();
+
+            CreateMap<Article, ArticleWithContentDTO>()
 				.ForMember(dest => dest.Author, opt => opt.Ignore())
 				.ForMember(dest => dest.Content, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedTimeUtc));

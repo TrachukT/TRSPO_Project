@@ -35,9 +35,11 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<ITagsService, TagsService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
+builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -165,6 +167,13 @@ builder.Services.AddCosmosRepository(options =>
 				.WithContainer("Comments")
 				.WithPartitionKey("/articleId");
 		});
+    options.ContainerBuilder
+        .Configure<Tag>(containerOptionsBuilder =>
+        {
+            containerOptionsBuilder
+                .WithContainer("Articles")
+                .WithPartitionKey("/partitionKey");
+        });
 });
 
 builder.Logging.AddApplicationInsights(

@@ -71,5 +71,11 @@
         public const string ChangeStatusNotPermitted = "You are not authorized to change the status of this article.";
 
         public const string UpdateNotPermitted = "You are not authorized to update this article.";
+
+        public const string TitleLength = "The title must be between 15 and 70 characters.";
+
+        public const string TagsQuantity = "Up to 5 tags are allowed.";
+
+        public const string ContentLength = "The content must be between 200 and 5000 characters.";
     }
 }

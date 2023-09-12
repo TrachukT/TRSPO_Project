@@ -67,7 +67,6 @@ namespace TFSport.API.Controllers
         /// <param name="articleId">The ID of the article to retrieve.</param>
         /// <returns>The article information along with HTML content.</returns>
         [HttpGet("{articleId}")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticleWithContentDTO))]
         public async Task<IActionResult> GetArticleWithContent(string articleId)
         {
@@ -82,15 +81,15 @@ namespace TFSport.API.Controllers
         /// Sample request for creating an article:
         /// <code>
         /// {
-        ///     "title": "Sample Article",
-        ///     "sport": "Sport",
-        ///     "description": "Updated description.",
-        ///     "image": "http://localhost:5293/images/Untitled.png",
-        ///     "tags":  [
-        ///     "#tag"
-        ///     ],
-        ///     "author": "ff9ce560-5dc7-4234-80d7-23c0ae39af66",
-        ///     "content": "This is the content of the article."
+        ///  "title": "Sample Article with a long title",
+        ///  "sport": "Football",
+        ///  "description": "Article description.",
+        ///  "author": "345935d2-eddb-4f06-9170-37b930637751",
+        ///  "image": "http://localhost:5293/images/Untitled.png",
+        ///  "tags": [
+        ///    "tag1"
+        ///  ],
+        ///  "content": "This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article."
         /// }
         /// </code>
         /// </remarks>
@@ -112,14 +111,14 @@ namespace TFSport.API.Controllers
         /// Sample request for updating an article:
         /// <code>
         /// {
-        ///     "title": "Updated Article",
-        ///     "sport": "Sport",
-        ///     "description": "Article description.",
+        ///     "title": "Updated Article with a long title",
+        ///     "sport": "Football",
+        ///     "description": "Updated description.",
         ///     "image": "http://localhost:5293/images/8.png",
         ///     "tags":  [
-        ///     "#tag"
+        ///       "tag2"
         ///     ],
-        ///     "content": "This is the updated content of the article."
+        ///     "content": "This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article."
         /// }
         /// </code>
         /// </remarks>

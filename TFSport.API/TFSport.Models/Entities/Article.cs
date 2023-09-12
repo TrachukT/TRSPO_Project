@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using Microsoft.Azure.CosmosRepository.Attributes;
+using TFSport.Models.DTOModels.Articles;
 
 namespace TFSport.Models.Entities
 {

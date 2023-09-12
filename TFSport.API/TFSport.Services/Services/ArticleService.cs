@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,8 +23,11 @@ namespace TFSport.Services.Services
         private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IEmailService _emailService;
+        private readonly ITagsService _tagsService;
 
-        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache, IEmailService emailService)
+        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, 
+            IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache, 
+            IEmailService emailService, ITagsService tagsService)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -36,6 +38,7 @@ namespace TFSport.Services.Services
             _userRepository = userRepository;
             _memoryCache = memoryCache;
             _emailService = emailService;
+            _tagsService = tagsService;
         }
 
         public async Task<List<ArticlesListModel>> ArticlesForApprove()
@@ -148,6 +151,9 @@ namespace TFSport.Services.Services
                 await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, article.Id, articleDTO.Content);
                 await _articleRepository.CreateArticleAsync(article);
 
+                var tagNames = articleDTO.Tags ?? new List<string>();
+                await _tagsService.CreateNewTagsAsync(tagNames, article.Id);
+
                 _logger.LogInformation("Article with id {id} was created", article.Id);
             }
             catch (Exception ex)
@@ -179,9 +185,16 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleWithThisTitleExists);
                 }
 
-                _mapper.Map(articleUpdateDTO, existingArticle);
+                var existingTags = existingArticle.Tags.ToList();
 
+                _mapper.Map(articleUpdateDTO, existingArticle);
                 await _articleRepository.UpdateArticleAsync(existingArticle);
+
+                var updatedTagNames = articleUpdateDTO.Tags ?? new List<string>();
+                var removedTagNames = existingTags.Except(updatedTagNames).ToList();
+
+                await _tagsService.RemoveArticleTagsAsync(removedTagNames, articleId);
+                await _tagsService.UpdateExistingTagsAsync(updatedTagNames, articleId);
 
                 _logger.LogInformation("Article with id {articleId} was updated", articleId);
 
@@ -205,8 +218,10 @@ namespace TFSport.Services.Services
                 }
 
                 await _articleRepository.DeleteArticleAsync(existingArticle);
-
                 await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
+
+                await _tagsService.RemoveArticleTagsAsync(existingArticle.Tags, articleId);
+
                 _logger.LogInformation("Article with id {articleId} was deleted", articleId);
             }
             catch (Exception ex)
