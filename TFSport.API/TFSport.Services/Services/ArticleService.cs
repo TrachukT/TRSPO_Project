@@ -178,6 +178,11 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.UpdateNotPermitted);
                 }
 
+                if (existingArticle.Status == ArticleStatus.Published)
+                {
+                    throw new CustomException(ErrorMessages.CantUpdatePublished);
+                }
+
                 var articleWithSameTitle = await _articleRepository.GetArticleByTitleAsync(articleUpdateDTO.Title);
 
                 if (articleWithSameTitle != null && articleWithSameTitle.Id != articleId)
@@ -205,6 +210,7 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
+
 
         public async Task DeleteArticleAsync(string articleId)
         {

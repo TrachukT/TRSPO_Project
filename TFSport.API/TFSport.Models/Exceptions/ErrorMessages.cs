@@ -72,6 +72,8 @@
 
         public const string UpdateNotPermitted = "You are not authorized to update this article.";
 
+        public const string CantUpdatePublished = "You can't edit articles that are already published.";
+
         public const string TitleLength = "The title must be between 15 and 70 characters.";
 
         public const string TagsQuantity = "Up to 5 tags are allowed.";

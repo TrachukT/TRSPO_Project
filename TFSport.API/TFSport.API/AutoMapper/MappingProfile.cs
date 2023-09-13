@@ -61,13 +61,14 @@ namespace TFSport.API.AutoMapper
 				.ForMember(dest => dest.Content, opt => opt.Ignore())
 				.ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedTimeUtc));
 
-            CreateMap<ArticleUpdateDTO, Article>().BeforeMap((src, dest) =>
+            CreateMap<ArticleUpdateDTO, Article>()
+			.BeforeMap((src, dest) =>
 			{
 				dest.UpdatedAt = DateTime.UtcNow;
-				dest.Status = ArticleStatus.Draft;
-			});
+			})
+			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => ArticleStatus.Draft));
 
-            CreateMap<Article, ArticleUpdateDTO>().ReverseMap();
+            CreateMap<Article, ArticleUpdateDTO>();
         }
     }
 }
