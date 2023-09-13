@@ -191,6 +191,7 @@ namespace TFSport.Services.Services
                 }
 
                 var existingTags = existingArticle.Tags.ToList();
+                await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, articleId, articleUpdateDTO.Content);
 
                 _mapper.Map(articleUpdateDTO, existingArticle);
                 await _articleRepository.UpdateArticleAsync(existingArticle);
