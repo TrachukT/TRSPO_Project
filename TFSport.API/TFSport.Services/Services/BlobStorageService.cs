@@ -2,8 +2,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using TFSport.Models;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;

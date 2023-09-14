@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TFSport.Models;
@@ -16,18 +15,18 @@ namespace TFSport.Services.Services
     {
         private readonly IArticlesRepository _articleRepository;
         private readonly IUsersRepository _userRepository;
+        private readonly ITagsRepository _tagsRepository;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly IBlobStorageService _blobStorageService;
         private readonly BlobStorageOptions _blobOptions;
         private readonly ILogger _logger;
-        private readonly IMemoryCache _memoryCache;
         private readonly IEmailService _emailService;
         private readonly ITagsService _tagsService;
 
         public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, 
-            IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache, 
-            IEmailService emailService, ITagsService tagsService)
+            IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, 
+            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -36,9 +35,9 @@ namespace TFSport.Services.Services
             _blobOptions = blobOptions.Value;
             _logger = logger;
             _userRepository = userRepository;
-            _memoryCache = memoryCache;
             _emailService = emailService;
             _tagsService = tagsService;
+            _tagsRepository = tagsRepository;
         }
 
         public async Task<List<ArticlesListModel>> ArticlesForApprove()
@@ -83,25 +82,67 @@ namespace TFSport.Services.Services
             }
         }
 
+        public async Task<IEnumerable<ArticleWithContentDTO>> GetArticlesByTagAsync(string tagName)
+        {
+            try
+            {
+                var tag = await _tagsRepository.GetTagAsync(tagName);
+                if (tag != null)
+                {
+                    var articleIds = tag.ArticleIds;
+                    var articles = await GetArticlesWithContentByIdsAsync(articleIds);
+                    return articles;
+                }
+                return Enumerable.Empty<ArticleWithContentDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<ArticleWithContentDTO>> SearchArticlesByTagsAsync(string substring)
+        {
+            try
+            {
+                var tagsContainingQuery = await _tagsRepository.GetTagsMatchingSubstringAsync(substring);
+                var articleIds = tagsContainingQuery.SelectMany(tag => tag.ArticleIds).Distinct();
+
+                var articles = await GetArticlesWithContentByIdsAsync(articleIds);
+                return articles;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<List<ArticleWithContentDTO>> GetArticlesWithContentByIdsAsync(IEnumerable<string> articleIds)
+        {
+            var articles = new List<ArticleWithContentDTO>();
+            foreach (var articleId in articleIds)
+            {
+                var article = await _articleRepository.GetArticleByIdAsync(articleId);
+                if (article != null)
+                {
+                    var articleDto = await MapArticleWithContentAsync(article);
+                    articles.Add(articleDto);
+                }
+            }
+            return articles;
+        }
+
         public async Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId)
         {
             try
             {
                 var article = await _articleRepository.GetArticleByIdAsync(articleId);
-
                 if (article == null)
                 {
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
 
-                var content = await _blobStorageService.GetHtmlContentAsync(_blobOptions.ArticleContainer, article.Id);
-                var user = await _userService.GetUserById(article.Author);
-                var userDTO = _mapper.Map<UserInfo>(user);
-
-                var articleWithContentDTO = _mapper.Map<ArticleWithContentDTO>(article);
-                articleWithContentDTO.Content = content;
-                articleWithContentDTO.Author = userDTO;
-
+                var articleWithContentDTO = await MapArticleWithContentAsync(article);
                 return articleWithContentDTO;
             }
             catch (Exception ex)
@@ -128,6 +169,19 @@ namespace TFSport.Services.Services
             return list;
         }
 
+        public async Task<ArticleWithContentDTO> MapArticleWithContentAsync(Article article)
+        {
+            var content = await _blobStorageService.GetHtmlContentAsync(_blobOptions.ArticleContainer, article.Id);
+            var user = await _userService.GetUserById(article.Author);
+            var userDTO = _mapper.Map<UserInfo>(user);
+
+            var articleWithContentDTO = _mapper.Map<ArticleWithContentDTO>(article);
+            articleWithContentDTO.Content = content;
+            articleWithContentDTO.Author = userDTO;
+
+            return articleWithContentDTO;
+        }
+
         public async Task CreateArticleAsync(ArticleCreateDTO articleDTO)
         {
             try
@@ -151,8 +205,8 @@ namespace TFSport.Services.Services
                 await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, article.Id, articleDTO.Content);
                 await _articleRepository.CreateArticleAsync(article);
 
-                var tagNames = articleDTO.Tags ?? new List<string>();
-                await _tagsService.CreateNewTagsAsync(tagNames, article.Id);
+                var tagNames = new HashSet<string>(articleDTO.Tags ?? new List<string>());
+                await _tagsService.CreateOrUpdateTagsAsync(tagNames, article.Id);
 
                 _logger.LogInformation("Article with id {id} was created", article.Id);
             }
@@ -190,17 +244,17 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleWithThisTitleExists);
                 }
 
-                var existingTags = existingArticle.Tags.ToList();
                 await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, articleId, articleUpdateDTO.Content);
 
                 _mapper.Map(articleUpdateDTO, existingArticle);
                 await _articleRepository.UpdateArticleAsync(existingArticle);
 
-                var updatedTagNames = articleUpdateDTO.Tags ?? new List<string>();
-                var removedTagNames = existingTags.Except(updatedTagNames).ToList();
+                var updatedTagNames = new HashSet<string>(articleUpdateDTO.Tags ?? new List<string>());
+                var existingTagNames = new HashSet<string>(existingArticle.Tags);
+                var removedTagNames = existingTagNames.Except(updatedTagNames).ToHashSet();
 
                 await _tagsService.RemoveArticleTagsAsync(removedTagNames, articleId);
-                await _tagsService.UpdateExistingTagsAsync(updatedTagNames, articleId);
+                await _tagsService.CreateOrUpdateTagsAsync(updatedTagNames, articleId);
 
                 _logger.LogInformation("Article with id {articleId} was updated", articleId);
 
@@ -211,7 +265,6 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
-
 
         public async Task DeleteArticleAsync(string articleId)
         {
@@ -295,24 +348,5 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
-
-        public async Task<List<SportType>> GetSportTypes()
-        {
-            var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<SportType> sportsList);
-            if (!isCached)
-            {
-                sportsList = new List<SportType>();
-                var sportsValues = Enum.GetValues(typeof(SportType));
-                foreach (var value in sportsValues)
-                {
-                    sportsList.Add((SportType)value);
-                }
-                _memoryCache.Set(nameof(SportType), sportsList, new MemoryCacheEntryOptions()
-                    .SetSize(5)
-                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(1)));
-            }
-            return sportsList;
-        }
-
     }
 }

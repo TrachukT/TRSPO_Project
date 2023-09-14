@@ -50,9 +50,9 @@ namespace TFSport.API.AutoMapper
 			.BeforeMap((src, dest) =>
 			{
 				dest.PartitionKey = dest.Id;
-				dest.ArticleId = new List<string> { dest.Id };
-			})
-			.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
+                dest.ArticleIds = new HashSet<string> { dest.Id };
+            })
+			.ForMember(dest => dest.TagName, opt => opt.MapFrom(src => src.Tags));
 
 			CreateMap<Tag, ArticleCreateDTO>();
 

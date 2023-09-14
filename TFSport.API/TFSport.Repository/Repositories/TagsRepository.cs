@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.CosmosRepository;
+﻿using Azure;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;
@@ -16,17 +18,24 @@ namespace TFSport.Repository.Repositories
 
         public async Task<Tag> GetTagAsync(string tagName)
         {
-            return await _repository.GetAsync(x => x.Tags == tagName).FirstOrDefaultAsync();
+            return await _repository.GetAsync(x => x.TagName == tagName).FirstOrDefaultAsync();
         }
 
         public async Task<List<Tag>> GetTagsAsync(List<string> tagNames)
         {
-            var tags = await _repository.GetAsync(x => tagNames.Contains(x.Tags));
+            var tags = await _repository.GetAsync(x => tagNames.Contains(x.TagName));
             return tags.ToList();
+        }
+
+        public async Task<List<Tag>> GetTagsMatchingSubstringAsync(string substring)
+        {
+            var matchingTags = await _repository.GetAsync(x => x.TagName.Contains(substring));
+            return matchingTags.ToList();
         }
 
         public async Task CreateTagAsync(Tag tag)
         {
+            tag.PartitionKey = tag.Id;
             await _repository.CreateAsync(tag);
         }
 

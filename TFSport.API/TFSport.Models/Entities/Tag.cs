@@ -7,10 +7,10 @@ namespace TFSport.Models.Entities
     public class Tag : BaseModel
     {
         [JsonProperty("tags")]
-        public string Tags { get; set; }
+        public string TagName { get; set; }
 
         [JsonProperty("articleId")]
-        public List<string> ArticleId { get; set; }
+        public HashSet<string> ArticleIds { get; set; }
 
         [JsonProperty("count")]
         public int Count { get; set; }

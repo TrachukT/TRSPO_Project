@@ -9,17 +9,45 @@ using TFSport.Models.DTOModels.Articles;
 namespace TFSport.API.Controllers
 {
     [Route("articles")]
-	[ApiController]
-	[CustomExceptionFilter]
-	[SwaggerResponse(400, "Bad_Request", typeof(string))]
-	[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-	public class ArticleController : ControllerBase
-	{
+    [ApiController]
+    [CustomExceptionFilter]
+    [SwaggerResponse(400, "Bad_Request", typeof(string))]
+    [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+    public class ArticleController : ControllerBase
+    {
         private readonly IArticleService _articleService;
+        private readonly ISportService _listOfSportsService;
 
-        public ArticleController(IArticleService articleService)
+        public ArticleController(IArticleService articleService, ISportService listOfSportsService)
         {
             _articleService = articleService;
+            _listOfSportsService = listOfSportsService;
+        }
+
+        /// <summary>
+        /// Retrieves articles by tag.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to search for.</param>
+        /// <returns>A list of articles associated with the specified tag.</returns>
+        [HttpGet]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
+        public async Task<IActionResult> GetArticlesByTag([FromQuery] string tagName)
+        {
+            var articles = await _articleService.GetArticlesByTagAsync(tagName);
+            return Ok(articles);
+        }
+
+        /// <summary>
+        /// Retrieves articles by matching tags containing a specified substring.
+        /// </summary>
+        /// <param name="substring">The substring to search for in tags.</param>
+        /// <returns>A list of articles associated with matching tags.</returns>
+        [HttpGet("search")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
+        public async Task<IActionResult> SearchArticlesByTags([FromQuery] string substring)
+        {
+            var articles = await _articleService.SearchArticlesByTagsAsync(substring);
+            return Ok(articles);
         }
 
         /// <summary>
@@ -40,7 +68,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <returns>A list of articles authored by the user.</returns>
         [HttpGet("mine")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
 		public async Task<IActionResult> GetAuthorArticles()
 		{
@@ -96,7 +124,7 @@ namespace TFSport.API.Controllers
         /// <param name="request">The request object containing article information.</param>
         /// <returns>A message indicating the result of the article creation.</returns>
         [HttpPost]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> CreateArticle([FromBody] ArticleCreateDTO request)
         {
@@ -124,10 +152,9 @@ namespace TFSport.API.Controllers
         /// </remarks>
         /// <param name="articleId">The ID of the article to update.</param>
         /// <param name="updateDTO">The request object containing article updates.</param>
-        /// /// <param name="content">The request object containing article content.</param>
         /// <returns>A message indicating the result of the article update.</returns>
         [HttpPatch("{articleId}")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> UpdateArticle(string articleId, [FromBody] ArticleUpdateDTO updateDTO)
         {
@@ -180,18 +207,15 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Get list of sport types
+        /// Get list of sport types.
         /// </summary>
-        /// <param name="articleId"></param>
-        /// <returns></returns>
+        /// <returns>A list of sports.</returns>
         [HttpGet("sports")]
-        [RoleAuthorization(UserRoles.SuperAdmin,UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded",typeof(List<SportType>))]
         public async Task<IActionResult> GetSportTypes()
         {
-            var list = await _articleService.GetSportTypes();
+            var list = await _listOfSportsService.GetSportTypes();
             return Ok(list);
         }
-
     }
 }
