@@ -12,6 +12,6 @@ namespace TFSport.Models.Entities
         [JsonProperty("userId")]
         public string UserId { get; set; }
         [JsonProperty("favoriteArticles")]
-        public List<string> FavoriteArticles { get; set; }
+        public HashSet<string> FavoriteArticles { get; set; }
     }
 }

@@ -10,6 +10,6 @@ namespace TFSport.Services.Interfaces
     public interface IFavoritesService
     {
         public Task ManageFavorites(string userId, string articleId, string action);
-        public Task<List<ArticlesListModel>> GetFavorites(string id);
+        public Task<HashSet<string>> GetFavorites(string id);
     }
 }

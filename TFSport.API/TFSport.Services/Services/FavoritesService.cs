@@ -35,8 +35,9 @@ namespace TFSport.Services.Services
                     userFavorites = new Favorites
                     {
                         UserId = userId,
-                        FavoriteArticles = new List<string>()
+                        FavoriteArticles = new HashSet<string>()
                     };
+                    userFavorites.PartitionKey = userFavorites.Id;
                 }
 
                 if (action.ToLower() == "add")
@@ -52,24 +53,17 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<ArticlesListModel>> GetFavorites(string id)
+        public async Task<HashSet<string>> GetFavorites(string id)
         {
             try
             {
                 var user = await _favoritesRepository.GetById(id);
                 if (user == null)
                 {
-                    return new List<ArticlesListModel>();
+                    return new HashSet<string>();
                 }
-
-                var articles = new List<Article>();
-                foreach (var articleId in user.FavoriteArticles)
-                {
-                    var article = await _articleRepository.GetArticleByIdAsync(articleId);
-                    articles.Add(article);
-                }
-
-                return await _articleService.MapArticles(articles);
+                
+                return user.FavoriteArticles;
             }
             catch (Exception ex)
             {

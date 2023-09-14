@@ -200,14 +200,14 @@ namespace TFSport.API.Controllers
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> ManageFavorites(string action, [FromBody] string articleId)
         {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value; 
             await _favoritesService.ManageFavorites(userId,articleId,action);
             return Ok();
         }
 
         [HttpGet("favorites")]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.User, UserRoles.Author)]
-        [SwaggerResponse(200, "Request_Succeeded",typeof(List<ArticlesListModel>))]
+        [SwaggerResponse(200, "Request_Succeeded",typeof(HashSet<string>))]
         public async Task<IActionResult> GetMyFavorites()
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
