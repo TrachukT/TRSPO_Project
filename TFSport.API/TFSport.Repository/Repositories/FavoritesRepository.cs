@@ -22,12 +22,17 @@ namespace TFSport.Repository.Repositories
 
         public async Task<Favorites> GetById(string id)
         {
-            var favorites = await _repository.GetAsync(x=>x.UserId == id).FirstOrDefaultAsync();
+            var favorites = await _repository.GetAsync(x => x.UserId == id).FirstOrDefaultAsync();
             return favorites;
         }
 
         public async Task UpdateAsync(Favorites favorites)
         {
+            favorites.PartitionKey = favorites.Id;
+            if (await GetById(favorites.UserId) == null)
+            {
+                await _repository.CreateAsync(favorites);
+            }
             await _repository.UpdateAsync(favorites, default);
         }
     }

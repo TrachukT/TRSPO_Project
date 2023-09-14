@@ -182,36 +182,13 @@ namespace TFSport.API.Controllers
             return Ok();
         }
 
-        /// <summary>
-        /// Get list of sport types
-        /// </summary>
-        /// <param name="articleId"></param>
-        /// <returns></returns>
-        [HttpGet("sports")]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(List<SportType>))]
-        public async Task<IActionResult> GetSportTypes()
-        {
-            var list = await _articleService.GetSportTypes();
-            return Ok(list);
-        }
-
-        [HttpPost("{action}-favorite")]
-        [RoleAuthorization(UserRoles.SuperAdmin,UserRoles.User,UserRoles.Author)]
-        [SwaggerResponse(200, "Request_Succeeded")]
-        public async Task<IActionResult> ManageFavorites(string action, [FromBody] string articleId)
-        {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value; 
-            await _favoritesService.ManageFavorites(userId,articleId,action);
-            return Ok();
-        }
-
         [HttpGet("favorites")]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.User, UserRoles.Author)]
-        [SwaggerResponse(200, "Request_Succeeded",typeof(HashSet<string>))]
-        public async Task<IActionResult> GetMyFavorites()
+        [SwaggerResponse(200, "Request_Succeeded", typeof(HashSet<string>))]
+        public async Task<IActionResult> GetMyFavorites([FromQuery] int pageNumber, int pageSize, string orderBy, string order)
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var articles = await _favoritesService.GetFavorites(userId);
+            var articles = await _favoritesService.GetFavorites(userId, pageNumber, pageSize, orderBy, order);
             return Ok(articles);
         }
 

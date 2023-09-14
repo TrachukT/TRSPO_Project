@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Azure.Cosmos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
 using TFSport.Repository.Repositories;
 using TFSport.Services.Interfaces;
+using static System.Collections.Specialized.BitVector32;
 
 namespace TFSport.Services.Services
 {
@@ -25,26 +27,36 @@ namespace TFSport.Services.Services
             _articleRepository = articleRepository;
         }
 
-        public async Task ManageFavorites(string userId, string articleId, string action)
+        public async Task<List<ArticlesListModel>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy, string order)
         {
             try
             {
-                var userFavorites = await _favoritesRepository.GetById(userId);
-                if (userFavorites == null)
+                var user = await _favoritesRepository.GetById(id);
+                if (user == null)
                 {
-                    userFavorites = new Favorites
-                    {
-                        UserId = userId,
-                        FavoriteArticles = new HashSet<string>()
-                    };
-                    userFavorites.PartitionKey = userFavorites.Id;
+                    return new List<ArticlesListModel>();
+                }
+                var articles = new List<Article>();
+                foreach (var articleId in user.FavoriteArticles)
+                {
+                    var article = await _articleRepository.GetArticleByIdAsync(articleId);
+                    articles.Add(article);
                 }
 
-                if (action.ToLower() == "add")
-                    userFavorites.FavoriteArticles.Add(articleId);
-                else
-                    userFavorites.FavoriteArticles.Remove(articleId);
+                return await _articleService.MapArticles(articles);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
 
+        public async Task AddFavorite(string userId, string articleId)
+        {
+            try
+            {
+                var userFavorites = await FindFavorires(userId);
+                userFavorites.FavoriteArticles.Add(articleId);
                 await _favoritesRepository.UpdateAsync(userFavorites);
             }
             catch (Exception ex)
@@ -53,22 +65,25 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<HashSet<string>> GetFavorites(string id)
+        public async Task RemoveFavorite(string userId, string articleId)
         {
-            try
+            var userFavorites =await FindFavorires(userId);
+            userFavorites.FavoriteArticles.Remove(articleId);
+            await _favoritesRepository.UpdateAsync(userFavorites);
+        }
+        
+        public async Task<Favorites> FindFavorires(string userId)
+        {
+            var userFavorites = await _favoritesRepository.GetById(userId);
+            if (userFavorites == null)
             {
-                var user = await _favoritesRepository.GetById(id);
-                if (user == null)
+                userFavorites = new Favorites
                 {
-                    return new HashSet<string>();
-                }
-                
-                return user.FavoriteArticles;
+                    UserId = userId,
+                    FavoriteArticles = new HashSet<string>()
+                };
             }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
+            return userFavorites;
         }
     }
 }

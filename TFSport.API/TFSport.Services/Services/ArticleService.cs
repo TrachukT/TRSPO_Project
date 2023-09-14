@@ -23,10 +23,10 @@ namespace TFSport.Services.Services
         private readonly IBlobStorageService _blobStorageService;
         private readonly BlobStorageOptions _blobOptions;
         private readonly ILogger _logger;
-        private readonly IMemoryCache _memoryCache;
         private readonly IEmailService _emailService;
 
-        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IMemoryCache memoryCache, IEmailService emailService)
+        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, 
+            IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, IEmailService emailService)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -35,7 +35,6 @@ namespace TFSport.Services.Services
             _blobOptions = blobOptions.Value;
             _logger = logger;
             _userRepository = userRepository;
-            _memoryCache = memoryCache;
             _emailService = emailService;
         }
 
@@ -275,30 +274,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<SportType>> GetSportTypes()
-        {
-            try
-            {
-                var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<SportType> sportsList);
-                if (!isCached)
-                {
-                    sportsList = new List<SportType>();
-                    var sportsValues = Enum.GetValues(typeof(SportType));
-                    foreach (var value in sportsValues)
-                    {
-                        sportsList.Add((SportType)value);
-                    }
-                    _memoryCache.Set(nameof(SportType), sportsList, new MemoryCacheEntryOptions()
-                        .SetSize(5)
-                        .SetAbsoluteExpiration(TimeSpan.FromMinutes(1)));
-                }
-                return sportsList;
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
+     
 
     }
 }
