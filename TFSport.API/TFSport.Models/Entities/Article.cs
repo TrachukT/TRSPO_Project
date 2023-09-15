@@ -21,13 +21,13 @@ namespace TFSport.Models.Entities
         public string Image { get; set; }
 
         [JsonProperty("tags")]
-        public List<string> Tags { get; set; }
+        public HashSet<string> Tags { get; set; }
 
         [JsonProperty("likeCount")]
         public int LikeCount { get; set; }
 
         [JsonProperty("likes")]
-        public List<LikeInfo> Likes { get; set; }
+        public HashSet<LikeInfo> Likes { get; set; }
 
         [JsonProperty("updatedAt")]
         public DateTime UpdatedAt { get; set; }

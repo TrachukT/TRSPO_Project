@@ -25,6 +25,32 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
+        /// Retrieves articles by tag.
+        /// </summary>
+        /// <param name="tagName">The name of the tag to search for.</param>
+        /// <returns>A list of articles associated with the specified tag.</returns>
+        [HttpGet]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
+        public async Task<IActionResult> GetArticlesByTag([FromQuery] string tagName)
+        {
+            var articles = await _articleService.GetArticlesByTagAsync(tagName);
+            return Ok(articles);
+        }
+
+        /// <summary>
+        /// Retrieves articles by matching tags containing a specified substring.
+        /// </summary>
+        /// <param name="substring">The substring to search for in tags.</param>
+        /// <returns>A list of articles associated with matching tags.</returns>
+        [HttpGet("search")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
+        public async Task<IActionResult> SearchArticlesByTags([FromQuery] string substring)
+        {
+            var articles = await _articleService.SearchArticlesByTagsAsync(substring);
+            return Ok(articles);
+        }
+
+        /// <summary>
         /// Retrieves articles that are in the "Review" status.
         /// </summary>
         /// <returns>A list of articles in "Review" status.</returns>
@@ -42,7 +68,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <returns>A list of articles authored by the user.</returns>
         [HttpGet("mine")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
         public async Task<IActionResult> GetAuthorArticles()
         {
@@ -69,7 +95,6 @@ namespace TFSport.API.Controllers
         /// <param name="articleId">The ID of the article to retrieve.</param>
         /// <returns>The article information along with HTML content.</returns>
         [HttpGet("{articleId}")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticleWithContentDTO))]
         public async Task<IActionResult> GetArticleWithContent(string articleId)
         {
@@ -84,22 +109,22 @@ namespace TFSport.API.Controllers
         /// Sample request for creating an article:
         /// <code>
         /// {
-        ///     "title": "Sample Article",
-        ///     "sport": "Sport",
-        ///     "description": "Updated description.",
-        ///     "image": "http://localhost:5293/images/Untitled.png",
-        ///     "tags":  [
-        ///     "#tag"
-        ///     ],
-        ///     "author": "ff9ce560-5dc7-4234-80d7-23c0ae39af66",
-        ///     "content": "This is the content of the article."
+        ///  "title": "Sample Article with a long title",
+        ///  "sport": "Football",
+        ///  "description": "Article description.",
+        ///  "author": "345935d2-eddb-4f06-9170-37b930637751",
+        ///  "image": "http://localhost:5293/images/Untitled.png",
+        ///  "tags": [
+        ///    "tag1"
+        ///  ],
+        ///  "content": "This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article. This is the content of the article."
         /// }
         /// </code>
         /// </remarks>
         /// <param name="request">The request object containing article information.</param>
         /// <returns>A message indicating the result of the article creation.</returns>
         [HttpPost]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> CreateArticle([FromBody] ArticleCreateDTO request)
         {
@@ -114,23 +139,22 @@ namespace TFSport.API.Controllers
         /// Sample request for updating an article:
         /// <code>
         /// {
-        ///     "title": "Updated Article",
-        ///     "sport": "Sport",
-        ///     "description": "Article description.",
+        ///     "title": "Updated Article with a long title",
+        ///     "sport": "Football",
+        ///     "description": "Updated description.",
         ///     "image": "http://localhost:5293/images/8.png",
         ///     "tags":  [
-        ///     "#tag"
+        ///       "tag2"
         ///     ],
-        ///     "content": "This is the updated content of the article."
+        ///     "content": "This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article. This is the updated content of the article."
         /// }
         /// </code>
         /// </remarks>
         /// <param name="articleId">The ID of the article to update.</param>
         /// <param name="updateDTO">The request object containing article updates.</param>
-        /// /// <param name="content">The request object containing article content.</param>
         /// <returns>A message indicating the result of the article update.</returns>
         [HttpPatch("{articleId}")]
-        [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
+        [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> UpdateArticle(string articleId, [FromBody] ArticleUpdateDTO updateDTO)
         {

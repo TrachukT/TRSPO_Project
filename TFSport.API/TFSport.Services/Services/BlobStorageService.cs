@@ -2,8 +2,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using TFSport.Models;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Services.Interfaces;
@@ -13,12 +11,10 @@ namespace TFSport.Services.Services
     public class BlobStorageService : IBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly BlobStorageOptions _blobOptions;
 
-        public BlobStorageService(BlobServiceClient blobServiceClient, IOptions<BlobStorageOptions> blobOptions)
+        public BlobStorageService(BlobServiceClient blobServiceClient)
         {
             _blobServiceClient = blobServiceClient;
-            _blobOptions = blobOptions.Value;
         }
 
         public async Task UploadHtmlContentAsync(string containerName, string id, string htmlContent)
