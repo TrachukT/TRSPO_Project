@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TFSport.Models;
@@ -338,8 +341,8 @@ namespace TFSport.Services.Services
                 }
 
                 await _articleRepository.ChangeArticleStatusToPublishedAsync(article);
-                var user =await _userRepository.GetUserById(article.Author);
-                await _emailService.ArticleIsPublished(user.Email,article.Title);
+                var user = await _userRepository.GetUserById(article.Author);
+                await _emailService.ArticleIsPublished(user.Email, article.Title);
 
                 _logger.LogInformation("Article with id {articleId} was published", articleId);
             }
