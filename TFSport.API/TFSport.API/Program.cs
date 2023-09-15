@@ -40,6 +40,7 @@ builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<IFavoritesRepository, FavoritesRepository>();
+builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<ISportsService, SportsService>();
 builder.Services.AddScoped<CustomExceptionFilter>();
