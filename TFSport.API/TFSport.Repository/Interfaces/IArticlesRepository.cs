@@ -11,7 +11,6 @@ namespace TFSport.Repository.Interfaces
         public Task<List<Article>> GetAuthorsArticles(string authorId);
 
         public Task<List<Article>> GetArticlesInReview();
-        public Task<List<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
         public Task<Article> GetArticleByTitleAsync(string title);
 
         public Task CreateArticleAsync(Article article);
@@ -25,5 +24,7 @@ namespace TFSport.Repository.Interfaces
         public Task ChangeArticleStatusToReviewAsync(Article article);
 
         public Task ChangeArticleStatusToPublishedAsync(Article article);
+
+        public Task<IOrderedEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
     }
 }

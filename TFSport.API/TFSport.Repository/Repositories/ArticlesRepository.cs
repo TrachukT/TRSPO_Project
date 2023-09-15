@@ -76,7 +76,7 @@ namespace TFSport.Repository.Repositories
             await _repository.UpdateAsync(article);
         }
 
-        public async Task<List<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
+        public async Task<IOrderedEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
         {
             IPageQueryResult<Article> articles = null;
             if (predicate != null)
@@ -89,17 +89,17 @@ namespace TFSport.Repository.Repositories
                 articles = await _repository.PageAsync(x => articleIds.Contains(x.Id), pageNumber: pageNumber, pageSize: pageSize);
             }
 
-            List<Article> items = new List<Article>();
+            IOrderedEnumerable<Article> items = null;
             switch (orderBy)
             {
                 case OrderType.byCreatedDateDesc:
-                    items = articles.Items.OrderByDescending(x => x.CreatedTimeUtc).ToList();
+                    items = articles.Items.OrderByDescending(x => x.CreatedTimeUtc);
                     break;
                 case OrderType.byCreatedDateAsc:
-                    items = articles.Items.OrderBy(x => x.CreatedTimeUtc).ToList();
+                    items = articles.Items.OrderBy(x => x.CreatedTimeUtc);
                     break;
                 case OrderType.topRated:
-                    items = articles.Items.OrderByDescending(x => x.LikeCount).ToList();
+                    items = articles.Items.OrderByDescending(x => x.LikeCount);
                     break;
                 default:
                     break;

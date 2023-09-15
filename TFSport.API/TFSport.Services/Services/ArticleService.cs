@@ -78,8 +78,7 @@ namespace TFSport.Services.Services
             {
                 Expression<Func<Article, bool>> predicate = article => article.Status == ArticleStatus.Published;
                 var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,predicate);
-                //var articles = await _articleRepository.GetPublishedArticles();
-                var list = await MapArticles(articles);
+                var list = await MapArticles(articles.ToList());
                 return list;
             }
             catch (Exception ex)
