@@ -1,6 +1,4 @@
-﻿using Azure;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.CosmosRepository;
+﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;

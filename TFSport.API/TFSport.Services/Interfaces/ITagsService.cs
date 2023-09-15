@@ -1,7 +1,4 @@
-﻿using TFSport.Models.DTOModels.Articles;
-using TFSport.Models.Entities;
-
-namespace TFSport.Services.Interfaces
+﻿namespace TFSport.Services.Interfaces
 {
     public interface ITagsService
     {

@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
 using TFSport.Models.DTOModels.Articles;
-using TFSport.Models.Entities;
 using TFSport.Services.Interfaces;
-using TFSport.Services.Services;
 
 namespace TFSport.API.Controllers
 {
@@ -20,9 +17,9 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Get list of sport types
+        /// Get list of sport types.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A list of sport types.</returns>
         [HttpGet]
         [SwaggerResponse(200, "Request_Succeeded", typeof(List<SportsDTO>))]
         public async Task<IActionResult> GetSportTypes()
@@ -30,7 +27,5 @@ namespace TFSport.API.Controllers
             var list = await _sportsService.GetSportTypes();
             return Ok(list);
         }
-
-
     }
 }
