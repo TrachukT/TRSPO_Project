@@ -9,17 +9,19 @@ using TFSport.Models.DTOModels.Articles;
 namespace TFSport.API.Controllers
 {
     [Route("articles")]
-	[ApiController]
-	[CustomExceptionFilter]
-	[SwaggerResponse(400, "Bad_Request", typeof(string))]
-	[SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
-	public class ArticleController : ControllerBase
-	{
+    [ApiController]
+    [CustomExceptionFilter]
+    [SwaggerResponse(400, "Bad_Request", typeof(string))]
+    [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]
+    public class ArticleController : ControllerBase
+    {
         private readonly IArticleService _articleService;
+        private readonly IFavoritesService _favoritesService;
 
-        public ArticleController(IArticleService articleService)
+        public ArticleController(IArticleService articleService, IFavoritesService favoritesService)
         {
             _articleService = articleService;
+            _favoritesService = favoritesService;
         }
 
         /// <summary>
@@ -27,13 +29,13 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <returns>A list of articles in "Review" status.</returns>
         [HttpGet("in-review")]
-		[RoleAuthorization(UserRoles.SuperAdmin)]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
-		public async Task<IActionResult> GetArticlesForApprove()
-		{
-			var articles = await _articleService.ArticlesForApprove();
-			return Ok(articles);
-		}
+        [RoleAuthorization(UserRoles.SuperAdmin)]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
+        public async Task<IActionResult> GetArticlesForApprove()
+        {
+            var articles = await _articleService.ArticlesForApprove();
+            return Ok(articles);
+        }
 
         /// <summary>
         /// Retrieves articles authored by the currently authenticated user.
@@ -42,24 +44,24 @@ namespace TFSport.API.Controllers
         [HttpGet("mine")]
         [RoleAuthorization(UserRoles.Author, UserRoles.SuperAdmin)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
-		public async Task<IActionResult> GetAuthorArticles()
-		{
-			var authorId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-			var articles = await _articleService.AuthorsArticles(authorId);
-			return Ok(articles);
-		}
+        public async Task<IActionResult> GetAuthorArticles()
+        {
+            var authorId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var articles = await _articleService.AuthorsArticles(authorId);
+            return Ok(articles);
+        }
 
         /// <summary>
         /// Retrieves articles that are in the "Published" status.
         /// </summary>
         /// <returns>A list of articles in "Published" status.</returns>
         [HttpGet("published")]
-		[SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
-		public async Task<IActionResult> GetPublishedArticles()
-		{
-			var articles = await _articleService.PublishedArticles();
-			return Ok(articles);
-		}
+        [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
+        public async Task<IActionResult> GetPublishedArticles()
+        {
+            var articles = await _articleService.PublishedArticles();
+            return Ok(articles);
+        }
 
         /// <summary>
         /// Retrieves an article along with its HTML content.
@@ -161,7 +163,7 @@ namespace TFSport.API.Controllers
         [SwaggerResponse(200, "Request_Succeeded")]
         public async Task<IActionResult> ChangeArticleStatusToReview(string articleId)
         {
-            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             await _articleService.ChangeArticleStatusToReviewAsync(articleId, userId);
             return Ok();
         }
@@ -178,20 +180,6 @@ namespace TFSport.API.Controllers
         {
             await _articleService.ChangeArticleStatusToPublishedAsync(articleId);
             return Ok();
-        }
-
-        /// <summary>
-        /// Get list of sport types
-        /// </summary>
-        /// <param name="articleId"></param>
-        /// <returns></returns>
-        [HttpGet("sports")]
-        [RoleAuthorization(UserRoles.SuperAdmin,UserRoles.Author)]
-        [SwaggerResponse(200, "Request_Succeeded",typeof(List<SportType>))]
-        public async Task<IActionResult> GetSportTypes()
-        {
-            var list = await _articleService.GetSportTypes();
-            return Ok(list);
         }
 
     }
