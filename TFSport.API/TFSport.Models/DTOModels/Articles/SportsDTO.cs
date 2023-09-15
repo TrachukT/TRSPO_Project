@@ -7,7 +7,7 @@ using TFSport.Models.Entities;
 
 namespace TFSport.Models.DTOModels.Articles
 {
-    public class GetSportsDTO
+    public class SportsDTO
     {
         public SportType Name { get; set; }
         public string Description { get; set; }

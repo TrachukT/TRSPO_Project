@@ -27,23 +27,17 @@ namespace TFSport.Services.Services
             _articleRepository = articleRepository;
         }
 
-        public async Task<List<ArticlesListModel>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy, string order)
+        public async Task<HashSet<string>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy, string order)
         {
             try
             {
                 var user = await _favoritesRepository.GetById(id);
                 if (user == null)
                 {
-                    return new List<ArticlesListModel>();
-                }
-                var articles = new List<Article>();
-                foreach (var articleId in user.FavoriteArticles)
-                {
-                    var article = await _articleRepository.GetArticleByIdAsync(articleId);
-                    articles.Add(article);
+                    return new HashSet<string>();
                 }
 
-                return await _articleService.MapArticles(articles);
+                return user.FavoriteArticles;
             }
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace TFSport.Services.Interfaces
 {
     public interface ISportsService
     {
-        public Task<List<GetSportsDTO>> GetSportTypes();
+        public Task<List<SportsDTO>> GetSportTypes();
 
         public string GetDescription(SportType GenericEnum);
     }

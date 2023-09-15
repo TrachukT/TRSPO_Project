@@ -21,18 +21,18 @@ namespace TFSport.Services.Services
             _memoryCache = memoryCache;
         }
 
-        public async Task<List<GetSportsDTO>> GetSportTypes()
+        public async Task<List<SportsDTO>> GetSportTypes()
         {
             try
             {
-                var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<GetSportsDTO> sportsList);
+                var isCached = _memoryCache.TryGetValue(nameof(SportType), out List<SportsDTO> sportsList);
                 if (!isCached)
                 {
-                    sportsList = new List<GetSportsDTO>();
+                    sportsList = new List<SportsDTO>();
                     var sportsValues = Enum.GetValues(typeof(SportType));
                     foreach (var value in sportsValues)
                     {
-                        sportsList.Add(new GetSportsDTO { Name = (SportType)value, Description = GetDescription((SportType)value) });
+                        sportsList.Add(new SportsDTO { Name = (SportType)value, Description = GetDescription((SportType)value) });
                     }
                     _memoryCache.Set(nameof(SportType), sportsList, new MemoryCacheEntryOptions()
                         .SetSize(5)

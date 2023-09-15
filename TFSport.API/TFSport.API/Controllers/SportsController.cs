@@ -24,7 +24,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(List<GetSportsDTO>))]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(List<SportsDTO>))]
         public async Task<IActionResult> GetSportTypes()
         {
             var list = await _sportsService.GetSportTypes();
