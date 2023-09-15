@@ -1,4 +1,6 @@
-﻿using TFSport.Models.Entities;
+﻿using System.Linq.Expressions;
+using TFSport.Models;
+using TFSport.Models.Entities;
 
 namespace TFSport.Repository.Interfaces
 {
@@ -9,7 +11,7 @@ namespace TFSport.Repository.Interfaces
         public Task<List<Article>> GetAuthorsArticles(string authorId);
 
         public Task<List<Article>> GetArticlesInReview();
-
+        public Task<List<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
         public Task<Article> GetArticleByTitleAsync(string title);
 
         public Task CreateArticleAsync(Article article);

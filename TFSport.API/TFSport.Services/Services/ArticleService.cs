@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Linq.Expressions;
 using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.DTOModels.Users;
@@ -71,11 +72,13 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<ArticlesListModel>> PublishedArticles()
+        public async Task<List<ArticlesListModel>> PublishedArticles(int pageNumber, int pageSize, string orderBy)
         {
             try
             {
-                var articles = await _articleRepository.GetPublishedArticles();
+                Expression<Func<Article, bool>> predicate = article => article.Status == ArticleStatus.Published;
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,predicate);
+                //var articles = await _articleRepository.GetPublishedArticles();
                 var list = await MapArticles(articles);
                 return list;
             }

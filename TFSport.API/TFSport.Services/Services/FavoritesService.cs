@@ -27,7 +27,7 @@ namespace TFSport.Services.Services
             _articleRepository = articleRepository;
         }
 
-        public async Task<HashSet<string>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy, string order)
+        public async Task<HashSet<string>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy)
         {
             try
             {

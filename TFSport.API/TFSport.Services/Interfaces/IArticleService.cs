@@ -1,4 +1,5 @@
-﻿using TFSport.Models.DTOModels.Articles;
+﻿using TFSport.Models;
+using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
@@ -9,7 +10,7 @@ namespace TFSport.Services.Interfaces
 
         public Task<List<ArticlesListModel>> AuthorsArticles(string authorId);
 
-        public Task<List<ArticlesListModel>> PublishedArticles();
+        public Task<List<ArticlesListModel>> PublishedArticles(int pageNumber, int pageSize, string orderBy);
 
         public Task<IEnumerable<ArticleWithContentDTO>> GetArticlesByTagAsync(string tagName);
 
