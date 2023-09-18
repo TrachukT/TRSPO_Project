@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Drawing.Printing;
 using System.Linq.Expressions;
 using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
@@ -20,6 +21,7 @@ namespace TFSport.Services.Services
         private readonly IArticlesRepository _articleRepository;
         private readonly IUsersRepository _userRepository;
         private readonly ITagsRepository _tagsRepository;
+        private readonly IFavoritesService _favoritesService;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly IBlobStorageService _blobStorageService;
@@ -28,9 +30,9 @@ namespace TFSport.Services.Services
         private readonly IEmailService _emailService;
         private readonly ITagsService _tagsService;
 
-        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository, 
-            IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger, 
-            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository)
+        public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository,
+            IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger,
+            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository, IFavoritesService favoritesService)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -42,6 +44,7 @@ namespace TFSport.Services.Services
             _emailService = emailService;
             _tagsService = tagsService;
             _tagsRepository = tagsRepository;
+            _favoritesService = favoritesService;
         }
 
         public async Task<List<ArticlesListModel>> ArticlesForApprove()
@@ -358,6 +361,19 @@ namespace TFSport.Services.Services
             {
                 throw new CustomException(ex.Message);
             }
+        }
+
+        public async Task<OrderedArticlesDTO> GetFavoriteArticles(int pageNumber,int pageSize,string orderBy,string userId)
+        {
+            var favorites = await _favoritesService.FindFavorites(userId);
+            var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,articleIds: favorites.FavoriteArticles);
+            return new OrderedArticlesDTO
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Articles = await MapArticles(articles.ToList()),
+                TotalCount = favorites.FavoriteArticles.Count
+            };
         }
     }
 }
