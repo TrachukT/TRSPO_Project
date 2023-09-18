@@ -5,6 +5,8 @@ using TFSport.Services.Interfaces;
 using System.Security.Claims;
 using TFSport.Models.Entities;
 using TFSport.Models.DTOModels.Articles;
+using System.Drawing.Printing;
+using TFSport.Models;
 
 namespace TFSport.API.Controllers
 {
@@ -82,10 +84,10 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <returns>A list of articles in "Published" status.</returns>
         [HttpGet("published")]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
-        public async Task<IActionResult> GetPublishedArticles()
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> GetPublishedArticles([FromQuery] int pageNumber, int pageSize, string orderBy)
         {
-            var articles = await _articleService.PublishedArticles();
+            var articles = await _articleService.PublishedArticles(pageNumber,pageSize,orderBy);
             return Ok(articles);
         }
 

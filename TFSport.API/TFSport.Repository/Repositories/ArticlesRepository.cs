@@ -1,5 +1,9 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
+using Microsoft.Azure.CosmosRepository.Paging;
+using System.Linq;
+using System.Linq.Expressions;
+using TFSport.Models;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;
 
@@ -26,10 +30,10 @@ namespace TFSport.Repository.Repositories
             return articles;
         }
 
-        public async Task<List<Article>> GetPublishedArticles()
+        public async Task<int> GetCountofArticles(Expression<Func<Article, bool>> predicate)
         {
-            var articles = await _repository.GetAsync(x => x.Status == ArticleStatus.Published).ToListAsync();
-            return articles;
+            var articles = await _repository.GetAsync(predicate).ToListAsync();
+            return articles.Count;
         }
 
         public async Task<Article> GetArticleByTitleAsync(string title)
@@ -72,5 +76,14 @@ namespace TFSport.Repository.Repositories
             article.Status = ArticleStatus.Published;
             await _repository.UpdateAsync(article);
         }
+
+        public async Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
+            Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
+        {
+            DefaultArticleSpecification specification = new(pageNumber, pageSize, orderBy, predicate, articleIds);
+            var query = await _repository.QueryAsync(specification);
+            return query.Items.ToList();
+        }
+
     }
 }
