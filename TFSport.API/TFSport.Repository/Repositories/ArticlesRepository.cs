@@ -1,9 +1,6 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
-using Microsoft.Azure.CosmosRepository.Paging;
-using System.Linq;
 using System.Linq.Expressions;
-using TFSport.Models;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;
 

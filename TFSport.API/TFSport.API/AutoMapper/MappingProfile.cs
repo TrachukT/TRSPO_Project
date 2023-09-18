@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.DTOModels.Users;
+using TFSport.Models.DTOs;
 using TFSport.Models.Entities;
 
 namespace TFSport.API.AutoMapper
@@ -40,7 +41,7 @@ namespace TFSport.API.AutoMapper
 			{
 				dest.PartitionKey = dest.Id;
 				dest.UpdatedAt = DateTime.UtcNow;
-				dest.Status = ArticleStatus.Draft;
+				dest.Status = ArticleStatus.Review;
 			})
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
@@ -66,9 +67,11 @@ namespace TFSport.API.AutoMapper
 			{
 				dest.UpdatedAt = DateTime.UtcNow;
 			})
-			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => ArticleStatus.Draft));
+			.ForMember(dest => dest.Status, opt => opt.MapFrom(src => ArticleStatus.Review));
 
             CreateMap<Article, ArticleUpdateDTO>();
+
+			CreateMap<Tag, TagDto>();
         }
     }
 }

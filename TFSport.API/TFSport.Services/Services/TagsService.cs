@@ -1,4 +1,6 @@
-﻿using TFSport.Models.Entities;
+﻿using AutoMapper;
+using TFSport.Models.DTOs;
+using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
 using TFSport.Services.Interfaces;
@@ -8,10 +10,27 @@ namespace TFSport.Services.Services
     public class TagsService : ITagsService
     {
         private readonly ITagsRepository _tagsRepository;
+        private readonly IMapper _mapper;
 
-        public TagsService(ITagsRepository tagsRepository)
+        public TagsService(ITagsRepository tagsRepository, IMapper mapper)
         {
             _tagsRepository = tagsRepository;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<TagDto>> GetTopTagsAsync()
+        {
+            try
+            {
+                var tags = await _tagsRepository.GetAllTagsAsync();
+                var sortedTags = tags.OrderByDescending(tag => tag.Count);
+                var tagDtos = sortedTags.Select(tag => _mapper.Map<TagDto>(tag));
+                return tagDtos;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
 
         public async Task CreateOrUpdateTagsAsync(HashSet<string> tagNames, string articleId)

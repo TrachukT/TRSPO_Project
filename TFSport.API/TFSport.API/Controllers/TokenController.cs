@@ -9,7 +9,7 @@ using TFSport.Services.Interfaces;
 namespace TFSport.API.Controllers
 {
     [ApiController]
-	[Route("api/token")]
+	[Route("token")]
     [CustomExceptionFilter]
 
     [SwaggerResponse(200, "Request_Succeeded", typeof(string))]

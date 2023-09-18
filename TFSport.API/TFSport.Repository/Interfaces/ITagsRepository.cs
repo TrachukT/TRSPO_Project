@@ -8,6 +8,8 @@ namespace TFSport.Repository.Interfaces
 
         public Task<List<Tag>> GetTagsAsync(List<string> tagNames);
 
+        public Task<IEnumerable<Tag>> GetAllTagsAsync();
+
         public Task<List<Tag>> GetTagsMatchingSubstringAsync(string substring);
 
         public Task CreateTagAsync(Tag tag);

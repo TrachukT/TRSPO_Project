@@ -1,7 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
@@ -301,37 +298,6 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task ChangeArticleStatusToReviewAsync(string articleId, string userId)
-        {
-            try
-            {
-                var article = await _articleRepository.GetArticleByIdAsync(articleId);
-
-                if (article == null)
-                {
-                    throw new CustomException(ErrorMessages.ArticleDoesntExist);
-                }
-
-                if (article.Status != ArticleStatus.Draft)
-                {
-                    throw new CustomException($"Article is currently in '{article.Status}' status and cannot be changed to 'Review'.");
-                }
-
-                if (article.Author != userId)
-                {
-                    throw new CustomException(ErrorMessages.ChangeStatusNotPermitted);
-                }
-
-                await _articleRepository.ChangeArticleStatusToReviewAsync(article);
-
-                _logger.LogInformation("Article with id {articleId} was sent to review", articleId);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message);
-            }
-        }
-
         public async Task ChangeArticleStatusToPublishedAsync(string articleId)
         {
             try
@@ -341,11 +307,6 @@ namespace TFSport.Services.Services
                 if (article == null)
                 {
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
-                }
-
-                if (article.Status == ArticleStatus.Draft)
-                {
-                    throw new CustomException(ErrorMessages.ArticleNotSentForReview);
                 }
 
                 await _articleRepository.ChangeArticleStatusToPublishedAsync(article);

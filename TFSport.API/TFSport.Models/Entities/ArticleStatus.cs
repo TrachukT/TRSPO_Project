@@ -2,7 +2,6 @@
 {
     public enum ArticleStatus
     {
-        Draft,
         Review,
         Published
     }
