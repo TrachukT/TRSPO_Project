@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
 using Microsoft.Azure.CosmosRepository.Paging;
+using System.Linq;
 using System.Linq.Expressions;
 using TFSport.Models;
 using TFSport.Models.Entities;
@@ -78,28 +79,29 @@ namespace TFSport.Repository.Repositories
 
         public async Task<IOrderedEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
         {
-            IPageQueryResult<Article> articles = null;
+            IEnumerable<Article> articles = null;
             if (predicate != null)
             {
-                articles = await _repository.PageAsync(predicate, pageNumber: pageNumber, pageSize: pageSize);
+               articles = _repository.GetAsync(predicate).Result;
             }
 
             if(articleIds != null)
             {
-                articles = await _repository.PageAsync(x => articleIds.Contains(x.Id), pageNumber: pageNumber, pageSize: pageSize);
+                articles = _repository.GetAsync(x => articleIds.Contains(x.Id)).Result;
+
             }
 
             IOrderedEnumerable<Article> items = null;
             switch (orderBy)
             {
                 case OrderType.byCreatedDateDesc:
-                    items = articles.Items.OrderByDescending(x => x.CreatedTimeUtc);
+                    items = articles.OrderByDescending(x => x.CreatedTimeUtc);
                     break;
                 case OrderType.byCreatedDateAsc:
-                    items = articles.Items.OrderBy(x => x.CreatedTimeUtc);
+                    items = articles.OrderBy(x => x.CreatedTimeUtc);
                     break;
                 case OrderType.topRated:
-                    items = articles.Items.OrderByDescending(x => x.LikeCount);
+                    items = articles.OrderByDescending(x => x.LikeCount);
                     break;
                 default:
                     break;

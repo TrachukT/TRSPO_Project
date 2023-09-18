@@ -72,14 +72,20 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<ArticlesListModel>> PublishedArticles(int pageNumber, int pageSize, string orderBy)
+        public async Task<OrderedArticlesDTO> PublishedArticles(int pageNumber, int pageSize, string orderBy)
         {
             try
             {
                 Expression<Func<Article, bool>> predicate = article => article.Status == ArticleStatus.Published;
                 var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,predicate);
                 var list = await MapArticles(articles.ToList());
-                return list;
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = list.Count,
+                    Articles = list
+                };
             }
             catch (Exception ex)
             {

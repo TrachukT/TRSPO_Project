@@ -84,7 +84,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <returns>A list of articles in "Published" status.</returns>
         [HttpGet("published")]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
         public async Task<IActionResult> GetPublishedArticles([FromQuery] int pageNumber, int pageSize, string orderBy)
         {
             var articles = await _articleService.PublishedArticles(pageNumber,pageSize,orderBy);

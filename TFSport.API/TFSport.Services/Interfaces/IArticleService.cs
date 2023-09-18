@@ -10,7 +10,7 @@ namespace TFSport.Services.Interfaces
 
         public Task<List<ArticlesListModel>> AuthorsArticles(string authorId);
 
-        public Task<List<ArticlesListModel>> PublishedArticles(int pageNumber, int pageSize, string orderBy);
+        public Task<OrderedArticlesDTO> PublishedArticles(int pageNumber, int pageSize, string orderBy);
 
         public Task<IEnumerable<ArticleWithContentDTO>> GetArticlesByTagAsync(string tagName);
 
