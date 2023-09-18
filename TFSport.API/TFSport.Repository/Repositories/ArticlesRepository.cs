@@ -30,10 +30,10 @@ namespace TFSport.Repository.Repositories
             return articles;
         }
 
-        public async Task<List<Article>> GetPublishedArticles()
+        public async Task<int> GetCountofArticles(Expression<Func<Article, bool>> predicate)
         {
-            var articles = await _repository.GetAsync(x => x.Status == ArticleStatus.Published).ToListAsync();
-            return articles;
+            var articles = await _repository.GetAsync(predicate).ToListAsync();
+            return articles.Count;
         }
 
         public async Task<Article> GetArticleByTitleAsync(string title)
@@ -77,36 +77,13 @@ namespace TFSport.Repository.Repositories
             await _repository.UpdateAsync(article);
         }
 
-        public async Task<IOrderedEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
+        public async Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
+            Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
         {
-            IEnumerable<Article> articles = null;
-            if (predicate != null)
-            {
-               articles = _repository.GetAsync(predicate).Result;
-            }
-
-            if(articleIds != null)
-            {
-                articles = _repository.GetAsync(x => articleIds.Contains(x.Id)).Result;
-
-            }
-
-            IOrderedEnumerable<Article> items = null;
-            switch (orderBy)
-            {
-                case OrderType.byCreatedDateDesc:
-                    items = articles.OrderByDescending(x => x.CreatedTimeUtc);
-                    break;
-                case OrderType.byCreatedDateAsc:
-                    items = articles.OrderBy(x => x.CreatedTimeUtc);
-                    break;
-                case OrderType.topRated:
-                    items = articles.OrderByDescending(x => x.LikeCount);
-                    break;
-                default:
-                    break;
-            }
-            return items;
+            DefaultArticleSpecification specification = new(pageNumber, pageSize, orderBy, predicate, articleIds);
+            var query = await _repository.QueryAsync(specification);
+            return query.Items.ToList();
         }
+
     }
 }

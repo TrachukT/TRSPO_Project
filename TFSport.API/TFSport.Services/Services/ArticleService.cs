@@ -83,7 +83,7 @@ namespace TFSport.Services.Services
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
-                    TotalCount = list.Count,
+                    TotalCount = await _articleRepository.GetCountofArticles(predicate),
                     Articles = list
                 };
             }

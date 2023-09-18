@@ -6,7 +6,7 @@ namespace TFSport.Repository.Interfaces
 {
     public interface IArticlesRepository
     {
-        public Task<List<Article>> GetPublishedArticles();
+        public Task<int> GetCountofArticles(Expression<Func<Article, bool>> predicate);
 
         public Task<List<Article>> GetAuthorsArticles(string authorId);
 
@@ -25,6 +25,7 @@ namespace TFSport.Repository.Interfaces
 
         public Task ChangeArticleStatusToPublishedAsync(Article article);
 
-        public Task<IOrderedEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy, Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
+        public Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
+     Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
     }
 }

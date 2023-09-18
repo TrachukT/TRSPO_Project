@@ -29,7 +29,7 @@ namespace TFSport.Services.Services
 
         public async Task<HashSet<string>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy)
         {
-            try
+            try 
             {
                 var user = await _favoritesRepository.GetById(id);
                 if (user == null)
