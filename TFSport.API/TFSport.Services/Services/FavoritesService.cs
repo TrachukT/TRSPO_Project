@@ -61,7 +61,7 @@ namespace TFSport.Services.Services
             userFavorites.FavoriteArticles.Remove(articleId);
             await _favoritesRepository.UpdateAsync(userFavorites);
         }
-        
+
         public async Task<Favorites> FindFavorites(string userId)
         {
             var userFavorites = await _favoritesRepository.GetById(userId);
@@ -74,6 +74,16 @@ namespace TFSport.Services.Services
                 };
             }
             return userFavorites;
+        }
+
+        public async Task<HashSet<string>> GetFavoritesIDs(string userId)
+        {
+            var userFavorites = await _favoritesRepository.GetById(userId);
+            if (userFavorites == null)
+            {
+                return new HashSet<string>();
+            }
+            return userFavorites.FavoriteArticles;
         }
     }
 }

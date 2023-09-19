@@ -65,8 +65,8 @@ namespace TFSport.API.Controllers
         public async Task<IActionResult> GetMyFavorites()
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var articles = await _favoritesService.FindFavorites(userId);
-            return Ok(articles.FavoriteArticles);
+            var articles = await _favoritesService.GetFavoritesIDs(userId);
+            return Ok(articles);
         }
     }
 }
