@@ -90,7 +90,6 @@ namespace TFSport.Services.Services
             }
         }
 
-
         public async Task<HashSet<string>> GetFavoritesIDs(string userId)
         {
             try

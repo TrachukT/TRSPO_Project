@@ -7,7 +7,7 @@ using TFSport.Models.DTOModels.Articles;
 using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
-{ 
+{
     public interface IFavoritesService
     {
         public Task AddFavorite(string userId, string articleId);

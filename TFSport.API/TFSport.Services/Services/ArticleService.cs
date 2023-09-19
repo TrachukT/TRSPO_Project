@@ -80,7 +80,7 @@ namespace TFSport.Services.Services
             try
             {
                 Expression<Func<Article, bool>> predicate = article => article.Status == ArticleStatus.Published;
-                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,predicate);
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate);
                 var list = await MapArticles(articles.ToList());
                 return new OrderedArticlesDTO
                 {
@@ -363,7 +363,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<OrderedArticlesDTO> GetFavoriteArticles(int pageNumber,int pageSize,string orderBy,string userId)
+        public async Task<OrderedArticlesDTO> GetFavoriteArticles(int pageNumber, int pageSize, string orderBy, string userId)
         {
             try
             {
