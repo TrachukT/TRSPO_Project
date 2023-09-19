@@ -208,5 +208,21 @@ namespace TFSport.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get list of user favorites(list of articles)
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        [HttpGet("favorites")]
+        [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.User, UserRoles.Author)]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> GetMyFavorites([FromQuery] int pageNumber, int pageSize, string orderBy)
+        {
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var articles = await _articleService.GetFavoriteArticles(pageNumber, pageSize, orderBy, userId);
+            return Ok(articles);
+        }
     }
 }

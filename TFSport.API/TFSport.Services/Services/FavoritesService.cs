@@ -17,19 +17,15 @@ namespace TFSport.Services.Services
     public class FavoritesService : IFavoritesService
     {
         private readonly IFavoritesRepository _favoritesRepository;
-        private readonly IArticleService _articleService;
-        private readonly IArticlesRepository _articleRepository;
 
-        public FavoritesService(IFavoritesRepository favoritesRepository, IArticleService articleService, IArticlesRepository articleRepository)
+        public FavoritesService(IFavoritesRepository favoritesRepository)
         {
             _favoritesRepository = favoritesRepository;
-            _articleService = articleService;
-            _articleRepository = articleRepository;
         }
 
         public async Task<HashSet<string>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy)
         {
-            try 
+            try
             {
                 var user = await _favoritesRepository.GetById(id);
                 if (user == null)
@@ -49,7 +45,7 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var userFavorites = await FindFavorires(userId);
+                var userFavorites = await FindFavorites(userId);
                 userFavorites.FavoriteArticles.Add(articleId);
                 await _favoritesRepository.UpdateAsync(userFavorites);
             }
@@ -61,23 +57,54 @@ namespace TFSport.Services.Services
 
         public async Task RemoveFavorite(string userId, string articleId)
         {
-            var userFavorites =await FindFavorires(userId);
-            userFavorites.FavoriteArticles.Remove(articleId);
-            await _favoritesRepository.UpdateAsync(userFavorites);
-        }
-        
-        public async Task<Favorites> FindFavorires(string userId)
-        {
-            var userFavorites = await _favoritesRepository.GetById(userId);
-            if (userFavorites == null)
+            try
             {
-                userFavorites = new Favorites
-                {
-                    UserId = userId,
-                    FavoriteArticles = new HashSet<string>()
-                };
+                var userFavorites = await FindFavorites(userId);
+                userFavorites.FavoriteArticles.Remove(articleId);
+                await _favoritesRepository.UpdateAsync(userFavorites);
             }
-            return userFavorites;
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<Favorites> FindFavorites(string userId)
+        {
+            try
+            {
+                var userFavorites = await _favoritesRepository.GetById(userId);
+                if (userFavorites == null)
+                {
+                    userFavorites = new Favorites
+                    {
+                        UserId = userId,
+                        FavoriteArticles = new HashSet<string>()
+                    };
+                }
+                return userFavorites;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<HashSet<string>> GetFavoritesIDs(string userId)
+        {
+            try
+            {
+                var userFavorites = await _favoritesRepository.GetById(userId);
+                if (userFavorites == null)
+                {
+                    return new HashSet<string>();
+                }
+                return userFavorites.FavoriteArticles;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
     }
 }
