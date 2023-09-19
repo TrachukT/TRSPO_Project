@@ -30,8 +30,6 @@ namespace TFSport.Services.Interfaces
 
         public Task DeleteArticleAsync(string articleId);
 
-        public Task ChangeArticleStatusToReviewAsync(string articleId, string userId);
-
         public Task ChangeArticleStatusToPublishedAsync(string articleId);
 
         public Task<OrderedArticlesDTO> GetFavoriteArticles(int pageNumber, int pageSize, string orderBy, string userId);

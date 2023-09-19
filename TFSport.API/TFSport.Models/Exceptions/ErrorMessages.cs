@@ -40,9 +40,7 @@
 
         public const string AlreadyVerifiedEmail = "This email has already been verified.";
 
-        public const string NoAuthorsArticles = "You have no articles posted or in drafts.";
-
-        public const string NoArticlesForReview = "There are no articles waiting for review.";
+        public const string NoAuthorsArticles = "You have no articles posted.";
 
         public const string NoArticlesPublished = "There are no articles published now.";
 
@@ -53,8 +51,6 @@
         public const string BlobContainerDoesntExist = "Such blob container doesn't exist.";
 
         public const string BlobDoesntExist = "Such blob client doesn't exist.";
-
-        public const string ArticleNotSentForReview = "Author didn't send this article for review yet.";
 
         public const string TitleIsRequired = "Title is required.";
 

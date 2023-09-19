@@ -5,8 +5,6 @@ using TFSport.Services.Interfaces;
 using System.Security.Claims;
 using TFSport.Models.Entities;
 using TFSport.Models.DTOModels.Articles;
-using System.Drawing.Printing;
-using TFSport.Models;
 
 namespace TFSport.API.Controllers
 {
@@ -18,12 +16,10 @@ namespace TFSport.API.Controllers
     public class ArticleController : ControllerBase
     {
         private readonly IArticleService _articleService;
-        private readonly IFavoritesService _favoritesService;
 
-        public ArticleController(IArticleService articleService, IFavoritesService favoritesService)
+        public ArticleController(IArticleService articleService)
         {
             _articleService = articleService;
-            _favoritesService = favoritesService;
         }
 
         /// <summary>
@@ -176,21 +172,6 @@ namespace TFSport.API.Controllers
         public async Task<IActionResult> DeleteArticle(string articleId)
         {
             await _articleService.DeleteArticleAsync(articleId);
-            return Ok();
-        }
-
-        /// <summary>
-        /// Changes the status of an article to "Review" for review and approval.
-        /// </summary>
-        /// <param name="articleId">The ID of the article to send for review.</param>
-        /// <returns>A message indicating the result of the status change.</returns>
-        [HttpPatch("{articleId}/send-for-review")]
-        [RoleAuthorization(UserRoles.Author)]
-        [SwaggerResponse(200, "Request_Succeeded")]
-        public async Task<IActionResult> ChangeArticleStatusToReview(string articleId)
-        {
-            string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            await _articleService.ChangeArticleStatusToReviewAsync(articleId, userId);
             return Ok();
         }
 

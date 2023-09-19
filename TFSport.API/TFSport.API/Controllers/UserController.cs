@@ -12,7 +12,7 @@ using TFSport.Services.Interfaces;
 namespace TFSport.API.Controllers
 {
     [ApiController]
-	[Route("api/users")]
+	[Route("users")]
 	[CustomExceptionFilter]
 
 	[SwaggerResponse(400, "Bad_Request", typeof(string))]

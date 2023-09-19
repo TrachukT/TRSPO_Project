@@ -1,16 +1,7 @@
-﻿using Microsoft.Azure.Cosmos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TFSport.Models.DTOModels.Articles;
-using TFSport.Models.Entities;
+﻿using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
-using TFSport.Repository.Repositories;
 using TFSport.Services.Interfaces;
-using static System.Collections.Specialized.BitVector32;
 
 namespace TFSport.Services.Services
 {
