@@ -23,15 +23,18 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Retrieves articles by tag.
+        /// Retrieves articles by tag with paging and ordering.
         /// </summary>
         /// <param name="tagName">The name of the tag to search for.</param>
-        /// <returns>A list of articles associated with the specified tag.</returns>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
+        /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
+        /// <returns>A list of paged and ordered articles associated with the specified tag.</returns>
         [HttpGet]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
-        public async Task<IActionResult> GetArticlesByTag([FromQuery] string tagName)
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> GetArticlesByTag([FromQuery] string tagName, int pageNumber, int pageSize, string orderBy)
         {
-            var articles = await _articleService.GetArticlesByTagAsync(tagName);
+            var articles = await _articleService.GetArticlesByTagAsync(tagName, pageNumber, pageSize, orderBy);
             return Ok(articles);
         }
 
@@ -39,13 +42,32 @@ namespace TFSport.API.Controllers
         /// Retrieves articles by matching tags containing a specified substring.
         /// </summary>
         /// <param name="substring">The substring to search for in tags.</param>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
+        /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
         /// <returns>A list of articles associated with matching tags.</returns>
-        [HttpGet("search")]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
-        public async Task<IActionResult> SearchArticlesByTags([FromQuery] string substring)
+        [HttpGet("search-by-tag")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> SearchArticlesByTags([FromQuery] string substring, int pageNumber, int pageSize, string orderBy)
         {
-            var articles = await _articleService.SearchArticlesByTagsAsync(substring);
+            var articles = await _articleService.SearchArticlesByTagsAsync(substring, pageNumber, pageSize, orderBy);
             return Ok(articles);
+        }
+
+        /// <summary>
+        /// Retrieves articles by matching titles containing a specified substring.
+        /// </summary>
+        /// <param name="substring">The substring to search for in titles.</param>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
+        /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
+        /// <returns>A list of articles associated with matching titles.</returns>
+        [HttpGet("search-by-title")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> SearchArticlesByTitleSubstring([FromQuery] string substring, int pageNumber, int pageSize, string orderBy)
+        {
+            var orderedArticles = await _articleService.SearchArticlesByTitleAsync(substring, pageNumber, pageSize, orderBy);
+            return Ok(orderedArticles);
         }
 
         /// <summary>
@@ -194,7 +216,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
-        /// <param name="orderBy"></param>
+        /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
         /// <returns></returns>
         [HttpGet("favorites")]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.User, UserRoles.Author)]

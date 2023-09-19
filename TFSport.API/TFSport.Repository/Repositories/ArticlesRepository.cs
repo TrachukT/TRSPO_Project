@@ -39,6 +39,13 @@ namespace TFSport.Repository.Repositories
             return article;
         }
 
+        public async Task<List<Article>> GetArticlesTitlesMatchingSubstringAsync(string substring, int pageNumber, int pageSize, string orderBy)
+        {
+            DefaultArticleSpecification specification = new(pageNumber, pageSize, orderBy, a => a.Title.Contains(substring, StringComparison.OrdinalIgnoreCase), null);
+            var query = await _repository.QueryAsync(specification);
+            return query.Items.ToList();
+        }
+
         public async Task<Article> GetArticleByIdAsync(string articleId)
         {
             var article = await _repository.GetAsync(articleId);
@@ -62,12 +69,6 @@ namespace TFSport.Repository.Repositories
             await _repository.DeleteAsync(article);
         }
 
-        public async Task ChangeArticleStatusToReviewAsync(Article article)
-        {
-            article.Status = ArticleStatus.Review;
-            await _repository.UpdateAsync(article);
-        }
-
         public async Task ChangeArticleStatusToPublishedAsync(Article article)
         {
             article.Status = ArticleStatus.Published;
@@ -81,6 +82,5 @@ namespace TFSport.Repository.Repositories
             var query = await _repository.QueryAsync(specification);
             return query.Items.ToList();
         }
-
     }
 }

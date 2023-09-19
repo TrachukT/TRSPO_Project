@@ -6,11 +6,11 @@ namespace TFSport.Repository.Interfaces
     {
         public Task<Tag> GetTagAsync(string tagName);
 
-        public Task<List<Tag>> GetTagsAsync(List<string> tagNames);
+        public Task<HashSet<Tag>> GetTagsAsync(HashSet<string> tagNames);
 
         public Task<IEnumerable<Tag>> GetAllTagsAsync();
 
-        public Task<List<Tag>> GetTagsMatchingSubstringAsync(string substring);
+        public Task<HashSet<Tag>> GetTagsMatchingSubstringAsync(string substring);
 
         public Task CreateTagAsync(Tag tag);
 

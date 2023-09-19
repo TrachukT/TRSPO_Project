@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using TFSport.Models;
 using TFSport.Models.Entities;
 
 namespace TFSport.Repository.Interfaces
@@ -11,7 +10,10 @@ namespace TFSport.Repository.Interfaces
         public Task<List<Article>> GetAuthorsArticles(string authorId);
 
         public Task<List<Article>> GetArticlesInReview();
+
         public Task<Article> GetArticleByTitleAsync(string title);
+
+        public Task<List<Article>> GetArticlesTitlesMatchingSubstringAsync(string substring, int pageNumber, int pageSize, string orderBy);
 
         public Task CreateArticleAsync(Article article);
 
@@ -21,11 +23,9 @@ namespace TFSport.Repository.Interfaces
 
         public Task DeleteArticleAsync(Article article);
 
-        public Task ChangeArticleStatusToReviewAsync(Article article);
-
         public Task ChangeArticleStatusToPublishedAsync(Article article);
 
         public Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
-     Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
+        Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
     }
 }

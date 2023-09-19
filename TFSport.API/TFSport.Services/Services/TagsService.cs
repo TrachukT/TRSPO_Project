@@ -37,7 +37,7 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var existingTags = await _tagsRepository.GetTagsAsync(tagNames.ToList());
+                var existingTags = await _tagsRepository.GetTagsAsync(tagNames.ToHashSet());
 
                 foreach (var tagName in tagNames)
                 {

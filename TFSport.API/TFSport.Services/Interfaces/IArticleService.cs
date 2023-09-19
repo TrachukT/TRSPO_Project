@@ -12,11 +12,11 @@ namespace TFSport.Services.Interfaces
 
         public Task<OrderedArticlesDTO> PublishedArticles(int pageNumber, int pageSize, string orderBy);
 
-        public Task<IEnumerable<ArticleWithContentDTO>> GetArticlesByTagAsync(string tagName);
+        public Task<OrderedArticlesDTO> GetArticlesByTagAsync(string tagName, int pageNumber, int pageSize, string orderBy);
 
-        public Task<IEnumerable<ArticleWithContentDTO>> SearchArticlesByTagsAsync(string substring);
+        public Task<OrderedArticlesDTO> SearchArticlesByTagsAsync(string substring, int pageNumber, int pageSize, string orderBy);
 
-        public Task<List<ArticleWithContentDTO>> GetArticlesWithContentByIdsAsync(IEnumerable<string> articleIds);
+        public Task<OrderedArticlesDTO> SearchArticlesByTitleAsync(string substring, int pageNumber, int pageSize, string orderBy);
 
         public Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId);
 
