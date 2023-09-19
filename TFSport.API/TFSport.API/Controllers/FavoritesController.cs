@@ -59,6 +59,10 @@ namespace TFSport.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Gets list of favorites(id`s)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.User, UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(HashSet<string>))]

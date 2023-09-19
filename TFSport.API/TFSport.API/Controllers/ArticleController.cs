@@ -208,6 +208,13 @@ namespace TFSport.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get list of user favorites(list of articles)
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
         [HttpGet("favorites")]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.User, UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
