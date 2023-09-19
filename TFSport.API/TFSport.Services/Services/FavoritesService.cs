@@ -57,34 +57,55 @@ namespace TFSport.Services.Services
 
         public async Task RemoveFavorite(string userId, string articleId)
         {
-            var userFavorites =await FindFavorites(userId);
-            userFavorites.FavoriteArticles.Remove(articleId);
-            await _favoritesRepository.UpdateAsync(userFavorites);
+            try
+            {
+                var userFavorites = await FindFavorites(userId);
+                userFavorites.FavoriteArticles.Remove(articleId);
+                await _favoritesRepository.UpdateAsync(userFavorites);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
 
         public async Task<Favorites> FindFavorites(string userId)
         {
-            var userFavorites = await _favoritesRepository.GetById(userId);
-            if (userFavorites == null)
+            try
             {
-                userFavorites = new Favorites
+                var userFavorites = await _favoritesRepository.GetById(userId);
+                if (userFavorites == null)
                 {
-                    UserId = userId,
-                    FavoriteArticles = new HashSet<string>()
-                };
+                    userFavorites = new Favorites
+                    {
+                        UserId = userId,
+                        FavoriteArticles = new HashSet<string>()
+                    };
+                }
+                return userFavorites;
             }
-            return userFavorites;
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
 
 
         public async Task<HashSet<string>> GetFavoritesIDs(string userId)
         {
-            var userFavorites = await _favoritesRepository.GetById(userId);
-            if (userFavorites == null)
+            try
             {
-                return new HashSet<string>();
+                var userFavorites = await _favoritesRepository.GetById(userId);
+                if (userFavorites == null)
+                {
+                    return new HashSet<string>();
+                }
+                return userFavorites.FavoriteArticles;
             }
-            return userFavorites.FavoriteArticles;
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
     }
 }

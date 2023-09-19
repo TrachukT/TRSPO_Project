@@ -365,15 +365,22 @@ namespace TFSport.Services.Services
 
         public async Task<OrderedArticlesDTO> GetFavoriteArticles(int pageNumber,int pageSize,string orderBy,string userId)
         {
-            var favorites = await _favoritesService.GetFavoritesIDs(userId);
-            var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,articleIds: favorites);
-            return new OrderedArticlesDTO
+            try
             {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                Articles = await MapArticles(articles.ToList()),
-                TotalCount = favorites.Count
-            };
+                var favorites = await _favoritesService.GetFavoritesIDs(userId);
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, articleIds: favorites);
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    Articles = await MapArticles(articles.ToList()),
+                    TotalCount = favorites.Count
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
     }
 }
