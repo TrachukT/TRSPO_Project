@@ -39,13 +39,6 @@ namespace TFSport.Repository.Repositories
             return article;
         }
 
-        public async Task<List<Article>> GetArticlesTitlesMatchingSubstringAsync(string substring, int pageNumber, int pageSize, string orderBy)
-        {
-            DefaultArticleSpecification specification = new(pageNumber, pageSize, orderBy, a => a.Title.Contains(substring, StringComparison.OrdinalIgnoreCase), null);
-            var query = await _repository.QueryAsync(specification);
-            return query.Items.ToList();
-        }
-
         public async Task<Article> GetArticleByIdAsync(string articleId)
         {
             var article = await _repository.GetAsync(articleId);
@@ -76,8 +69,11 @@ namespace TFSport.Repository.Repositories
         }
 
         public async Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
-            Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
+        Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
         {
+            if (articleIds != null && articleIds.Count == 0)
+                return new List<Article>();
+
             DefaultArticleSpecification specification = new(pageNumber, pageSize, orderBy, predicate, articleIds);
             var query = await _repository.QueryAsync(specification);
             return query.Items.ToList();

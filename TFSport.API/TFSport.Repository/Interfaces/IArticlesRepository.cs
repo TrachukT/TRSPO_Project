@@ -13,8 +13,6 @@ namespace TFSport.Repository.Interfaces
 
         public Task<Article> GetArticleByTitleAsync(string title);
 
-        public Task<List<Article>> GetArticlesTitlesMatchingSubstringAsync(string substring, int pageNumber, int pageSize, string orderBy);
-
         public Task CreateArticleAsync(Article article);
 
         public Task<Article> GetArticleByIdAsync(string articleId);

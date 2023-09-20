@@ -31,12 +31,6 @@ namespace TFSport.Repository.Repositories
             return tags;
         }
 
-        public async Task<HashSet<Tag>> GetTagsMatchingSubstringAsync(string substring)
-        {
-            var matchingTags = await _repository.GetAsync(x => x.TagName.Contains(substring, StringComparison.OrdinalIgnoreCase));
-            return matchingTags.ToHashSet();
-        }
-
         public async Task CreateTagAsync(Tag tag)
         {
             tag.PartitionKey = tag.Id;

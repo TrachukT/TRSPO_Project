@@ -128,28 +128,14 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var tagsContainingQuery = await _tagsRepository.GetTagsMatchingSubstringAsync(substring);
-
-                if (tagsContainingQuery == null || !tagsContainingQuery.Any())
-                {
-                    return new OrderedArticlesDTO
-                    {
-                        PageNumber = pageNumber,
-                        PageSize = pageSize,
-                        Articles = new List<ArticlesListModel>(),
-                        TotalCount = 0
-                    };
-                }
-
-                var articleIds = tagsContainingQuery.SelectMany(tag => tag.ArticleIds).Distinct().ToHashSet();
-                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, articleIds: articleIds);
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)));
 
                 return new OrderedArticlesDTO
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     Articles = await MapArticles(articles.ToList()),
-                    TotalCount = await _articleRepository.GetCountofArticles(article => articleIds.Contains(article.Id))
+                    TotalCount = await _articleRepository.GetCountofArticles(article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)))
                 };
             }
             catch (Exception ex)
@@ -162,14 +148,14 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var articles = await _articleRepository.GetArticlesTitlesMatchingSubstringAsync(substring, pageNumber, pageSize, orderBy);
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase));
 
                 return new OrderedArticlesDTO
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     Articles = await MapArticles(articles.ToList()),
-                    TotalCount = articles.Count
+                    TotalCount = await _articleRepository.GetCountofArticles(article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase))
                 };
             }
             catch (Exception ex)
