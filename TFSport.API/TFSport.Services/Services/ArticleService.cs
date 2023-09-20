@@ -104,7 +104,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<IEnumerable<ArticleWithContentDTO>> GetArticlesByTagAsync(string tagName)
+        public async Task<OrderedArticlesDTO> GetArticlesByTagAsync(string tagName, int pageNumber, int pageSize, string orderBy)
         {
             try
             {
@@ -112,10 +112,23 @@ namespace TFSport.Services.Services
                 if (tag != null)
                 {
                     var articleIds = tag.ArticleIds;
-                    var articles = await GetArticlesWithContentByIdsAsync(articleIds);
-                    return articles;
+                    var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, articleIds: articleIds);
+
+                    return new OrderedArticlesDTO
+                    {
+                        PageNumber = pageNumber,
+                        PageSize = pageSize,
+                        TotalCount = await _articleRepository.GetCountofArticles(article => articleIds.Contains(article.Id)),
+                        Articles = await MapArticles(articles.ToList())
+                    };
                 }
-                return Enumerable.Empty<ArticleWithContentDTO>();
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = 0,
+                    Articles = new List<ArticlesListModel>()
+                };
             }
             catch (Exception ex)
             {
@@ -123,15 +136,19 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<IEnumerable<ArticleWithContentDTO>> SearchArticlesByTagsAsync(string substring)
+        public async Task<OrderedArticlesDTO> SearchArticlesByTagsAsync(string substring, int pageNumber, int pageSize, string orderBy)
         {
             try
             {
-                var tagsContainingQuery = await _tagsRepository.GetTagsMatchingSubstringAsync(substring);
-                var articleIds = tagsContainingQuery.SelectMany(tag => tag.ArticleIds).Distinct();
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)));
 
-                var articles = await GetArticlesWithContentByIdsAsync(articleIds);
-                return articles;
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    Articles = await MapArticles(articles.ToList()),
+                    TotalCount = await _articleRepository.GetCountofArticles(article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)))
+                };
             }
             catch (Exception ex)
             {
@@ -139,19 +156,24 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<ArticleWithContentDTO>> GetArticlesWithContentByIdsAsync(IEnumerable<string> articleIds)
+        public async Task<OrderedArticlesDTO> SearchArticlesByTitleAsync(string substring, int pageNumber, int pageSize, string orderBy)
         {
-            var articles = new List<ArticleWithContentDTO>();
-            foreach (var articleId in articleIds)
+            try
             {
-                var article = await _articleRepository.GetArticleByIdAsync(articleId);
-                if (article != null)
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase));
+
+                return new OrderedArticlesDTO
                 {
-                    var articleDto = await MapArticleWithContentAsync(article);
-                    articles.Add(articleDto);
-                }
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    Articles = await MapArticles(articles.ToList()),
+                    TotalCount = await _articleRepository.GetCountofArticles(article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase))
+                };
             }
-            return articles;
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
         }
 
         public async Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId)

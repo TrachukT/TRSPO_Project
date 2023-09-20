@@ -50,12 +50,6 @@ namespace TFSport.Repository.Repositories
             await _repository.DeleteAsync(article);
         }
 
-        public async Task ChangeArticleStatusToReviewAsync(Article article)
-        {
-            article.Status = ArticleStatus.Review;
-            await _repository.UpdateAsync(article);
-        }
-
         public async Task ChangeArticleStatusToPublishedAsync(Article article)
         {
             article.Status = ArticleStatus.Published;
@@ -63,12 +57,14 @@ namespace TFSport.Repository.Repositories
         }
 
         public async Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
-            Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
+        Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null)
         {
+            if (articleIds != null && articleIds.Count == 0)
+                return new List<Article>();
+
             DefaultArticleSpecification specification = new(pageNumber, pageSize, orderBy, predicate, articleIds);
             var query = await _repository.QueryAsync(specification);
             return query.Items.ToList();
         }
-
     }
 }

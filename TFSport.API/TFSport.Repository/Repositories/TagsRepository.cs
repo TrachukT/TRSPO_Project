@@ -19,22 +19,16 @@ namespace TFSport.Repository.Repositories
             return await _repository.GetAsync(x => x.TagName == tagName).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Tag>> GetTagsAsync(List<string> tagNames)
+        public async Task<HashSet<Tag>> GetTagsAsync(HashSet<string> tagNames)
         {
             var tags = await _repository.GetAsync(x => tagNames.Contains(x.TagName));
-            return tags.ToList();
+            return tags.ToHashSet();
         }
 
         public async Task<IEnumerable<Tag>> GetAllTagsAsync()
         {
             var tags = await _repository.GetAsync(_ => true);
             return tags;
-        }
-
-        public async Task<List<Tag>> GetTagsMatchingSubstringAsync(string substring)
-        {
-            var matchingTags = await _repository.GetAsync(x => x.TagName.Contains(substring));
-            return matchingTags.ToList();
         }
 
         public async Task CreateTagAsync(Tag tag)
