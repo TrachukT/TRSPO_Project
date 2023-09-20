@@ -6,9 +6,9 @@ namespace TFSport.Services.Interfaces
 {
     public interface IArticleService
     {
-        public Task<List<ArticlesListModel>> ArticlesForApprove();
+        public Task<OrderedArticlesDTO> ArticlesForApprove(int pageNumber, int pageSize, string orderBy);
 
-        public Task<List<ArticlesListModel>> AuthorsArticles(string authorId);
+        public Task<OrderedArticlesDTO> AuthorsArticles(int pageNumber, int pageSize, string orderBy, string authorId);
 
         public Task<OrderedArticlesDTO> PublishedArticles(int pageNumber, int pageSize, string orderBy);
 

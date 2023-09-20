@@ -51,34 +51,43 @@ namespace TFSport.API.Controllers
         /// <summary>
         /// Retrieves articles that are in the "Review" status.
         /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderBy"></param>
         /// <returns>A list of articles in "Review" status.</returns>
         [HttpGet("in-review")]
         [RoleAuthorization(UserRoles.SuperAdmin)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
-        public async Task<IActionResult> GetArticlesForApprove()
+        public async Task<IActionResult> GetArticlesForApprove(int pageNumber, int pageSize, string orderBy)
         {
-            var articles = await _articleService.ArticlesForApprove();
+            var articles = await _articleService.ArticlesForApprove(pageNumber, pageSize, orderBy);
             return Ok(articles);
         }
 
         /// <summary>
         /// Retrieves articles authored by the currently authenticated user.
         /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderBy"></param>
         /// <returns>A list of articles authored by the user.</returns>
         [HttpGet("mine")]
         [RoleAuthorization(UserRoles.Author)]
         [SwaggerResponse(200, "Request_Succeeded", typeof(ArticlesListModel))]
-        public async Task<IActionResult> GetAuthorArticles()
+        public async Task<IActionResult> GetAuthorArticles(int pageNumber, int pageSize, string orderBy)
         {
             var authorId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var articles = await _articleService.AuthorsArticles(authorId);
+            var articles = await _articleService.AuthorsArticles(pageNumber, pageSize, orderBy,authorId);
             return Ok(articles);
         }
 
         /// <summary>
         /// Retrieves articles that are in the "Published" status.
         /// </summary>
-        /// <returns>A list of articles in "Published" status.</returns>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderBy"></param>
+        /// <returns>list of articles that are in the "Published" status</returns>
         [HttpGet("published")]
         [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
         public async Task<IActionResult> GetPublishedArticles([FromQuery] int pageNumber, int pageSize, string orderBy)

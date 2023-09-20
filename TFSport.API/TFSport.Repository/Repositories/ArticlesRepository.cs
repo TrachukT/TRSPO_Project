@@ -15,18 +15,6 @@ namespace TFSport.Repository.Repositories
             _repository = repository;
         }
 
-        public async Task<List<Article>> GetArticlesInReview()
-        {
-            var articles = await _repository.GetAsync(x => x.Status == ArticleStatus.Review).ToListAsync();
-            return articles;
-        }
-
-        public async Task<List<Article>> GetAuthorsArticles(string authorId)
-        {
-            var articles = await _repository.GetAsync(x => x.Author == authorId).ToListAsync();
-            return articles;
-        }
-
         public async Task<int> GetCountofArticles(Expression<Func<Article, bool>> predicate)
         {
             var articles = await _repository.GetAsync(predicate).ToListAsync();
