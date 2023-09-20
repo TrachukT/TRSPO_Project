@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq.Expressions;
 using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
@@ -43,13 +44,19 @@ namespace TFSport.Services.Services
             _favoritesService = favoritesService;
         }
 
-        public async Task<List<ArticlesListModel>> ArticlesForApprove()
+        public async Task<OrderedArticlesDTO> ArticlesForApprove(int pageNumber, int pageSize, string orderBy)
         {
             try
             {
-                var articles = await _articleRepository.GetArticlesInReview();
-                var list = await MapArticles(articles);
-                return list;
+                Expression<Func<Article, bool>> predicate = x => x.Status == ArticleStatus.Review;
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,predicate);
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = await _articleRepository.GetCountofArticles(predicate),
+                    Articles = await MapArticles(articles.ToList())
+                };
             }
             catch (Exception ex)
             {
@@ -57,13 +64,19 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<ArticlesListModel>> AuthorsArticles(string authorId)
+        public async Task<OrderedArticlesDTO> AuthorsArticles(int pageNumber, int pageSize, string orderBy,string authorId)
         {
             try
             {
-                var articles = await _articleRepository.GetAuthorsArticles(authorId);
-                var list = await MapArticles(articles);
-                return list;
+                Expression<Func<Article, bool>> predicate = x => x.Author == authorId;
+                var articles = await _articleRepository.GetArticles(pageNumber,pageSize,orderBy,predicate);
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = await _articleRepository.GetCountofArticles(predicate),
+                    Articles = await MapArticles(articles.ToList())
+                };
             }
             catch (Exception ex)
             {
@@ -77,13 +90,12 @@ namespace TFSport.Services.Services
             {
                 Expression<Func<Article, bool>> predicate = article => article.Status == ArticleStatus.Published;
                 var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate);
-                var list = await MapArticles(articles.ToList());
                 return new OrderedArticlesDTO
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     TotalCount = await _articleRepository.GetCountofArticles(predicate),
-                    Articles = list
+                    Articles = await MapArticles(articles.ToList())
                 };
             }
             catch (Exception ex)

@@ -7,10 +7,6 @@ namespace TFSport.Repository.Interfaces
     {
         public Task<int> GetCountofArticles(Expression<Func<Article, bool>> predicate);
 
-        public Task<List<Article>> GetAuthorsArticles(string authorId);
-
-        public Task<List<Article>> GetArticlesInReview();
-
         public Task<Article> GetArticleByTitleAsync(string title);
 
         public Task CreateArticleAsync(Article article);
