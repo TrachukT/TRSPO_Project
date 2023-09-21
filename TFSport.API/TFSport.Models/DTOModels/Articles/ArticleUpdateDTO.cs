@@ -13,6 +13,7 @@ namespace TFSport.Models.DTOModels.Articles
         public SportType Sport { get; set; }
 
         [Required(ErrorMessage = ErrorMessages.DescriptionIsRequired)]
+        [MaxLength(200, ErrorMessage = ErrorMessages.DescriptionLength)]
         public string Description { get; set; }
 
         [Required(ErrorMessage = ErrorMessages.NoImageProvided)]
@@ -21,7 +22,6 @@ namespace TFSport.Models.DTOModels.Articles
         [MaxLength(5, ErrorMessage = ErrorMessages.TagsQuantity)]
         public List<string> Tags { get; set; }
 
-        [StringLength(5000, MinimumLength = 200, ErrorMessage = ErrorMessages.ContentLength)]
         public string Content { get; set; }
     }
 }

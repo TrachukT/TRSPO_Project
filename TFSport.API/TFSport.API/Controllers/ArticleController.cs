@@ -236,5 +236,21 @@ namespace TFSport.API.Controllers
             var articles = await _articleService.GetFavoriteArticles(pageNumber, pageSize, orderBy, userId);
             return Ok(articles);
         }
+
+        /// <summary>
+        /// Get`s articles with choosed sport type
+        /// </summary>
+        /// <param name="sportType"> Choose one type from list</param>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
+        /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
+        /// <returns></returns>
+        [HttpGet("filter-by-sport")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> FilterBySportType([FromQuery] SportType sportType, int pageNumber, int pageSize, string orderBy)
+        {
+            var orderedArticles = await _articleService.FilterBySport(sportType, pageNumber, pageSize, orderBy);
+            return Ok(orderedArticles);
+        }
     }
 }
