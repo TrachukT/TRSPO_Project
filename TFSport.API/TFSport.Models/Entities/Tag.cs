@@ -13,6 +13,6 @@ namespace TFSport.Models.Entities
         public HashSet<string> ArticleIds { get; set; }
 
         [JsonProperty("count")]
-        public int Count { get; set; }
+        public int ArticleCount { get; set; }
     }
 }

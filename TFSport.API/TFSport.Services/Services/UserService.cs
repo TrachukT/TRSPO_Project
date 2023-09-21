@@ -236,6 +236,5 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
-
     }
 }

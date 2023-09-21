@@ -7,8 +7,8 @@ namespace TFSport.Services.Interfaces
     {
         public Task<IEnumerable<TagDto>> GetTopTagsAsync();
 
-        public Task CreateOrUpdateTagsAsync(HashSet<string> tagNames, string articleId);
+        public Task CreateOrUpdateTagsAsync(HashSet<string> tagNames, string articleId, ArticleStatus articleStatus);
 
-        public Task RemoveArticleTagsAsync(HashSet<string> tagNames, string articleId);
+        public Task RemoveArticleTagsAsync(HashSet<string> tagNames, string articleId, ArticleStatus articleStatus);
     }
 }
