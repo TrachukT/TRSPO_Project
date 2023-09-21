@@ -5,6 +5,7 @@ using TFSport.Services.Interfaces;
 using System.Security.Claims;
 using TFSport.Models.Entities;
 using TFSport.Models.DTOModels.Articles;
+using TFSport.Models.Exceptions;
 
 namespace TFSport.API.Controllers
 {
@@ -30,7 +31,7 @@ namespace TFSport.API.Controllers
         /// <param name="pageSize">The page size for pagination.</param>
         /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
         /// <returns>A list of paged and ordered articles associated with the specified tag.</returns>
-        [HttpGet]
+        [HttpGet("filter-by-tag")]
         [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
         public async Task<IActionResult> GetArticlesByTag([FromQuery] string tagName, int pageNumber, int pageSize, string orderBy)
         {
@@ -68,6 +69,22 @@ namespace TFSport.API.Controllers
         {
             var orderedArticles = await _articleService.SearchArticlesByTitleAsync(substring, pageNumber, pageSize, orderBy);
             return Ok(orderedArticles);
+        }
+
+        /// <summary>
+        /// Retrieves articles by the author's full name.
+        /// </summary>
+        /// <param name="authorName">The full name of the author to search for.</param>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
+        /// <param name="orderBy">The ordering criteria (e.g., "byCreatedDateAsc", "topRated").</param>
+        /// <returns>A list of articles associated with the specified author.</returns>
+        [HttpGet("search-by-author")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<ArticleWithContentDTO>))]
+        public async Task<IActionResult> SearchArticlesByAuthorName([FromQuery] string authorName, int pageNumber, int pageSize, string orderBy)
+        {
+            var articles = await _articleService.SearchArticlesByAuthorNameAsync(authorName, pageNumber, pageSize, orderBy);
+            return Ok(articles);
         }
 
         /// <summary>

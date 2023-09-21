@@ -21,6 +21,14 @@ namespace TFSport.Repository.Repositories
             return user;
         }
 
+        public async Task<List<User>> GetUsersByFullNameAsync(string fullName)
+        {
+            var lowerCaseFullName = fullName.ToLower();
+            var users = await _repository.GetAsync(u => (u.FirstName + " " + u.LastName).Contains(lowerCaseFullName, StringComparison.OrdinalIgnoreCase)).ToListAsync();
+
+            return users;
+        }
+
         public async Task<User> CheckCredentials(string email,string password)
         {
             var user = await GetUserByEmail(email);
