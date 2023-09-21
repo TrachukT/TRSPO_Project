@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Data.SqlTypes;
 using System.Linq.Expressions;
 using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
@@ -140,14 +141,15 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)));
+                Expression<Func<Article, bool>> predicate = article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)) && article.Status == ArticleStatus.Published;
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate);
 
                 return new OrderedArticlesDTO
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     Articles = await MapArticles(articles.ToList()),
-                    TotalCount = await _articleRepository.GetCountofArticles(article => article.Tags.Any(tag => tag.Contains(substring, StringComparison.OrdinalIgnoreCase)))
+                    TotalCount = await _articleRepository.GetCountofArticles(predicate)
                 };
             }
             catch (Exception ex)
@@ -160,14 +162,15 @@ namespace TFSport.Services.Services
         {
             try
             {
-                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase));
+                Expression<Func<Article, bool>> predicate = article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase) && article.Status == ArticleStatus.Published;
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate);
 
                 return new OrderedArticlesDTO
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     Articles = await MapArticles(articles.ToList()),
-                    TotalCount = await _articleRepository.GetCountofArticles(article => article.Title.Contains(substring, StringComparison.OrdinalIgnoreCase))
+                    TotalCount = await _articleRepository.GetCountofArticles(predicate)
                 };
             }
             catch (Exception ex)
@@ -375,6 +378,19 @@ namespace TFSport.Services.Services
             {
                 throw new CustomException(ex.Message);
             }
+        }
+
+        public async Task<OrderedArticlesDTO> FilterBySport(SportType sportType, int pageNumber, int pageSize, string orderBy)
+        {
+            Expression<Func<Article, bool>> predicate = article => article.Sport == sportType && article.Status == ArticleStatus.Published;
+            var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy,predicate);
+            return new OrderedArticlesDTO
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Articles = await MapArticles(articles.ToList()),
+                TotalCount = await _articleRepository.GetCountofArticles(predicate)
+            };
         }
     }
 }
