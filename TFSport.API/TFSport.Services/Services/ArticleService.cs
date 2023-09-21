@@ -179,6 +179,29 @@ namespace TFSport.Services.Services
             }
         }
 
+        public async Task<OrderedArticlesDTO> SearchArticlesByAuthorNameAsync(string authorName, int pageNumber, int pageSize, string orderBy)
+        {
+            try
+            {
+                var users = await _userRepository.GetUsersByFullNameAsync(authorName);
+                var userIds = users.Select(user => user.Id).ToList();
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => userIds.Contains(article.Author) && article.Status == ArticleStatus.Published);
+
+                return new OrderedArticlesDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = await _articleRepository.GetCountofArticles(article =>
+                        userIds.Contains(article.Author)),
+                    Articles = await MapArticles(articles.ToList())
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
         public async Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId)
         {
             try
