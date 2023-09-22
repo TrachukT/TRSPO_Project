@@ -23,8 +23,10 @@ namespace TFSport.Services.Services
             try
             {
                 var tags = await _tagsRepository.GetAllTagsAsync();
-                var sortedTags = tags.OrderByDescending(tag => tag.Count);
-                var tagDtos = sortedTags.Select(tag => _mapper.Map<TagDto>(tag));
+                var filteredTags = tags.Where(tag => tag.ArticleCount > 0);
+                var sortedTags = filteredTags.OrderByDescending(tag => tag.ArticleCount);
+
+                var tagDtos = sortedTags.Select(_mapper.Map<TagDto>);
                 return tagDtos;
             }
             catch (Exception ex)
@@ -33,7 +35,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task CreateOrUpdateTagsAsync(HashSet<string> tagNames, string articleId)
+        public async Task CreateOrUpdateTagsAsync(HashSet<string> tagNames, string articleId, ArticleStatus articleStatus)
         {
             try
             {
@@ -46,7 +48,12 @@ namespace TFSport.Services.Services
                     if (existingTag != null)
                     {
                         existingTag.ArticleIds.Add(articleId);
-                        existingTag.Count++;
+
+                        if (articleStatus == ArticleStatus.Published)
+                        {
+                            existingTag.ArticleCount++;
+                        }
+
                         await _tagsRepository.UpdateTagAsync(existingTag);
                     }
                     else
@@ -55,7 +62,7 @@ namespace TFSport.Services.Services
                         {
                             TagName = tagName,
                             ArticleIds = new HashSet<string> { articleId },
-                            Count = 1
+                            ArticleCount = articleStatus == ArticleStatus.Published ? 1 : 0
                         };
                         await _tagsRepository.CreateTagAsync(newTag);
                     }
@@ -67,7 +74,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task RemoveArticleTagsAsync(HashSet<string> tagNames, string articleId)
+        public async Task RemoveArticleTagsAsync(HashSet<string> tagNames, string articleId, ArticleStatus articleStatus)
         {
             try
             {
@@ -78,15 +85,20 @@ namespace TFSport.Services.Services
                     if (existingTag != null)
                     {
                         existingTag.ArticleIds.Remove(articleId);
-                        existingTag.Count--;
+                        await _tagsRepository.UpdateTagAsync(existingTag);
 
-                        if (existingTag.ArticleIds.Count == 0 && existingTag.Count == 0)
+                        if (articleStatus == ArticleStatus.Published || existingTag.ArticleIds.Count == 0)
                         {
-                            await _tagsRepository.DeleteTagAsync(existingTag.Id);
-                        }
-                        else
-                        {
-                            await _tagsRepository.UpdateTagAsync(existingTag);
+                            existingTag.ArticleCount--;
+
+                            if (existingTag.ArticleIds.Count == 0)
+                            {
+                                await _tagsRepository.DeleteTagAsync(existingTag.Id);
+                            }
+                            else
+                            {
+                                await _tagsRepository.UpdateTagAsync(existingTag);
+                            }
                         }
                     }
                 }

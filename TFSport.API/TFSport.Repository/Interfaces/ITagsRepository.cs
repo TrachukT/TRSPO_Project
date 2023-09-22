@@ -10,6 +10,8 @@ namespace TFSport.Repository.Interfaces
 
         public Task<IEnumerable<Tag>> GetAllTagsAsync();
 
+        public Task<HashSet<Tag>> GetTagsByArticleIdAsync(string articleId);
+
         public Task CreateTagAsync(Tag tag);
 
         public Task UpdateTagAsync(Tag tag);

@@ -272,11 +272,13 @@ namespace TFSport.Services.Services
 
                 var article = _mapper.Map<Article>(articleDTO);
 
+                article.Status = ArticleStatus.Review;
+
                 await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, article.Id, articleDTO.Content);
                 await _articleRepository.CreateArticleAsync(article);
 
                 var tagNames = new HashSet<string>(articleDTO.Tags ?? new List<string>());
-                await _tagsService.CreateOrUpdateTagsAsync(tagNames, article.Id);
+                await _tagsService.CreateOrUpdateTagsAsync(tagNames, article.Id, article.Status);
 
                 _logger.LogInformation("Article with id {id} was created", article.Id);
             }
@@ -314,17 +316,17 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleWithThisTitleExists);
                 }
 
-                await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, articleId, articleUpdateDTO.Content);
-
-                _mapper.Map(articleUpdateDTO, existingArticle);
-                await _articleRepository.UpdateArticleAsync(existingArticle);
-
                 var updatedTagNames = new HashSet<string>(articleUpdateDTO.Tags ?? new List<string>());
                 var existingTagNames = new HashSet<string>(existingArticle.Tags);
                 var removedTagNames = existingTagNames.Except(updatedTagNames).ToHashSet();
 
-                await _tagsService.RemoveArticleTagsAsync(removedTagNames, articleId);
-                await _tagsService.CreateOrUpdateTagsAsync(updatedTagNames, articleId);
+                await _tagsService.RemoveArticleTagsAsync(removedTagNames, articleId, existingArticle.Status);
+                await _tagsService.CreateOrUpdateTagsAsync(updatedTagNames, articleId, existingArticle.Status);
+
+                await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, articleId, articleUpdateDTO.Content);
+
+                _mapper.Map(articleUpdateDTO, existingArticle);
+                await _articleRepository.UpdateArticleAsync(existingArticle);
 
                 _logger.LogInformation("Article with id {articleId} was updated", articleId);
 
@@ -350,7 +352,7 @@ namespace TFSport.Services.Services
                 await _articleRepository.DeleteArticleAsync(existingArticle);
                 await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
 
-                await _tagsService.RemoveArticleTagsAsync(existingArticle.Tags, articleId);
+                await _tagsService.RemoveArticleTagsAsync(existingArticle.Tags, articleId, existingArticle.Status);
 
                 _logger.LogInformation("Article with id {articleId} was deleted", articleId);
             }
@@ -371,7 +373,16 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
 
+                var oldStatus = article.Status;
                 await _articleRepository.ChangeArticleStatusToPublishedAsync(article);
+
+                var tags = await _tagsRepository.GetTagsByArticleIdAsync(articleId);
+                foreach (var tag in tags)
+                {
+                    tag.ArticleCount++;
+                    await _tagsRepository.UpdateTagAsync(tag);
+                }
+
                 var user = await _userRepository.GetUserById(article.Author);
                 await _emailService.ArticleIsPublished(user.Email, article.Title);
 
