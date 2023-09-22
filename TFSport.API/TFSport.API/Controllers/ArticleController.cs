@@ -5,7 +5,6 @@ using TFSport.Services.Interfaces;
 using System.Security.Claims;
 using TFSport.Models.Entities;
 using TFSport.Models.DTOModels.Articles;
-using TFSport.Models.Exceptions;
 
 namespace TFSport.API.Controllers
 {

@@ -40,9 +40,11 @@ builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<ICommentsRepository, CommentsRepository>();
 builder.Services.AddScoped<IArticlesRepository, ArticlesRepository>();
 builder.Services.AddScoped<IFavoritesRepository, FavoritesRepository>();
+builder.Services.AddScoped<IAuthorStatisticsRepository, AuthorStatisticsRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<ISportsService, SportsService>();
+builder.Services.AddScoped<ITopAuthorsService, TopAuthorsService>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -182,6 +184,13 @@ builder.Services.AddCosmosRepository(options =>
         {
             containerOptionsBuilder
                 .WithContainer("Articles")
+                .WithPartitionKey("/partitionKey");
+        });
+    options.ContainerBuilder
+        .Configure<AuthorStatistics>(containerOptionsBuilder =>
+        {
+            containerOptionsBuilder
+                .WithContainer("Users")
                 .WithPartitionKey("/partitionKey");
         });
 });

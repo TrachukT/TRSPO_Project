@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Data.SqlTypes;
 using System.Linq.Expressions;
 using TFSport.Models;
 using TFSport.Models.DTOModels.Articles;
@@ -19,6 +17,7 @@ namespace TFSport.Services.Services
         private readonly IArticlesRepository _articleRepository;
         private readonly IUsersRepository _userRepository;
         private readonly ITagsRepository _tagsRepository;
+        private readonly IAuthorStatisticsRepository _authorStatisticsRepository;
         private readonly IFavoritesService _favoritesService;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
@@ -30,7 +29,7 @@ namespace TFSport.Services.Services
 
         public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository,
             IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger,
-            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository, IFavoritesService favoritesService)
+            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository, IFavoritesService favoritesService, IAuthorStatisticsRepository authorStatisticsRepository)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -43,6 +42,7 @@ namespace TFSport.Services.Services
             _tagsService = tagsService;
             _tagsRepository = tagsRepository;
             _favoritesService = favoritesService;
+            _authorStatisticsRepository = authorStatisticsRepository;
         }
 
         public async Task<OrderedArticlesDTO> ArticlesForApprove(int pageNumber, int pageSize, string orderBy)
@@ -280,6 +280,13 @@ namespace TFSport.Services.Services
                 var tagNames = new HashSet<string>(articleDTO.Tags ?? new List<string>());
                 await _tagsService.CreateOrUpdateTagsAsync(tagNames, article.Id, article.Status);
 
+                var authorStatistics = await _authorStatisticsRepository.GetAuthorStatisticsAsync(articleDTO.Author);
+
+                if (authorStatistics == null)
+                {
+                    await _authorStatisticsRepository.CreateAuthorStatisticsAsync(articleDTO.Author);
+                }
+
                 _logger.LogInformation("Article with id {id} was created", article.Id);
             }
             catch (Exception ex)
@@ -349,6 +356,15 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
 
+                if (existingArticle.Status == ArticleStatus.Published)
+                {
+                    var authorStatistics = await _authorStatisticsRepository.GetAuthorStatisticsAsync(existingArticle.Author);
+                    if (authorStatistics != null)
+                    {
+                        await _authorStatisticsRepository.UpdateAuthorStatisticsAsync(existingArticle.Author, -1);
+                    }
+                }
+
                 await _articleRepository.DeleteArticleAsync(existingArticle);
                 await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
 
@@ -381,6 +397,17 @@ namespace TFSport.Services.Services
                 {
                     tag.ArticleCount++;
                     await _tagsRepository.UpdateTagAsync(tag);
+                }
+
+                var authorStatistics = await _authorStatisticsRepository.GetAuthorStatisticsAsync(article.Author);
+                if (authorStatistics != null)
+                {
+                    await _authorStatisticsRepository.UpdateAuthorStatisticsAsync(article.Author, 1);
+                }
+                else
+                {
+                    await _authorStatisticsRepository.CreateAuthorStatisticsAsync(article.Author);
+                    await _authorStatisticsRepository.UpdateAuthorStatisticsAsync(article.Author, 1);
                 }
 
                 var user = await _userRepository.GetUserById(article.Author);
