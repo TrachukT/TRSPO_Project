@@ -22,6 +22,8 @@ namespace TFSport.Services.Interfaces
 
         public Task<OrderedArticlesDTO> FilterBySport(SportType sportType, int pageNumber, int pageSize, string orderBy);
 
+        public Task<OrderedArticlesDTO> FilterByAuthor(string authorId, int pageNumber, int pageSize, string orderBy);
+
         public Task<ArticleWithContentDTO> GetArticleWithContentByIdAsync(string articleId);
 
         public Task<List<ArticlesListModel>> MapArticles(List<Article> articles);
