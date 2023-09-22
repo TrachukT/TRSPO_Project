@@ -415,5 +415,18 @@ namespace TFSport.Services.Services
                 TotalCount = await _articleRepository.GetCountofArticles(predicate)
             };
         }
+
+        public async Task<OrderedArticlesDTO> FilterByAuthor(string authorId, int pageNumber, int pageSize, string orderBy)
+        {
+            Expression<Func<Article, bool>> predicate = article => article.Author == authorId  && article.Status == ArticleStatus.Published;
+            var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate);
+            return new OrderedArticlesDTO
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Articles = await MapArticles(articles.ToList()),
+                TotalCount = await _articleRepository.GetCountofArticles(predicate)
+            };
+        }
     }
 }

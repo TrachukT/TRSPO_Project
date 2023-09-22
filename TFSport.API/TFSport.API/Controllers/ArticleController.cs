@@ -255,7 +255,7 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Get`s articles with choosed sport type
+        /// Gets articles with choosed sport type
         /// </summary>
         /// <param name="sportType"> Choose one type from list</param>
         /// <param name="pageNumber">The page number for pagination.</param>
@@ -267,6 +267,22 @@ namespace TFSport.API.Controllers
         public async Task<IActionResult> FilterBySportType([FromQuery] SportType sportType, int pageNumber, int pageSize, string orderBy)
         {
             var orderedArticles = await _articleService.FilterBySport(sportType, pageNumber, pageSize, orderBy);
+            return Ok(orderedArticles);
+        }
+
+        /// <summary>
+        /// Gets articles with choosed author
+        /// </summary>
+        /// <param name="author"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        [HttpGet("filter-by-author")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(OrderedArticlesDTO))]
+        public async Task<IActionResult> FilterBySportType([FromQuery] string authorId, int pageNumber, int pageSize, string orderBy)
+        {
+            var orderedArticles = await _articleService.FilterByAuthor(authorId, pageNumber, pageSize, orderBy);
             return Ok(orderedArticles);
         }
     }
