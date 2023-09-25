@@ -85,9 +85,8 @@ namespace TFSport.Services.Services
                     if (existingTag != null)
                     {
                         existingTag.ArticleIds.Remove(articleId);
-                        await _tagsRepository.UpdateTagAsync(existingTag);
 
-                        if (articleStatus == ArticleStatus.Published || existingTag.ArticleIds.Count == 0)
+                        if (articleStatus == ArticleStatus.Published)
                         {
                             existingTag.ArticleCount--;
 
@@ -99,6 +98,10 @@ namespace TFSport.Services.Services
                             {
                                 await _tagsRepository.UpdateTagAsync(existingTag);
                             }
+                        }
+                        else
+                        {
+                            await _tagsRepository.UpdateTagAsync(existingTag);
                         }
                     }
                 }

@@ -7,7 +7,7 @@ using TFSport.Services.Interfaces;
 namespace TFSport.API.Controllers
 {
     [ApiController]
-    [Route("tag")]
+    [Route("tags")]
     [CustomExceptionFilter]
     [SwaggerResponse(400, "Bad_Request", typeof(string))]
     [SwaggerResponse(500, "Internal_Server_Error", typeof(string))]

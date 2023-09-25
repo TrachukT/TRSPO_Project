@@ -1,12 +1,6 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TFSport.Models.Entities;
-using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
 
 namespace TFSport.Repository.Repositories
