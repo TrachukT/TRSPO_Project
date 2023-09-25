@@ -185,15 +185,18 @@ namespace TFSport.Services.Services
             {
                 var users = await _userRepository.GetUsersByFullNameAsync(authorName);
                 var userIds = users.Select(user => user.Id).ToList();
-                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate: article => userIds.Contains(article.Author) && article.Status == ArticleStatus.Published);
+
+                Expression<Func<Article, bool>> predicate = article =>
+                    userIds.Contains(article.Author) && article.Status == ArticleStatus.Published;
+
+                var articles = await _articleRepository.GetArticles(pageNumber, pageSize, orderBy, predicate);
 
                 return new OrderedArticlesDTO
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
-                    TotalCount = await _articleRepository.GetCountofArticles(article =>
-                        userIds.Contains(article.Author)),
-                    Articles = await MapArticles(articles.ToList())
+                    Articles = await MapArticles(articles.ToList()),
+                    TotalCount = await _articleRepository.GetCountofArticles(predicate)
                 };
             }
             catch (Exception ex)
