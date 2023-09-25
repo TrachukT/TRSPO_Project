@@ -8,6 +8,7 @@ using TFSport.Services.Interfaces;
 namespace TFSport.API.Controllers
 {
     [Route("favorites")]
+    [CustomExceptionFilter]
     [ApiController]
     public class FavoritesController : ControllerBase
     {

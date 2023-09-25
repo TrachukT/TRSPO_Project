@@ -66,5 +66,12 @@ namespace TFSport.Repository.Repositories
             var query = await _repository.QueryAsync(specification);
             return query.Items.ToList();
         }
+
+        public async Task<List<string>> GetLikedArticles(string authorId)
+        {
+            var articles = await _repository.GetAsync(x => x.Likes.Contains(authorId));
+            var list = articles.Select(x => x.Id).ToList();
+            return list;
+        }
     }
 }
