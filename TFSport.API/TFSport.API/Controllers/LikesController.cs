@@ -23,7 +23,7 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Add like ti article
+        /// Add like info for article
         /// </summary>
         /// <param name="articleId"></param>
         /// <returns></returns>
@@ -38,7 +38,7 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Remove like from article
+        /// Remove like info from article
         /// </summary>
         /// <param name="articleId"></param>
         /// <returns></returns>
@@ -53,7 +53,7 @@ namespace TFSport.API.Controllers
         }
 
         /// <summary>
-        /// Get`s Id of articles, liked by user
+        /// Get Id of articles, liked by user
         /// </summary>
         /// <returns></returns>
         [HttpGet()]
