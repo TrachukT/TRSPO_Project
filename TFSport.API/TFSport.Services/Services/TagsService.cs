@@ -18,13 +18,12 @@ namespace TFSport.Services.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TagDto>> GetTopTagsAsync()
+        public async Task<IEnumerable<TagDto>> GetTopTagsAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var tags = await _tagsRepository.GetAllTagsAsync();
-                var filteredTags = tags.Where(tag => tag.ArticleCount > 0);
-                var sortedTags = filteredTags.OrderByDescending(tag => tag.ArticleCount);
+                var tags = await _tagsRepository.GetTagsPageAsync(tag => tag.ArticleCount > 0, pageNumber, pageSize);
+                var sortedTags = tags.OrderByDescending(tag => tag.ArticleCount);
 
                 var tagDtos = sortedTags.Select(_mapper.Map<TagDto>);
                 return tagDtos;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
+using System.Linq.Expressions;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;
 
@@ -25,10 +26,10 @@ namespace TFSport.Repository.Repositories
             return tags.ToHashSet();
         }
 
-        public async Task<IEnumerable<Tag>> GetAllTagsAsync()
+        public async Task<IEnumerable<Tag>> GetTagsPageAsync(Expression<Func<Tag, bool>> predicate, int pageNumber, int pageSize)
         {
-            var tags = await _repository.GetAsync(_ => true);
-            return tags;
+            var tags = await _repository.PageAsync(predicate, pageNumber, pageSize);
+            return tags.Items.ToList();
         }
 
         public async Task<HashSet<Tag>> GetTagsByArticleIdAsync(string articleId)

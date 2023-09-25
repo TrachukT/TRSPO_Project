@@ -1,4 +1,5 @@
-﻿using TFSport.Models.Entities;
+﻿using System.Linq.Expressions;
+using TFSport.Models.Entities;
 
 namespace TFSport.Repository.Interfaces
 {
@@ -8,7 +9,7 @@ namespace TFSport.Repository.Interfaces
 
         public Task<HashSet<Tag>> GetTagsAsync(HashSet<string> tagNames);
 
-        public Task<IEnumerable<Tag>> GetAllTagsAsync();
+        public Task<IEnumerable<Tag>> GetTagsPageAsync(Expression<Func<Tag, bool>> predicate, int pageNumber, int pageSize);
 
         public Task<HashSet<Tag>> GetTagsByArticleIdAsync(string articleId);
 

@@ -23,13 +23,15 @@ namespace TFSport.API.Controllers
         /// <summary>
         /// Get the top tags sorted by usage count.
         /// </summary>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A list of top tags.</returns>
         [HttpGet("top")]
         [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<TagDto>))]
-        public async Task<IActionResult> GetTopTags()
+        public async Task<IActionResult> GetTopTagsAsync([FromQuery] int pageNumber, int pageSize)
         {
-            var topTags = await _tagsService.GetTopTagsAsync();
-            return Ok(topTags);
+            var tagDtos = await _tagsService.GetTopTagsAsync(pageNumber, pageSize);
+            return Ok(tagDtos);
         }
     }
 }
