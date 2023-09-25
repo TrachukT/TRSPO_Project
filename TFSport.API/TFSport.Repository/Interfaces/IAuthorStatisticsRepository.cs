@@ -1,4 +1,5 @@
-﻿using TFSport.Models.Entities;
+﻿using System.Linq.Expressions;
+using TFSport.Models.Entities;
 
 namespace TFSport.Repository.Interfaces
 {
@@ -6,7 +7,7 @@ namespace TFSport.Repository.Interfaces
     {
         public Task<AuthorStatistics> GetAuthorStatisticsAsync(string authorId);
 
-        public Task<IEnumerable<AuthorStatistics>> GetAllAuthorsAsync();
+        public Task<IEnumerable<AuthorStatistics>> GetAuthorsPageAsync(Expression<Func<AuthorStatistics, bool>> predicate, int pageNumber, int pageSize);
 
         public Task CreateAuthorStatisticsAsync(string authorId);
 

@@ -23,12 +23,14 @@ namespace TFSport.API.Controllers
         /// <summary>
         /// Get the top authors sorted by Published articles count.
         /// </summary>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A list of top authors.</returns>
         [HttpGet("top")]
         [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<AuthorDTO>))]
-        public async Task<IActionResult> GetTopAuthorsAsync()
+        public async Task<IActionResult> GetTopAuthorsAsync([FromQuery] int pageNumber, int pageSize)
         {
-            var authorDtos = await _topAuthorService.GetTopAuthorsAsync();
+            var authorDtos = await _topAuthorService.GetTopAuthorsAsync(pageNumber, pageSize);
             return Ok(authorDtos);
         }
     }

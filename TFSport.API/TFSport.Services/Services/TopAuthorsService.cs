@@ -19,13 +19,12 @@ namespace TFSport.Services.Services
             _usersRepository = usersRepository;
         }
 
-        public async Task<IEnumerable<AuthorDTO>> GetTopAuthorsAsync()
+        public async Task<IEnumerable<AuthorDTO>> GetTopAuthorsAsync(int pageNumber, int pageSize)
         {
             try
             {
-                var authors = await _authorStatisticsRepository.GetAllAuthorsAsync();
-                var filteredAuthors = authors.Where(author => author.ArticleCount > 0);
-                var sortedAuthors = filteredAuthors.OrderByDescending(author => author.ArticleCount);
+                var authors = await _authorStatisticsRepository.GetAuthorsPageAsync(author => author.ArticleCount > 0, pageNumber, pageSize);
+                var sortedAuthors = authors.OrderByDescending(author => author.ArticleCount);
 
                 var authorDtos = await Task.WhenAll(sortedAuthors.Select(async authorStatistics =>
                 {
@@ -48,7 +47,5 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
-
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
+using System.Linq.Expressions;
 using TFSport.Models.Entities;
 using TFSport.Repository.Interfaces;
 
@@ -20,10 +21,10 @@ namespace TFSport.Repository.Repositories
             return statistics;
         }
 
-        public async Task<IEnumerable<AuthorStatistics>> GetAllAuthorsAsync()
+        public async Task<IEnumerable<AuthorStatistics>> GetAuthorsPageAsync(Expression<Func<AuthorStatistics, bool>> predicate, int pageNumber, int pageSize)
         {
-            var authors = await _repository.GetAsync(_ => true);
-            return authors;
+            var authors = await _repository.PageAsync(predicate, pageNumber, pageSize);
+            return authors.Items.ToList();
         }
 
         public async Task CreateAuthorStatisticsAsync(string authorId)
