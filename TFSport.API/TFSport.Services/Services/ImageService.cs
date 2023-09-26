@@ -31,6 +31,17 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.NoImageProvided);
                 }
 
+                if (imageFile.Length > 2 * 1024 * 1024)
+                {
+                    throw new CustomException(ErrorMessages.ImageSizeExceeded);
+                }
+
+                var allowedFormats = new[] { "image/jpeg", "image/png" };
+                if (!allowedFormats.Contains(imageFile.ContentType))
+                {
+                    throw new CustomException(ErrorMessages.InvalidImageFormat);
+                }
+
                 var imageName = Path.GetFileName(imageFile.FileName);
 
                 var imageStream = imageFile.OpenReadStream();

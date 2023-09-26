@@ -77,5 +77,9 @@
         public const string TagsQuantity = "Up to 5 tags are allowed.";
 
         public const string ContentLength = "The content must be between 200 and 5000 characters.";
+
+        public const string ImageSizeExceeded = "Image size could not be bigger than 2MB.";
+
+        public const string InvalidImageFormat = "Only .jpeg and .png image formats are allowed.";
     }
 }
