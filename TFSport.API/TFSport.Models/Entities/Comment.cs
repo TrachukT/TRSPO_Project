@@ -7,9 +7,6 @@ namespace TFSport.Models.Entities
     [PartitionKeyPath("/articleId")]
     public class Comment : FullItem
     {
-        [JsonProperty("updatedAt")]
-        public DateTime UpdatedAt { get; set; }
-
         [JsonProperty("author")]
         public string Author { get; set; }
 
@@ -22,6 +19,5 @@ namespace TFSport.Models.Entities
         {
             return ArticleId;
         }
-
     }
 }

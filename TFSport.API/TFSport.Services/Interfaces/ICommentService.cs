@@ -1,15 +1,14 @@
-﻿using Microsoft.Azure.CosmosRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TFSport.Models;
+﻿using TFSport.Models.DTOModels.Comments;
+using TFSport.Models.Entities;
 
 namespace TFSport.Services.Interfaces
 {
 	public interface ICommentService
 	{
+        public Task<IEnumerable<CommentDTO>> GetCommentsByArticleIdAsync(string articleId, int pageNumber, int pageSize);
 
-	}
+        public Task<Comment> AddCommentAsync(CommentCreateDTO commentDto, string articleId, string userId);
+
+        public Task DeleteCommentAsync(string commentId, string userId);
+    }
 }

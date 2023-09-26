@@ -81,5 +81,11 @@
         public const string ImageSizeExceeded = "Image size could not be bigger than 2MB.";
 
         public const string InvalidImageFormat = "Only .jpeg and .png image formats are allowed.";
+
+        public const string CommentDoesntExist = "Comment does not exist.";
+
+        public const string UnauthorizedToDeleteComment = "You are not authorized to delete this comment.";
+
+        public const string ContentIsRequired = "Content of the comment cannot be empty.";
     }
 }
