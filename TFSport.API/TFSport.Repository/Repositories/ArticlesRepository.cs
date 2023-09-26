@@ -69,7 +69,7 @@ namespace TFSport.Repository.Repositories
 
         public async Task<List<string>> GetLikedArticles(string userId)
         {
-            var articles = await _repository.GetAsync(x => x.Likes.Contains(userId));
+            var articles = await _repository.GetAsync(x => x.LikedUserIds.Contains(userId));
             var list = articles.Select(x => x.Id).ToList();
             return list;
         }

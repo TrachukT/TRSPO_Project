@@ -30,9 +30,9 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
                 article.LikeCount++;
-                if (article.Likes == null)
-                    article.Likes = new HashSet<string>();
-                article.Likes.Add(userId);
+                if (article.LikedUserIds == null)
+                    article.LikedUserIds = new HashSet<string>();
+                article.LikedUserIds.Add(userId);
                 var id = await _articlesRepository.UpdateArticleAsync(article);
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
                 article.LikeCount--;
-                article.Likes.Remove(userId);
+                article.LikedUserIds.Remove(userId);
                 var id = await _articlesRepository.UpdateArticleAsync(article);
             }
             catch (Exception ex)
