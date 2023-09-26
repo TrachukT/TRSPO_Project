@@ -27,7 +27,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <param name="articleId"></param>
         /// <returns></returns>
-        [HttpPost("add")]
+        [HttpPost()]
         [SwaggerResponse(200, "Request_Succeeded")]
         [RoleAuthorization(UserRoles.SuperAdmin,UserRoles.Author,UserRoles.User)]
         public async Task<IActionResult> AddLike([FromQuery] string articleId)
@@ -42,7 +42,7 @@ namespace TFSport.API.Controllers
         /// </summary>
         /// <param name="articleId"></param>
         /// <returns></returns>
-        [HttpDelete("remove")]
+        [HttpDelete()]
         [SwaggerResponse(200, "Request_Succeeded")]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
         public async Task<IActionResult> RemoveLike([FromQuery] string articleId)
