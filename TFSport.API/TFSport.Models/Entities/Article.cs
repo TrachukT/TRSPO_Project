@@ -27,7 +27,7 @@ namespace TFSport.Models.Entities
         public int LikeCount { get; set; }
 
         [JsonProperty("likes")]
-        public HashSet<LikeInfo> Likes { get; set; }
+        public HashSet<string> LikedUserIds { get; set; }
 
         [JsonProperty("updatedAt")]
         public DateTime UpdatedAt { get; set; }

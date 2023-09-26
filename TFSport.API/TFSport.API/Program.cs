@@ -45,6 +45,7 @@ builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<ISportsService, SportsService>();
 builder.Services.AddScoped<ITopAuthorsService, TopAuthorsService>();
+builder.Services.AddScoped<ILikesService, LikesService>();
 builder.Services.AddScoped<CustomExceptionFilter>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

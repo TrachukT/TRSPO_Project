@@ -284,5 +284,6 @@ namespace TFSport.API.Controllers
             var orderedArticles = await _articleService.FilterByAuthor(authorId, pageNumber, pageSize, orderBy);
             return Ok(orderedArticles);
         }
+
     }
 }

@@ -21,5 +21,7 @@ namespace TFSport.Repository.Interfaces
 
         public Task<IEnumerable<Article>> GetArticles(int pageNumber, int pageSize, string orderBy,
         Expression<Func<Article, bool>> predicate = null, HashSet<string> articleIds = null);
+
+        public Task<List<string>> GetLikedArticles(string userId);
     }
 }
