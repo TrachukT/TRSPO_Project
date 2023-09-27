@@ -10,6 +10,7 @@ namespace TFSport.Services.Interfaces
     {
         public Task AddLikeInfo(string articleId,string userId);
         public Task RemoveLikeInfo(string articleId,string userId);
-        public Task<List<string>> GetLikeInfo(string articleId);
+        public Task<List<string>> GetLikeInfo(string userId);
+        public Task<int> GetLikeCount(string articleId);
     }
 }
