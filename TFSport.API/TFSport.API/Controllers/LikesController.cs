@@ -61,10 +61,21 @@ namespace TFSport.API.Controllers
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
         public async Task<IActionResult> GetLikesInfo()
         {
-            var authorId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var list = await _likesService.GetLikeInfo(authorId);
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var list = await _likesService.GetLikeInfo(userId);
             return Ok(list);
         }
 
+        /// <summary>
+        /// Get amount of likes
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("count")]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(int))]
+        public async Task<IActionResult> GetLikesCounter([FromQuery] string articleId)
+        {
+            var count = await _likesService.GetLikeCount(articleId);
+            return Ok(count);
+        }
     }
 }

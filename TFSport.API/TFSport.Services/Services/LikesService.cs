@@ -41,11 +41,28 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<List<string>> GetLikeInfo(string articleId)
+        public async Task<int> GetLikeCount(string articleId)
         {
             try
             {
-                var article = await _articlesRepository.GetLikedArticles(articleId);
+                var article = await _articlesRepository.GetArticleByIdAsync(articleId);
+                if (article == null)
+                {
+                    throw new CustomException(ErrorMessages.ArticleDoesntExist);
+                }
+                return article.LikeCount;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
+        public async Task<List<string>> GetLikeInfo(string userId)
+        {
+            try
+            {
+                var article = await _articlesRepository.GetLikedArticles(userId);
                 return article;
             }
             catch (Exception ex)
