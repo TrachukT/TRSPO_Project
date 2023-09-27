@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
+using TFSport.Models.Entities;
 
 namespace TFSport.Repository.Interfaces
 {
     public interface ICommentsRepository
     {
+        public Task<Comment> GetCommentByIdAsync(string commentId);
+
+        public Task<Comment> CreateCommentAsync(Comment comment);
+
+        public Task DeleteCommentAsync(Comment comment);
+
+        public Task<HashSet<Comment>> GetCommentsByArticleIdAsync(string articleId);
+
+        public Task<IEnumerable<Comment>> GetCommentsPageAsync(Expression<Func<Comment, bool>> predicate, int pageNumber, int pageSize);
     }
 }

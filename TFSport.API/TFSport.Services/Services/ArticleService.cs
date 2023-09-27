@@ -8,6 +8,7 @@ using TFSport.Models.DTOModels.Users;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
+using TFSport.Repository.Repositories;
 using TFSport.Services.Interfaces;
 
 namespace TFSport.Services.Services
@@ -18,6 +19,7 @@ namespace TFSport.Services.Services
         private readonly IUsersRepository _userRepository;
         private readonly ITagsRepository _tagsRepository;
         private readonly IAuthorStatisticsRepository _authorStatisticsRepository;
+        private readonly ICommentsRepository _commentsRepository;
         private readonly IFavoritesService _favoritesService;
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
@@ -29,7 +31,8 @@ namespace TFSport.Services.Services
 
         public ArticleService(IOptions<BlobStorageOptions> blobOptions, IArticlesRepository articleRepository, IUsersRepository userRepository,
             IUserService userService, IMapper mapper, IBlobStorageService blobStorageService, ILogger<ArticleService> logger,
-            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository, IFavoritesService favoritesService, IAuthorStatisticsRepository authorStatisticsRepository)
+            IEmailService emailService, ITagsService tagsService, ITagsRepository tagsRepository, IFavoritesService favoritesService, 
+            IAuthorStatisticsRepository authorStatisticsRepository, ICommentsRepository commentsRepository)
         {
             _articleRepository = articleRepository;
             _userService = userService;
@@ -43,6 +46,7 @@ namespace TFSport.Services.Services
             _tagsRepository = tagsRepository;
             _favoritesService = favoritesService;
             _authorStatisticsRepository = authorStatisticsRepository;
+            _commentsRepository = commentsRepository;
         }
 
         public async Task<OrderedArticlesDTO> ArticlesForApprove(int pageNumber, int pageSize, string orderBy)
@@ -366,6 +370,13 @@ namespace TFSport.Services.Services
                     {
                         await _authorStatisticsRepository.UpdateAuthorStatisticsAsync(existingArticle.Author, -1);
                     }
+                }
+
+                var comments = await _commentsRepository.GetCommentsByArticleIdAsync(articleId);
+
+                foreach (var comment in comments)
+                {
+                    await _commentsRepository.DeleteCommentAsync(comment);
                 }
 
                 await _articleRepository.DeleteArticleAsync(existingArticle);
