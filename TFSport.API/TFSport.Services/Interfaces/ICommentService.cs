@@ -5,7 +5,7 @@ namespace TFSport.Services.Interfaces
 {
 	public interface ICommentService
 	{
-        public Task<IEnumerable<CommentDTO>> GetCommentsByArticleIdAsync(string articleId, int pageNumber, int pageSize);
+        public Task<CommentListDTO> GetCommentsByArticleIdAsync(string articleId, int pageNumber, int pageSize);
 
         public Task<Comment> AddCommentAsync(CommentCreateDTO commentDto, string articleId, string userId);
 

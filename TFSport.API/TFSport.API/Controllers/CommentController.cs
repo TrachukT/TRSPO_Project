@@ -61,7 +61,7 @@ namespace TFSport.Controllers
         /// <param name="pageSize">The page size for pagination.</param>
         /// <returns>A list of paged comments associated with the specified article.</returns>
         [HttpGet("{articleId}")]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(IEnumerable<CommentDTO>))]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(CommentListDTO))] // Change the response type
         public async Task<IActionResult> GetCommentsByArticleId(string articleId, [FromQuery] int pageNumber, int pageSize)
         {
             var comments = await _commentService.GetCommentsByArticleIdAsync(articleId, pageNumber, pageSize);

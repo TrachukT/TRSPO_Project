@@ -3,10 +3,8 @@ using TFSport.Services.Interfaces;
 using TFSport.Models.DTOModels.Comments;
 using TFSport.Models.Entities;
 using TFSport.Models.Exceptions;
-using System.Drawing.Printing;
 using System.Linq.Expressions;
 using TFSport.Models.DTOModels.Users;
-using TFSport.Repository.Repositories;
 
 namespace TFSport.Services.Services
 {
@@ -23,11 +21,14 @@ namespace TFSport.Services.Services
             _usersRepository = usersRepository;
         }
 
-        public async Task<IEnumerable<CommentDTO>> GetCommentsByArticleIdAsync(string articleId, int pageNumber, int pageSize)
+        public async Task<CommentListDTO> GetCommentsByArticleIdAsync(string articleId, int pageNumber, int pageSize)
         {
             try
             {
                 Expression<Func<Comment, bool>> predicate = c => c.ArticleId == articleId;
+
+                int totalCount = await _commentRepository.GetCountofComments(predicate);
+
                 var comments = await _commentRepository.GetCommentsPageAsync(predicate, pageNumber, pageSize);
 
                 var commentDTOs = new List<CommentDTO>();
@@ -52,13 +53,20 @@ namespace TFSport.Services.Services
                     commentDTOs.Add(commentDTO);
                 }
 
-                return commentDTOs;
+                return new CommentListDTO
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = totalCount,
+                    Comments = commentDTOs
+                };
             }
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message);
             }
         }
+
 
         public async Task<Comment> AddCommentAsync(CommentCreateDTO commentDto, string articleId, string userId)
         {
