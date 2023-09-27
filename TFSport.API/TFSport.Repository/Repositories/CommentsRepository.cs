@@ -1,9 +1,7 @@
 ﻿using Microsoft.Azure.CosmosRepository;
 using Microsoft.Azure.CosmosRepository.Extensions;
-using Microsoft.Azure.CosmosRepository.Specification;
 using System.Linq.Expressions;
 using TFSport.Models.Entities;
-using TFSport.Models.Exceptions;
 using TFSport.Repository.Interfaces;
 
 namespace TFSport.Repository.Repositories
@@ -43,6 +41,12 @@ namespace TFSport.Repository.Repositories
         {
             var comments = await _repository.PageAsync(predicate, pageNumber, pageSize);
             return comments.Items.ToList();
+        }
+
+        public async Task<int> GetCountofComments(Expression<Func<Comment, bool>> predicate)
+        {
+            var articles = await _repository.GetAsync(predicate).ToListAsync();
+            return articles.Count;
         }
     }
 }

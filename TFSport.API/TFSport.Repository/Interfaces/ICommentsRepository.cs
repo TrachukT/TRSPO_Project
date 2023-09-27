@@ -14,5 +14,7 @@ namespace TFSport.Repository.Interfaces
         public Task<HashSet<Comment>> GetCommentsByArticleIdAsync(string articleId);
 
         public Task<IEnumerable<Comment>> GetCommentsPageAsync(Expression<Func<Comment, bool>> predicate, int pageNumber, int pageSize);
+
+        public Task<int> GetCountofComments(Expression<Func<Comment, bool>> predicate);
     }
 }
