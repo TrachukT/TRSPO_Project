@@ -29,9 +29,11 @@ namespace TFSport.Services.Services
 
                 int totalCount = await _commentRepository.GetCountofComments(predicate);
 
-                var comments = await _commentRepository.GetCommentsPageAsync(predicate, pageNumber, pageSize);
+                var comments = await _commentRepository.GetCommentsPageAsync(predicate, 1, int.MaxValue);
+                comments = comments.OrderByDescending(comment => comment.CreatedTimeUtc).ToList();
 
-                comments = comments.OrderByDescending(comment => comment.CreatedTimeUtc);
+                var startIndex = (pageNumber - 1) * pageSize;
+                comments = comments.Skip(startIndex).Take(pageSize).ToList();
 
                 var commentDTOs = new List<CommentDTO>();
 
