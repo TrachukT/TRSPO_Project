@@ -31,6 +31,8 @@ namespace TFSport.Services.Services
 
                 var comments = await _commentRepository.GetCommentsPageAsync(predicate, pageNumber, pageSize);
 
+                comments = comments.OrderByDescending(comment => comment.CreatedTimeUtc);
+
                 var commentDTOs = new List<CommentDTO>();
 
                 foreach (var comment in comments)
@@ -66,7 +68,6 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
-
 
         public async Task<Comment> AddCommentAsync(CommentCreateDTO commentDto, string articleId, string userId)
         {
