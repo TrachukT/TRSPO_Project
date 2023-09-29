@@ -71,7 +71,7 @@ namespace TFSport.Services.Services
             }
         }
 
-        public async Task<Comment> AddCommentAsync(CommentCreateDTO commentDto, string articleId, string userId)
+        public async Task<CommentDTO> AddCommentAsync(CommentCreateDTO commentDto, string articleId, string userId)
         {
             try
             {
@@ -90,7 +90,22 @@ namespace TFSport.Services.Services
 
                 var createdComment = await _commentRepository.CreateCommentAsync(comment);
 
-                return createdComment;
+                var user = await _usersRepository.GetUserById(userId);
+
+                var commentDTO = new CommentDTO
+                {
+                    Author = new UserInfo
+                    {
+                        Id = user.Id,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName
+                    },
+                    CommentId = createdComment.Id,
+                    Content = createdComment.Content,
+                    CreatedAt = createdComment.CreatedTimeUtc
+                };
+
+                return commentDTO;
             }
             catch (Exception ex)
             {

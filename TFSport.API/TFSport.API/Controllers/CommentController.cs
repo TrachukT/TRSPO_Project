@@ -27,15 +27,15 @@ namespace TFSport.Controllers
         /// </summary>
         /// <param name="commentDto">The comment data to add.</param>
         /// <param name="articleId">The ID of the article to add the comment to.</param>
-        /// <returns>An HTTP response indicating success.</returns>
+        /// <returns>An HTTP response indicating success and the created comment as a CommentDTO.</returns>
         [HttpPost]
-        [SwaggerResponse(200, "Request_Succeeded", typeof(CommentCreateDTO))]
+        [SwaggerResponse(200, "Request_Succeeded", typeof(CommentDTO))]
         [RoleAuthorization(UserRoles.SuperAdmin, UserRoles.Author, UserRoles.User)]
         public async Task<IActionResult> AddComment([FromBody] CommentCreateDTO commentDto, [FromQuery] string articleId)
         {
             var authorId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            await _commentService.AddCommentAsync(commentDto, articleId, authorId);
-            return Ok();
+            var createdComment = await _commentService.AddCommentAsync(commentDto, articleId, authorId);
+            return Ok(createdComment);
         }
 
         /// <summary>
