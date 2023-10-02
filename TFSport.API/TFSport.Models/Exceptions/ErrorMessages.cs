@@ -72,7 +72,7 @@
 
         public const string TitleLength = "The title must be between 15 and 70 characters.";
 
-        public const string DescriptionLength = "The description must be less than 200 characters.";
+        public const string DescriptionLength = "Description length must be between 50 and 150 characters.";
 
         public const string TagsQuantity = "Up to 5 tags are allowed.";
 
