@@ -80,9 +80,13 @@ namespace TFSport.Services.Services
                 {
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
-                article.LikeCount--;
-                article.LikedUserIds.Remove(userId);
-                var id = await _articlesRepository.UpdateArticleAsync(article);
+
+                if (article.LikedUserIds.Contains(userId))
+                {
+                    article.LikeCount--;
+                    article.LikedUserIds.Remove(userId);
+                    var id = await _articlesRepository.UpdateArticleAsync(article);
+                }
             }
             catch (Exception ex)
             {
