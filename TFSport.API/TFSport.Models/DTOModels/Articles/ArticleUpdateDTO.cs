@@ -13,7 +13,7 @@ namespace TFSport.Models.DTOModels.Articles
         public SportType Sport { get; set; }
 
         [Required(ErrorMessage = ErrorMessages.DescriptionIsRequired)]
-        [MaxLength(200, ErrorMessage = ErrorMessages.DescriptionLength)]
+        [StringLength(150, MinimumLength = 50, ErrorMessage = ErrorMessages.DescriptionLength)]
         public string Description { get; set; }
 
         [Required(ErrorMessage = ErrorMessages.NoImageProvided)]
