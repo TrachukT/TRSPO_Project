@@ -81,7 +81,7 @@ namespace TFSport.Services.Services
                     throw new CustomException(ErrorMessages.ArticleDoesntExist);
                 }
 
-                if (article.LikedUserIds.Contains(userId))
+                if (article.LikedUserIds != null)
                 {
                     article.LikedUserIds.Remove(userId);
                     article.LikeCount = article.LikedUserIds.Count();
