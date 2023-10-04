@@ -97,5 +97,22 @@ namespace TFSport.Services.Services
                 throw new CustomException(ex.Message);
             }
         }
+
+        public async Task DeleteArticleFromFavorites(string articleId)
+        {
+            try
+            { 
+                var userFavorites = await _favoritesRepository.GetFavoritesWithArticle(articleId);
+                foreach (var item in userFavorites) {
+                    item.FavoriteArticles.Remove(articleId);
+                    await _favoritesRepository.UpdateAsync(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message);
+            }
+        }
+
     }
 }

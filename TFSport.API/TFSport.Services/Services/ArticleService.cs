@@ -383,6 +383,7 @@ namespace TFSport.Services.Services
                 await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
 
                 await _tagsService.RemoveArticleTagsAsync(existingArticle.Tags, articleId, existingArticle.Status);
+                await _favoritesService.DeleteArticleFromFavorites(articleId);
 
                 _logger.LogInformation("Article with id {articleId} was deleted", articleId);
             }
