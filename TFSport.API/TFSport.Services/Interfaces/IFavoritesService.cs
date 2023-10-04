@@ -9,5 +9,6 @@ namespace TFSport.Services.Interfaces
         public Task<HashSet<string>> GetFavorites(string id, int pageNumber, int pageSize, string orderBy);
         public Task<Favorites> FindFavorites(string userId);
         public Task<HashSet<string>> GetFavoritesIDs(string userId);
+        public Task DeleteArticleFromFavorites(string articleId);
     }
 }

@@ -29,5 +29,11 @@ namespace TFSport.Repository.Repositories
             }
             await _repository.UpdateAsync(favorites, default);
         }
+
+        public async Task<List<Favorites>> GetFavoritesWithArticle(string id)
+        {
+            var favorites = await _repository.GetAsync(x => x.FavoriteArticles.Contains(id)).ToListAsync();
+            return favorites;
+        }
     }
 }
