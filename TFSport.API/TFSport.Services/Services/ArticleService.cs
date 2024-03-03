@@ -281,7 +281,7 @@ namespace TFSport.Services.Services
 
                 article.Status = ArticleStatus.Review;
 
-                await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, article.Id, articleDTO.Content);
+                //await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, article.Id, articleDTO.Content);
                 await _articleRepository.CreateArticleAsync(article);
 
                 var tagNames = new HashSet<string>(articleDTO.Tags ?? new List<string>());
@@ -337,7 +337,7 @@ namespace TFSport.Services.Services
                 await _tagsService.RemoveArticleTagsAsync(removedTagNames, articleId, existingArticle.Status);
                 await _tagsService.CreateOrUpdateTagsAsync(updatedTagNames, articleId, existingArticle.Status);
 
-                await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, articleId, articleUpdateDTO.Content);
+                //await _blobStorageService.UploadHtmlContentAsync(_blobOptions.ArticleContainer, articleId, articleUpdateDTO.Content);
 
                 _mapper.Map(articleUpdateDTO, existingArticle);
                 await _articleRepository.UpdateArticleAsync(existingArticle);
@@ -380,7 +380,7 @@ namespace TFSport.Services.Services
                 }
 
                 await _articleRepository.DeleteArticleAsync(existingArticle);
-                await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
+                //await _blobStorageService.DeleteHtmlContentAsync(_blobOptions.ArticleContainer, articleId);
 
                 await _tagsService.RemoveArticleTagsAsync(existingArticle.Tags, articleId, existingArticle.Status);
                 await _favoritesService.DeleteArticleFromFavorites(articleId);

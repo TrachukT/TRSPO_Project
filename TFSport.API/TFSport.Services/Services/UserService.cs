@@ -80,7 +80,7 @@ namespace TFSport.Services.Services
                 var hash = new PasswordHasher();
                 user.Password = hash.HashPassword(user.Password);
                 await _usersRepository.CreateUser(user);
-                await _emailService.EmailVerification(user.Email, user.VerificationToken);
+                //await _emailService.EmailVerification(user.Email, user.VerificationToken);
                 _logger.LogInformation("User with id {id} was created", user.Id);
             }
             catch (Exception ex)
@@ -158,8 +158,10 @@ namespace TFSport.Services.Services
                     };
 
                     superAdmin.PartitionKey = superAdmin.Id;
+                    var hash = new PasswordHasher();
+                    superAdmin.Password = hash.HashPassword(superAdmin.Password);
                     await _usersRepository.CreateUser(superAdmin);
-                    await _emailService.EmailVerification(superAdmin.Email, superAdmin.VerificationToken);
+                    //await _emailService.EmailVerification(superAdmin.Email, superAdmin.VerificationToken);
                     _logger.LogInformation("Super admin created");
                 }
             }
